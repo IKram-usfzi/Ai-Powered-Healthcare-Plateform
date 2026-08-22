@@ -37,3 +37,6 @@ data/synthea/raw/
 .DS_Store
 .idea/
 .vscode/
+
+# --- Local tooling (sandbox/dev-only, not part of the deliverable) ---
+.claude/
