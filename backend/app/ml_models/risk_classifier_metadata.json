@@ -1,0 +1,35 @@
+{
+  "model_version": "risk-rf-v1-20260822",
+  "algorithm": "RandomForestClassifier",
+  "trained_at": "2026-08-22T08:39:27.801352+00:00",
+  "feature_names": [
+    "age_years",
+    "heart_rate",
+    "systolic_bp",
+    "diastolic_bp",
+    "spo2",
+    "temperature",
+    "glucose"
+  ],
+  "n_samples": 957,
+  "n_train": 765,
+  "n_test": 192,
+  "label_distribution": {
+    "low": 889,
+    "moderate": 65,
+    "high": 3
+  },
+  "accuracy": 0.9948,
+  "precision_macro": 0.6429,
+  "recall_macro": 0.6667,
+  "f1_macro": 0.6543,
+  "feature_importances": {
+    "age_years": 0.1345,
+    "heart_rate": 0.042,
+    "systolic_bp": 0.1477,
+    "diastolic_bp": 0.2306,
+    "spo2": 0.0223,
+    "temperature": 0.1706,
+    "glucose": 0.2524
+  }
+}

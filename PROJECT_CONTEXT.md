@@ -7,7 +7,7 @@
 - **Project name:** GlobalCare — Enterprise Remote Healthcare Management Platform (GitHub repo: `Ai-Powered-Healthcare-Plateform`)
 - **Project type:** Academic capstone (Diploma in AIOPS, EduQual Level 6, al-Nafi International College) — built as a real proof-of-concept enterprise web platform, not a toy exercise
 - **Project purpose:** Design, document, and build a proof-of-concept healthcare platform for a fictional client, "GlobalCare Telehealth Network," to pass a 3-stage exam (presentation, live demo + GitHub review, viva voce)
-- **Current development stage:** Phases 0-2 done and verified locally. Database schema (9 SQLAlchemy models + Alembic migration), Synthea seed data, and a working JWT-authenticated REST API for Module 1 (patients/providers/facilities/registration reporting) all exist and are tested (24 passing pytest tests + a manual end-to-end curl walkthrough). Frontend is still just the Phase 0 placeholder screen — no real UI for any module yet (Phase 6).
+- **Current development stage:** Phases 0-5 done and verified against real Docker Compose + PostgreSQL + Redis (2026-08-22). Four of five PRD modules have working, tested backend REST APIs (Patient/Provider Management, Telemedicine, Remote Patient Monitoring, AI Risk Assessment) — 65 passing pytest tests plus live end-to-end verification against real infrastructure for every phase. Frontend is still just the Phase 0 placeholder screen — no real UI for any module yet (Phase 6 is next, and is the first phase that touches it).
 - **Main objective:** A Docker-Compose-deployable platform (5 functional modules) + a complete documentation set + 17 required architecture diagrams, defensible live in front of an examiner.
 
 ## 2. Project Summary
@@ -72,10 +72,10 @@ Detailed architecture (incl. AWS stretch topology, 17-diagram inventory): `docs/
 | Patient & Provider Management | Registration, profiles, facility/provider assignment | BACKEND API DONE (Phase 2) — frontend UI not started (Phase 6) |
 | Telemedicine Appointments | Scheduling, consultations, status tracking | BACKEND API DONE (Phase 3) — frontend UI not started (Phase 6) |
 | Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | BACKEND API DONE (Phase 4) — frontend UI not started (Phase 6) |
-| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | NOT STARTED |
+| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | BACKEND API DONE (Phase 5) — frontend UI not started (Phase 6) |
 | Executive Operations Dashboard | 3-view KPI/ops dashboard (design fully specced) | NOT STARTED (design complete) |
 
-All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`. Three (Patient/Provider Management, Telemedicine Appointments, Remote Patient Monitoring) have working, verified backend APIs as of Phase 4. None have frontend UI yet (Phase 6).
+All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`. Four (all but the Executive Dashboard) have working, verified backend APIs as of Phase 5. None have frontend UI yet (Phase 6).
 
 ## 8. Current Implementation Status
 
@@ -88,11 +88,12 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 - ADR-016 through ADR-019 (blood pressure split, Synthea-only confirmed, `assigned_provider_id` added to close an api-spec/schema gap, all timestamps made timezone-aware) — found during implementation/verification. Two more real bugs found by the *Docker* run specifically (not caught by SQLite testing): (a) `backend/Dockerfile` never learned to copy `alembic.ini`/`alembic/`/`scripts/` when those were added in Phase 1-2 — fixed, plus a related fix so the Synthea data path resolves correctly via a `SYNTHEA_DATA_DIR` env var + bind mount; (b) `bcrypt` was unpinned in `requirements.txt` and pip resolved a version incompatible with `passlib==1.7.4` inside the fresh Docker build (worked in the authoring sandbox only by luck, on an old cached bcrypt) — fixed by pinning `bcrypt==4.0.1`. Full details: `docs/test-execution-log.md`.
 - **Phase 3 — Module 2 (Telemedicine Appointment & Consultation):** all `api-spec.md` §4 endpoints (`/appointments` POST/GET, `/appointments/{id}/status` PATCH, `/consultations` POST, `/consultations/{patientId}` GET, `/providers/{id}/schedule` GET, `/reports/appointments` GET). Recording a consultation auto-completes its appointment. Verified two ways: 10 new pytest tests (suite now 34/34 passing) and a live Docker Compose + PostgreSQL walkthrough (restarted the backend container to pick up the bind-mounted code, no rebuild needed) — book → doctor login → view schedule → update status → record consultation → history → report → role-denial check, all correct, response bodies inspected directly. No new bugs found this time — everything worked on the first try. Full details: `docs/test-execution-log.md`.
 - **Phase 4 — Module 3 (Remote Patient Monitoring):** all `api-spec.md` §5 endpoints (`/monitoring/readings` POST/GET, `/monitoring/alerts` GET, `/monitoring/alerts/{id}/acknowledge` PATCH). Threshold-based severity detection (`app/services/vitals.py`, 3 tiers across all 5 vitals). **Redis is now actually wired in** (`app/core/redis_client.py`) — running in Docker Compose since Phase 0 but unused until now — for the exact de-dup role ADR-002 scoped it to: a 5-minute per-patient key stops repeated abnormal readings from spamming duplicate alerts. Found and fixed ADR-020 first (`PatientCreate` had no way to create a linked login — no patient could ever exercise "self" access at all, including this phase's own endpoints; fixed by adding optional `email`/`password`, mirroring `ProviderCreate`). Verified two ways: 12 new pytest tests (suite now 53/53) including the literal exit-criteria scenario, plus a live run against **real Redis** (not the test suite's in-memory fake) — 3 abnormal readings produced exactly 1 alert. Full details: `docs/test-execution-log.md`.
+- **Phase 5 — Module 4 (AI-Assisted Health Risk Assessment):** all `api-spec.md` §6 endpoints (`POST /ai/risk-assessment`, `GET /ai/predictions/{patientId}`, `GET /ai/model/metadata`). Added pandas/numpy/scikit-learn/joblib. `scripts/train_risk_model.py` builds a training set from all 957 real `health_readings` rows, labels them via a weighted point-score heuristic (ADR-021, deliberately different from Module 3's alert-threshold logic so the classifier isn't just trivially replicating existing code), and trains a `RandomForestClassifier` — real measured accuracy/precision/recall/F1 written to `docs/ai-evaluation-report.md` (new). Feature extraction is shared verbatim between training and inference (`app/services/risk_features.py`) to avoid train/serve skew. Found and fixed a second occurrence of the exact Phase 1 `SYNTHEA_DATA_DIR` bug class: the evaluation report's write path resolved to a container-only location until a `DOCS_DIR` env var + `../docs:/docs` bind mount were added (see §17 item 11 — this is now a recognized recurring bug pattern, not a one-off). Verified two ways: 12 new pytest tests (suite now 65/65), and a live Docker Compose + PostgreSQL run — patient submits vitals → doctor runs an assessment → prediction stored with category/confidence/recommendation → prediction history (doctor + patient self) → model metadata (admin) → role-denial check, all correct. Full details: `docs/test-execution-log.md`.
 
 **In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
-- Phases 5-10: AI risk assessment, executive dashboard, observability/security (OPA/Prometheus/Grafana/Trivy), AWS deployment, the 17 mandatory diagrams as actual files, and any real frontend UI beyond the Phase 0 placeholder screen
+- Phase 6 (Executive Dashboard, needs the frontend UI which nothing has built yet), Phase 7 (Observability/Security — OPA/Prometheus/Grafana/Trivy), Phase 8 (AWS, stretch), Phase 9 (the 17 mandatory diagrams as actual files), Phase 10 (formal testing/demo prep)
 - AWS budget alarm status — unknown, unverified
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
@@ -102,37 +103,44 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 4 — Module 3: Remote Patient Monitoring (DONE, fully verified against real Docker Compose + PostgreSQL + real Redis).** All endpoints implemented and tested two ways: 12 new pytest tests (suite now 53/53, using a fake Redis) and a live run against real Redis (not simulated) confirming the exact exit criteria — 3 abnormal readings → exactly 1 alert. Found and fixed ADR-020 (patients had no way to get a login at all) along the way.
+**CURRENT PHASE: Phase 5 — Module 4: AI-Assisted Health Risk Assessment (DONE, fully verified against real Docker Compose + PostgreSQL).** All endpoints implemented, model trained on real seeded data (957 readings), 65/65 pytest tests passing, live Docker walkthrough verified directly by Claude. Found and fixed a second occurrence of the Phase 1 `SYNTHEA_DATA_DIR`-class bug (this time for the AI evaluation report's output path).
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Commit and push Phase 4, then start Phase 5 (Module 4 — AI-Assisted Health
-Risk Assessment).
+Commit and push Phase 5, then start Phase 6 (Module 5 — Executive Healthcare
+Operations Dashboard).
 
 OBJECTIVE:
-Dataset preprocessing (Pandas/NumPy), model training (Scikit-learn) on
-Synthea-derived features, prediction API with confidence scores, prediction
-history persisted, per api-spec.md §6 and impmemnentaion-plan.md Phase 5.
-This is the first phase needing pandas/numpy/scikit-learn - not yet in
-requirements.txt or installed anywhere. The `predictions` table already
-exists (Phase 1 models) but nothing writes to it yet.
+Aggregation endpoints, KPI/trend queries, React + Tailwind + Chart.js
+implementation of the three dashboard views (Unified/home, Executive
+Overview, Healthcare Operations) per docs/UIUX.md §3 and
+impmemnentaion-plan.md Phase 6. This is the FIRST phase touching the
+frontend since Phase 0's placeholder screen - the actual "Clinical
+Precision" UI template (UIUX Design/) finally gets used. Everything built
+so far (Phases 2-5) is backend-only.
 
 STATUS:
-Phases 2-4 (5206032, a503a75, f24884a) are pushed. Phase 4 work (monitoring +
-ADR-020 patient-login fix) is complete and verified but NOT YET COMMITTED as
-of this note.
+Phases 2-4 (5206032, a503a75, f24884a, 42a587c) are pushed. Phase 5 work
+(AI risk classifier) is complete and verified but NOT YET COMMITTED as of
+this note. The trained model artifacts (backend/app/ml_models/*.joblib,
+*.json) and docs/ai-evaluation-report.md are generated files that need to
+be committed too, not just source code.
 
-FILES TO COMMIT NEXT (Phase 4):
-backend/app/core/redis_client.py (new), backend/app/services/__init__.py +
-vitals.py (new), backend/app/schemas/monitoring.py (new),
-backend/app/schemas/patient.py (+email/password, ADR-020),
-backend/app/api/v1/monitoring.py (new), patients.py (ADR-020 linked-login
-logic), router.py, backend/tests/test_vitals.py + test_monitoring.py (new),
-tests/test_patients.py (+2 tests), tests/conftest.py (+FakeRedis),
-docs/deccission.md (+ADR-020), docs/impmemnentaion-plan.md (Phase 4 status),
-docs/test-execution-log.md (+Phase 4 section), PROJECT_CONTEXT.md (this file).
+FILES TO COMMIT NEXT (Phase 5):
+backend/app/services/risk_features.py, risk_labels.py, risk_model.py (new),
+backend/app/schemas/ai.py (new), backend/app/api/v1/ai.py (new), router.py,
+backend/scripts/train_risk_model.py (new), backend/app/ml_models/ (new,
+generated model + metadata - COMMIT AS BINARY/DATA ARTIFACTS),
+backend/requirements.txt (+pandas/numpy/scikit-learn/joblib),
+backend/tests/test_risk_features_and_labels.py + test_ai.py (new),
+backend/pyproject.toml (+per-file-ignore for the report generator),
+infra/docker-compose.yml (+DOCS_DIR env var, +../docs:/docs mount),
+docs/deccission.md (+ADR-021), docs/impmemnentaion-plan.md (Phase 5 status),
+docs/test-execution-log.md (+Phase 5 section), docs/Testing-startegy.md
+(link to the report), docs/README.md + mkdocs.yml (+ai-evaluation-report.md),
+docs/ai-evaluation-report.md (new, generated), PROJECT_CONTEXT.md (this file).
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
@@ -140,14 +148,15 @@ Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
 
 ## 11. NEXT STEPS
 
-1. Commit and push Phase 4 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
-2. Start Phase 5: Module 4 (AI-Assisted Health Risk Assessment) — needs pandas/numpy/scikit-learn added to requirements.txt, per `api-spec.md` §6
-3. Resolve the still-open decisions listed in §13/§17 before they block later phases
+1. Commit and push Phase 5 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
+2. Start Phase 6: Module 5 (Executive Healthcare Operations Dashboard) — first phase touching the frontend/UI template, per `docs/UIUX.md` §3 and `api-spec.md` §7
+3. Resolve the still-open decisions listed in §13/§17 before they block later phases (§17 item 5(b)/(c) specifically block Phase 6 — dashboard routing and s22/s25 in-scope questions)
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit Phase 4 and push (pending token/user push), then begin Phase 5:
-AI risk classifier trained on Synthea-derived features per docs/api-spec.md §6.
+Commit Phase 5 and push (pending token/user push), then begin Phase 6:
+executive dashboard aggregation endpoints + first real frontend work per
+docs/api-spec.md §7 and docs/UIUX.md §3.
 ```
 
 ## 12. Project Roadmap
@@ -192,10 +201,19 @@ AI risk classifier trained on Synthea-derived features per docs/api-spec.md §6.
 - [x] Redis actually wired in for alert de-dup (first real use since Phase 0)
 - [x] ADR-020: `PatientCreate` gains optional login (patients could not log in at all before this)
 - [x] 12 new pytest tests (suite now 53/53); real Docker Compose + PostgreSQL + **real Redis** verified — exit criteria (3 abnormal readings → 1 alert) confirmed against real infra, not just the test fake
-- [ ] Phase 4 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 4 work committed/pushed to GitHub (commit `42a587c`)
 
-**Phase 5–6 — Modules 4–5 (backend + frontend + AI)**
-- [ ] Not started (any module)
+**Phase 5 — Module 4: AI-Assisted Health Risk Assessment**
+- [x] Risk assessment (`POST /ai/risk-assessment`, Doctor-only, assigned patients)
+- [x] Prediction history (`GET /ai/predictions/{patientId}`)
+- [x] Model metadata (`GET /ai/model/metadata`, Administrator-only)
+- [x] RandomForestClassifier trained on real seeded data (957 readings), real measured metrics (ADR-021)
+- [x] `docs/ai-evaluation-report.md` generated (Testing-startegy.md §3 deliverable)
+- [x] 12 new pytest tests (suite now 65/65); real Docker Compose + PostgreSQL walkthrough verified
+- [ ] Phase 5 work committed/pushed to GitHub — pending token/user push
+
+**Phase 6 — Module 5 (frontend + dashboard)**
+- [ ] Not started
 
 **Phase 7 — Observability & Security**
 - [ ] Not started
@@ -292,6 +310,9 @@ STATUS: UNKNOWN — needs verification. Phase 0's exit criteria calls for one; n
 
 **7. This sandbox has no Docker, no PostgreSQL, and no passwordless sudo. Node/npm and pip are NOT pre-installed but CAN be obtained without sudo (portable binaries) — do this at the start of any session that needs them, don't assume they're still there from a prior session.**
 STATUS: MOSTLY OBSOLETE as of 2026-08-22 — see the critical correction in item 10 below (**the user's terminal and this sandbox are the same machine**). Docker is now installed here (the user ran `sudo apt install docker.io docker-compose-v2`) and PostgreSQL runs fine as a container. Node/pip were already confirmed obtainable without sudo (portable binaries) earlier in the session — that part still stands. What remains true: no *passwordless* sudo (the user has the password and types it interactively; Claude does not and should not try to obtain it). IMPACT: None now for Docker/Postgres verification — both are fully available. NEXT ACTION: At the start of a future session, check `docker ps` / `sg docker -c "docker ps"` before assuming Docker is unavailable — it may already be installed from this session. If a fresh sandbox genuinely has none of this (Docker, Node, pip), the original acquisition steps in this item's history still apply: get-pip.py --user for pip, the nodejs.org portable tarball for Node, `sudo apt install docker.io docker-compose-v2` for Docker (ask the user to run the sudo-gated step themselves, or if Claude and the user share a terminal, ask the user to run it and then Claude can access it via `sg docker -c "..."` once the docker group exists — no sudo needed for that part).
+
+**11. Recurring bug pattern: scripts that navigate `Path(__file__).resolve().parent...N times...` to reach something outside `backend/` break inside Docker, silently**
+STATUS: Confirmed twice now — Phase 1's `SYNTHEA_DATA_DIR` (fetch_synthea.py/seed_synthea.py reaching for `<repo-root>/data/`) and Phase 5's `DOCS_DIR` (train_risk_model.py reaching for `<repo-root>/docs/`). Root cause: locally, a script at `backend/scripts/foo.py` is 3 `.parent`s away from the repo root (`scripts → backend → repo-root`); inside the Docker image, `WORKDIR /app` **is** `backend/`'s contents directly (the Dockerfile does `COPY app ./app` etc., not `COPY backend ./backend`), so the same 3-`.parent` navigation from `/app/scripts/foo.py` lands at `/` (container root) instead of the repo root — silently creating/reading the wrong path, no error, just wrong data or a lost file. IMPACT: Medium — each occurrence looked like it worked (script ran, printed a success message) until someone checked whether the output actually landed on the host. NEXT ACTION: Any NEW script added under `backend/scripts/` that reads/writes something outside `backend/` (i.e., anywhere under the repo root but not under `backend/app/` or `backend/scripts/` themselves, which ARE correctly bind-mounted 1:1) needs the same treatment preemptively: an environment-variable override (`os.environ.get("X_DIR")` falling back to the local relative-path computation) plus a matching bind mount + env var in `infra/docker-compose.yml`. Check for this class of bug specifically whenever adding a script that touches `data/`, `docs/`, or any other repo-root-level directory.
 
 **10. CRITICAL: the user's terminal ("my machine") and this Claude Code sandbox are the SAME environment**
 STATUS: Confirmed beyond doubt on 2026-08-22. Evidence: the user's shell prompt is `ubuntu@Ikramusfzi:~/Downloads/HealthCare Project$` — same username (`ubuntu`), same working directory, same git repo/commit history, same missing-then-installed Docker, same file (`PROJECT_CONTEXT.md`) visible to both "sides" in real time. When the user first asked to "run it on my machine to cross-check," Claude assumed a separate personal computer and gave instructions accordingly — wrong assumption, later corrected once the evidence was undeniable (identical hostname/path, `docker: command not found` matching Claude's own earlier finding). IMPACT: High for how Claude should operate going forward. Consequences: (a) files Claude edits are immediately visible in the user's terminal and vice versa — no "pull" step needed between them, though git commits are still real commits either side could make; (b) processes either side starts (dev servers, docker containers) are visible to and can conflict with the other — always check `pgrep`/`docker ps`/port usage before assuming a clean slate; (c) Claude can gain access to privileged resources (like Docker) that the user set up with their own sudo password, via group-membership tricks (`sg docker -c "..."`) without ever needing the password itself; (d) "ask the user to run this on their machine so I can't just do it myself" is NOT a valid framing here — if a tool is installed and group-accessible, Claude should just use it directly instead of relay-testing through the user. NEXT ACTION: At the start of any future session, verify directly (don't assume) whether this is still the setup — check hostname/whoami and try `docker ps`/`sg docker -c "docker ps"` before either assuming Docker is inaccessible or asking the user to test something Claude could just check itself.
@@ -474,6 +495,86 @@ NEXT ACTION: Commit and push Phase 4 (see section 10's file list); then
   start Phase 5 (Module 4 - AI-Assisted Health Risk Assessment) - needs
   pandas/numpy/scikit-learn added to requirements.txt (not present yet),
   per api-spec.md §6.
+```
+
+```
+DATE: 2026-08-22 (same day, continued yet further still)
+WHAT WE DID: Committed and pushed Phase 4 (42a587c). Built Phase 5 (Module 4
+  - AI-Assisted Health Risk Assessment), the most involved phase so far since
+  it needed a genuinely trained ML model, not just CRUD endpoints. Installed
+  pandas/numpy/scikit-learn/joblib and pinned them in requirements.txt.
+  Designed feature extraction (app/services/risk_features.py - age +5 vitals,
+  fixed order) as a module shared verbatim between training and inference
+  specifically to avoid train/serve skew. For training labels (no real
+  clinical outcomes exist for synthetic patients), deliberately built a
+  SEPARATE weighted point-score heuristic (app/services/risk_labels.py)
+  rather than reusing Module 3's alert-threshold function - reusing it would
+  have made the classifier trivially replicate code that already exists,
+  adding no value. First training attempt (one row per patient, latest
+  reading only, 200 rows) produced a badly imbalanced dataset (94% low) with
+  a near-useless model (macro F1 ~0.49, one class with zero test examples) -
+  diagnosed the cause (simulated spo2/temperature rarely contribute risk
+  points) and fixed by using every health_reading as an independent training
+  row instead (953-957 rows) - meaningfully better (macro F1 ~0.65, low/
+  moderate perform well, high still thin at only 3 total examples - real,
+  transparently documented in the report, not hidden). Trained a
+  RandomForestClassifier, wrote scripts/train_risk_model.py to also generate
+  docs/ai-evaluation-report.md (a real exam-brief deliverable, not just
+  internal notes) with accuracy/precision/recall/F1/confusion matrix/feature
+  importances. Built app/api/v1/ai.py (risk-assessment, predictions history,
+  model metadata) with the same doctor-assigned-patient scoping pattern used
+  throughout. Wrote 12 new tests (test_risk_features_and_labels.py +
+  test_ai.py, run against the actual committed model artifact, not a mock -
+  full suite now 65/65). Ran ruff+black (added a per-file E501 ignore for
+  the training script's embedded markdown-report f-string, following the
+  same reasoning as the alembic/versions/*.py ignore from Phase 2/3). Then
+  rebuilt the Docker backend image (first REbuild since Phase 0 - all prior
+  phases only needed a container restart since they didn't add new pip
+  dependencies) and ran scripts/train_risk_model.py inside the real
+  container against real Postgres data (957 readings) - it reported success
+  but the evaluation report landed at a container-only /docs/ path, invisible
+  on the host. Recognized this immediately as the SAME bug class as Phase 1's
+  SYNTHEA_DATA_DIR issue (relative-path navigation that assumes a
+  repo-root/backend/scripts/ depth, which doesn't exist inside the container
+  where WORKDIR /app IS backend/'s contents directly) - fixed the same way
+  (DOCS_DIR env var + ../docs:/docs bind mount), verified the fix locally
+  first (default path still correct without the env var), then retrained
+  inside the rebuilt container and confirmed via `ls` on the HOST that the
+  report actually landed correctly this time. Cross-Python-version check:
+  the model was trained under the container's Python 3.11 and successfully
+  loaded by pytest running under this sandbox's Python 3.10 - no compat
+  issue. Ran a full live curl walkthrough against the real API (model
+  metadata, patient submits vitals, doctor runs an assessment, prediction
+  history for both doctor and patient-self, role-denial for metadata as a
+  doctor) - all correct, response bodies inspected directly (confidence
+  0.67, category "low", recommendation text present). Added a new numbered
+  item (11) to section 17 documenting this as a RECURRING bug pattern (not
+  a one-off) with explicit guidance for future scripts that touch anything
+  outside backend/app/ or backend/scripts/.
+WHAT CHANGED: Module 4 (AI Risk Assessment) backend fully built, trained,
+  and verified. Four of five PRD modules now have working, Docker/Postgres-
+  verified APIs - only the Executive Dashboard (Phase 6) remains on the
+  backend side, and Phase 6 is also the first phase to need real frontend
+  work.
+WHAT WORKED: The feature-extraction/label-separation design decision paid
+  off immediately - swapping the dataset construction from per-patient to
+  per-reading was a clean, well-understood fix once the imbalance was
+  diagnosed. The DOCS_DIR bug was caught and fixed on the same turn it
+  appeared (a repeat of a known pattern this session had already
+  encountered once, so diagnosis was fast).
+WHAT DID NOT WORK initially (both now fixed): the first dataset construction
+  approach (one row per patient) produced a nearly-useless model; the
+  report's Docker output path repeated the Phase 1 SYNTHEA_DATA_DIR bug
+  class exactly.
+CURRENT STATE: Phase 5 complete and verified against real PostgreSQL
+  (including a real training run producing real metrics), NOT YET COMMITTED.
+  The trained model artifacts and generated report are real files that need
+  to be committed alongside the source code, not just code changes.
+NEXT ACTION: Commit and push Phase 5 (see section 10's file list, including
+  the generated backend/app/ml_models/ artifacts and docs/ai-evaluation-
+  report.md); then start Phase 6 (Module 5 - Executive Healthcare Operations
+  Dashboard) - the first phase touching the actual frontend/UI template,
+  per api-spec.md §7 and docs/UIUX.md §3.
 ```
 
 ## 19. Claude Instructions

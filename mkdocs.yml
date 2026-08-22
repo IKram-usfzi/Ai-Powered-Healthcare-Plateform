@@ -21,6 +21,7 @@ nav:
   - Security: Security.md
   - Testing Strategy: Testing-startegy.md
   - Test Execution Log: test-execution-log.md
+  - AI Evaluation Report: ai-evaluation-report.md
   - Development Rules: developement-rules.md
   - Implementation Plan: impmemnentaion-plan.md
   - Decisions (ADR log): deccission.md

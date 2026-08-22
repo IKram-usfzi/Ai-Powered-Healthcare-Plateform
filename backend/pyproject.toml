@@ -37,6 +37,9 @@ extend-immutable-calls = [
 # Alembic autogenerate produces its own (long, machine-formatted) migration
 # files; they're generated output, not hand-authored code.
 "alembic/versions/*.py" = ["E501"]
+# The AI evaluation report is generated markdown prose embedded in an
+# f-string; 100-char code style isn't meaningful for report content.
+"scripts/train_risk_model.py" = ["E501"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

@@ -174,6 +174,60 @@ achievable.
 
 **Lint/format:** `ruff check .` — clean. `black --check .` — clean.
 
+## Phase 5 — Module 4 (AI-Assisted Health Risk Assessment)
+
+**Automated suite** (`cd backend && pytest -q`), 2026-08-22: **65 passed, 0 failed** (12 new
+tests: `test_risk_features_and_labels.py` unit tests + `test_ai.py` router tests, run against the
+real trained model artifact committed under `backend/app/ml_models/`).
+
+- Feature extraction order matches training exactly (`age_years, heart_rate, systolic_bp, diastolic_bp, spo2, temperature, glucose`)
+- Risk-score bucketing unit tests (normal → low, elderly + multiple abnormal vitals → high, mild deviation → moderate)
+- Only the Doctor role can request an assessment; must be assigned to the patient (403 otherwise); 404 for an unknown patient; 400 if the patient has no vitals recorded yet
+- A successful assessment returns a valid category/confidence/model_version, and the recommendation text always mentions "clinical judgement"
+- Prediction history: doctor (assigned), patient (self), and denial for an unrelated patient
+- `GET /ai/model/metadata`: role denial for non-admins, correct fields for admin
+
+**A real bug found by the Docker run itself, not caught by pytest:** `scripts/train_risk_model.py`
+computed the AI evaluation report's output path the same way the Phase 1 Synthea-data path bug
+did — relative to the script's own location, assuming a `repo-root/backend/scripts/...` depth
+that doesn't exist inside the container (`WORKDIR /app` represents `backend/` directly). The
+report silently landed at a container-only `/docs/ai-evaluation-report.md`, invisible on the host
+and lost on container restart. Fixed the same way as `SYNTHEA_DATA_DIR`: a `DOCS_DIR` env var
+(default: the local relative path, unchanged for non-Docker use) plus a `../docs:/docs` bind
+mount in `docker-compose.yml`.
+
+**Model training run against real Postgres data** (`docker compose exec backend python
+scripts/train_risk_model.py`), 2026-08-22:
+
+| Metric | Value |
+|---|---|
+| Dataset | 957 `health_readings` rows (real seeded Postgres data, not SQLite) |
+| Label distribution | low: 889, moderate: 65, high: 3 |
+| Accuracy | 0.995 |
+| Precision (macro) | 0.643 |
+| Recall (macro) | 0.667 |
+| F1 (macro) | 0.654 |
+
+The `high` category's per-class metrics are 0 (only 1 example landed in the 192-row test split)
+— documented transparently as a data-imbalance limitation in `docs/ai-evaluation-report.md`
+rather than hidden; `low`/`moderate` perform well (0.93-1.00 precision/recall). Cross-Python-
+version compatibility confirmed: the model was trained under the container's Python 3.11 and
+loaded successfully by the pytest suite running under this environment's Python 3.10.
+
+**Real Docker Compose + PostgreSQL run** (full API walkthrough via curl), 2026-08-22:
+
+| Step | Result |
+|---|---|
+| `GET /ai/model/metadata` (admin) | ✅ 200, real training metrics returned |
+| Admin creates facility/provider/patient-with-login, assigns | ✅ 201 × 3, 200 |
+| Patient submits vitals | ✅ 201 |
+| Doctor runs `POST /ai/risk-assessment` | ✅ 201, `risk_category: "low"`, `confidence_score: 0.67`, recommendation text present |
+| `GET /ai/predictions/{patientId}` (doctor) | ✅ 200, 1 prediction |
+| `GET /ai/predictions/{patientId}` (patient, self) | ✅ 200 |
+| `GET /ai/model/metadata` as doctor (role denial) | ✅ 403 |
+
+**Lint/format:** `ruff check .` — clean. `black --check .` — clean.
+
 ## Not yet run
 
 - Frontend component tests (React Testing Library) — no frontend UI logic exists yet beyond the Phase 0 placeholder screen

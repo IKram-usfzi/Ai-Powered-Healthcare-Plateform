@@ -1,7 +1,7 @@
 # Implementation Plan (Phased Roadmap)
 
 **Related:** `developement-rules.md`, `Testing-startegy.md`
-**Status:** Phases 0-4 done and verified against real Docker Compose + PostgreSQL + Redis (2026-08-22) — see status lines below.
+**Status:** Phases 0-5 done and verified against real Docker Compose + PostgreSQL + Redis (2026-08-22) — see status lines below.
 
 ## Phase 0 — Foundation
 Repo structure, Git/GitHub setup, base Docker Compose skeleton (empty services), README skeleton, MkDocs init, `deccission.md` started, AWS account/budget-alarm setup.
@@ -31,6 +31,7 @@ Vitals ingestion endpoints, abnormal-reading detection rules, clinical alerting,
 ## Phase 5 — Module 4: AI-Assisted Health Risk Assessment
 Dataset preprocessing (Pandas/NumPy), model training (Scikit-learn) on Synthea-derived features, prediction API with confidence scores, prediction history persisted (`api-spec.md` §6, `flow.md` §4).
 **Exit criteria:** Model trained and evaluated (see `Testing-startegy.md` §3); prediction endpoint returns category + confidence + recorded history.
+**Status:** Met. All `api-spec.md` §6 endpoints implemented: `POST /ai/risk-assessment`, `GET /ai/predictions/{patientId}`, `GET /ai/model/metadata`. `scripts/train_risk_model.py` builds a training set from every `health_readings` row (957 rows against the real seeded Postgres data), labels it via a weighted point-score heuristic distinct from Module 3's alert thresholds (ADR-021), and trains a `RandomForestClassifier` — real measured metrics (accuracy 0.995, precision/recall/F1 macro ~0.64-0.67; the `high` category has only 3 examples total, transparently documented as a limitation rather than hidden) written to `docs/ai-evaluation-report.md`. Feature extraction is shared verbatim between training and inference to avoid train/serve skew. Every prediction response includes an explicit "AI-assisted output — always requires clinical judgement" recommendation (`docs/PRD.md` §7). Found and fixed the same class of Docker path bug as `SYNTHEA_DATA_DIR` (Phase 1): the evaluation report's write path resolved to a container-only location until a `DOCS_DIR` env var + `../docs:/docs` bind mount were added. Verified two ways: (1) 12 new pytest tests (7 unit tests for feature extraction/labeling + a router suite exercising the trained model artifact directly, full suite now 65 passed); (2) a live run against real Docker Compose + PostgreSQL — patient submits vitals → doctor runs a risk assessment → prediction stored and returned with category/confidence/recommendation → prediction history (doctor + patient self-access) → model metadata (admin) → role-denial check, all correct, response bodies inspected directly. Ruff+Black clean.
 
 ## Phase 6 — Module 5: Executive Dashboard
 Aggregation endpoints, KPI/trend queries, React + Tailwind + Chart.js implementation of the three dashboard views (Unified/home, Executive Overview, Healthcare Operations) per `UIUX.md` §3 (`api-spec.md` §7, `flow.md` §5).

@@ -38,6 +38,9 @@ services:
       # (can't be COPY'd into the image) - bind-mounted instead. See
       # backend/scripts/fetch_synthea.py.
       SYNTHEA_DATA_DIR: /data/synthea
+      # Same reasoning for docs/ - scripts/train_risk_model.py writes the AI
+      # evaluation report there, and docs/ is also outside the build context.
+      DOCS_DIR: /docs
     ports:
       - "8000:8000"
     depends_on:
@@ -49,6 +52,7 @@ services:
       - ../backend/app:/app/app
       - ../backend/scripts:/app/scripts
       - ../data:/data
+      - ../docs:/docs
 
   frontend:
     build:
