@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, require_roles
+from app.core.security import hash_password
 from app.models.enums import UserRole
 from app.models.patient import Patient
 from app.models.user import User
@@ -17,7 +18,24 @@ def create_patient(
     db: Session = Depends(get_db),
     _: User = Depends(require_roles(UserRole.ADMINISTRATOR)),
 ) -> Patient:
-    patient = Patient(**payload.model_dump())
+    fields = payload.model_dump(exclude={"email", "password"})
+
+    user_id = None
+    if payload.email and payload.password:
+        if db.scalar(select(User).where(User.email == payload.email)) is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="A user with this email already exists"
+            )
+        user = User(
+            email=payload.email,
+            password_hash=hash_password(payload.password),
+            role=UserRole.PATIENT,
+        )
+        db.add(user)
+        db.flush()
+        user_id = user.id
+
+    patient = Patient(user_id=user_id, **fields)
     db.add(patient)
     db.commit()
     db.refresh(patient)

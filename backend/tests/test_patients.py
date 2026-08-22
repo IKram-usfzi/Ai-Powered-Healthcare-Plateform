@@ -26,6 +26,37 @@ def test_admin_can_create_and_read_patient(client, make_user, auth_header):
     assert read.json()["full_name"] == "John Doe"
 
 
+def test_create_patient_with_login_and_use_self_access(client, make_user, auth_header):
+    admin = make_user("admin_login1@globalcare-demo.com", "pw", UserRole.ADMINISTRATOR)
+    payload = {
+        **PATIENT_PAYLOAD,
+        "email": "patient.login1@globalcare-demo.com",
+        "password": "PatientPass123!",
+    }
+    create = client.post("/api/v1/patients", json=payload, headers=auth_header(admin))
+    assert create.status_code == 201
+    patient_id = create.json()["id"]
+
+    login = client.post(
+        "/api/v1/auth/login",
+        json={"email": "patient.login1@globalcare-demo.com", "password": "PatientPass123!"},
+    )
+    assert login.status_code == 200
+    token = login.json()["access_token"]
+
+    self_read = client.get(
+        f"/api/v1/patients/{patient_id}", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert self_read.status_code == 200
+
+
+def test_create_patient_email_without_password_rejected(client, make_user, auth_header):
+    admin = make_user("admin_login2@globalcare-demo.com", "pw", UserRole.ADMINISTRATOR)
+    payload = {**PATIENT_PAYLOAD, "email": "incomplete@globalcare-demo.com"}
+    response = client.post("/api/v1/patients", json=payload, headers=auth_header(admin))
+    assert response.status_code == 422
+
+
 def test_get_unknown_patient_404(client, make_user, auth_header):
     admin = make_user("admin2@globalcare-demo.com", "pw", UserRole.ADMINISTRATOR)
     response = client.get("/api/v1/patients/999999", headers=auth_header(admin))

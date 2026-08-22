@@ -1,7 +1,7 @@
 # Implementation Plan (Phased Roadmap)
 
 **Related:** `developement-rules.md`, `Testing-startegy.md`
-**Status:** Phases 0-3 done and verified against real Docker Compose + PostgreSQL (2026-08-22) — see status lines below.
+**Status:** Phases 0-4 done and verified against real Docker Compose + PostgreSQL + Redis (2026-08-22) — see status lines below.
 
 ## Phase 0 — Foundation
 Repo structure, Git/GitHub setup, base Docker Compose skeleton (empty services), README skeleton, MkDocs init, `deccission.md` started, AWS account/budget-alarm setup.
@@ -26,6 +26,7 @@ Scheduling, consultation records, appointment status tracking, provider schedule
 ## Phase 4 — Module 3: Remote Patient Monitoring
 Vitals ingestion endpoints, abnormal-reading detection rules, clinical alerting, Redis wired in for de-duplication (`api-spec.md` §5, `flow.md` §3).
 **Exit criteria:** Simulated abnormal reading correctly produces exactly one alert (de-dup verified).
+**Status:** Met. All `api-spec.md` §5 endpoints implemented: `POST /monitoring/readings` (Patient self-submission), `GET /monitoring/readings/{patientId}`, `GET /monitoring/alerts`, `PATCH /monitoring/alerts/{id}/acknowledge`. Threshold-based severity detection (`app/services/vitals.py`) covers all five vitals across three severity tiers. Redis is now actually wired in (previously running in Docker Compose since Phase 0 but unused) — `app/core/redis_client.py` — for exactly the de-dup role ADR-002 scoped it to: a 5-minute per-patient key prevents repeated abnormal readings from spamming duplicate alerts. Implementing this surfaced ADR-020 (`PatientCreate` gains optional `email`/`password`, mirroring `ProviderCreate` — without it, no patient could ever log in to exercise any "self" access path the spec promises). Verified two ways: (1) 12 new automated pytest tests (8 unit tests for the threshold function plus a router suite using an in-memory fake Redis, full suite now 53 passed) — including the exact exit-criteria scenario (3 abnormal readings → exactly 1 alert); (2) a live run against real Docker Compose + PostgreSQL + **real Redis** (not the test fake) — patient creates a login → submits a normal reading (no alert) → submits 3 abnormal readings in a row → doctor sees exactly 1 alert (severity `critical`) → reading history correctly shows all 4 readings → doctor acknowledges the alert. Ruff+Black clean.
 
 ## Phase 5 — Module 4: AI-Assisted Health Risk Assessment
 Dataset preprocessing (Pandas/NumPy), model training (Scikit-learn) on Synthea-derived features, prediction API with confidence scores, prediction history persisted (`api-spec.md` §6, `flow.md` §4).

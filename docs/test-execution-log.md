@@ -133,6 +133,47 @@ uniqueness enforcement), harmless test-script artifact, not a code issue.
 
 **Lint/format:** `ruff check .` — clean. `black --check .` — clean.
 
+## Phase 4 — Module 3 (Remote Patient Monitoring)
+
+**Automated suite** (`cd backend && pytest -q`), 2026-08-22: **53 passed, 0 failed** (12 new tests:
+8 in `test_vitals.py`, 4+ in `test_monitoring.py`, using an in-memory `FakeRedis` — see
+`tests/conftest.py` — since the pytest environment has no real Redis server).
+
+- Threshold unit tests: normal reading → no alert; graduated severity (medium/high/critical) for heart rate, SpO2, temperature, glucose
+- Only the Patient role can ingest readings (role denial for others); 400 if the caller has no linked patient record
+- **The exact Phase 4 exit criteria**: 3 abnormal readings submitted in a row for the same patient produce **exactly 1** alert (Redis-key dedup) — `test_abnormal_reading_produces_exactly_one_alert_deduped`
+- Reading history access scoping (self, assigned doctor, denied for others)
+- Alert list scoping (doctor sees only their assigned patients' alerts, role denial for patients)
+- Acknowledge: doctor can only acknowledge their own patients' alerts (403 otherwise), 404 on unknown alert id, acknowledged alerts still appear in the "active" list (only `resolved` is excluded)
+
+**A real bug found and fixed before this phase could even be tested end-to-end:** `POST /patients`
+(Administrator-only) had no way to create a linked login — `PatientCreate` only had demographic
+fields. Every "self (Patient)" access path `api-spec.md`'s role tables promise (this phase's own
+`POST/GET /monitoring/readings` included) was unreachable via the documented API. Fixed as ADR-020
+— `PatientCreate` now optionally accepts `email`/`password`, mirroring `ProviderCreate`.
+
+**Real Docker Compose + PostgreSQL + Redis run**, 2026-08-22 — backend container restarted
+(bind-mounted `app/`, no rebuild) after each code change, then a full live walkthrough via curl
+against the **real** Redis container (not the test suite's fake):
+
+| Step | Result |
+|---|---|
+| `GET /openapi.json` — confirms all 4 new endpoints live | ✅ matches `api-spec.md` §5 exactly |
+| Admin creates facility/provider/patient **with a login** (ADR-020) and assigns | ✅ 201/201/201/200 |
+| Patient logs in | ✅ 200, valid JWT |
+| Patient submits a normal reading | ✅ 201, stored |
+| Doctor checks alerts — none yet | ✅ `[]` |
+| Patient submits 3 abnormal readings in a row | ✅ 201 × 3 |
+| Doctor checks alerts | ✅ **exactly 1** alert, severity `critical` — real Redis dedup confirmed, not simulated |
+| Reading history for the patient | ✅ 4 readings total (all stored regardless of alert dedup) |
+| Doctor acknowledges the alert | ✅ 200, status → `acknowledged` |
+
+No bugs found by this run itself — the ADR-020 gap was caught and fixed beforehand, precisely by
+trying to exercise the Patient role rather than assuming the spec's role table was already
+achievable.
+
+**Lint/format:** `ruff check .` — clean. `black --check .` — clean.
+
 ## Not yet run
 
 - Frontend component tests (React Testing Library) — no frontend UI logic exists yet beyond the Phase 0 placeholder screen

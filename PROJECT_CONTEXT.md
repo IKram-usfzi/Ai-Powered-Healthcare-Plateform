@@ -71,11 +71,11 @@ Detailed architecture (incl. AWS stretch topology, 17-diagram inventory): `docs/
 |---|---|---|
 | Patient & Provider Management | Registration, profiles, facility/provider assignment | BACKEND API DONE (Phase 2) — frontend UI not started (Phase 6) |
 | Telemedicine Appointments | Scheduling, consultations, status tracking | BACKEND API DONE (Phase 3) — frontend UI not started (Phase 6) |
-| Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | NOT STARTED |
+| Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | BACKEND API DONE (Phase 4) — frontend UI not started (Phase 6) |
 | AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | NOT STARTED |
 | Executive Operations Dashboard | 3-view KPI/ops dashboard (design fully specced) | NOT STARTED (design complete) |
 
-All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md` — none have backend, frontend, or database code written yet.
+All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`. Three (Patient/Provider Management, Telemedicine Appointments, Remote Patient Monitoring) have working, verified backend APIs as of Phase 4. None have frontend UI yet (Phase 6).
 
 ## 8. Current Implementation Status
 
@@ -87,11 +87,12 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 - **Real Docker Compose + PostgreSQL verification (2026-08-22)** — see §17 item 7 for the critical context (the user's "own machine" turned out to be this same sandbox). `docker compose up -d` (postgres+redis+backend+frontend) all healthy; `alembic upgrade head` applied against real Postgres; `seed_dev_users.py` + `seed_synthea.py` loaded real data; a real login returned a valid JWT. **Independently confirmed by Claude directly** (not just relying on the user's paste-backs) via `sg docker -c "docker ..."`: fetched the live `/openapi.json` (all 10 endpoints present) and queried the real Postgres database directly (200 patients, 50 providers, 50 facilities, 953 health_readings, 52 users — exact expected counts). This closes the "SQLite-verified, Postgres-pending" caveat that had applied to every phase. Two real bugs were caught and fixed by this real-infra run — see next bullet.
 - ADR-016 through ADR-019 (blood pressure split, Synthea-only confirmed, `assigned_provider_id` added to close an api-spec/schema gap, all timestamps made timezone-aware) — found during implementation/verification. Two more real bugs found by the *Docker* run specifically (not caught by SQLite testing): (a) `backend/Dockerfile` never learned to copy `alembic.ini`/`alembic/`/`scripts/` when those were added in Phase 1-2 — fixed, plus a related fix so the Synthea data path resolves correctly via a `SYNTHEA_DATA_DIR` env var + bind mount; (b) `bcrypt` was unpinned in `requirements.txt` and pip resolved a version incompatible with `passlib==1.7.4` inside the fresh Docker build (worked in the authoring sandbox only by luck, on an old cached bcrypt) — fixed by pinning `bcrypt==4.0.1`. Full details: `docs/test-execution-log.md`.
 - **Phase 3 — Module 2 (Telemedicine Appointment & Consultation):** all `api-spec.md` §4 endpoints (`/appointments` POST/GET, `/appointments/{id}/status` PATCH, `/consultations` POST, `/consultations/{patientId}` GET, `/providers/{id}/schedule` GET, `/reports/appointments` GET). Recording a consultation auto-completes its appointment. Verified two ways: 10 new pytest tests (suite now 34/34 passing) and a live Docker Compose + PostgreSQL walkthrough (restarted the backend container to pick up the bind-mounted code, no rebuild needed) — book → doctor login → view schedule → update status → record consultation → history → report → role-denial check, all correct, response bodies inspected directly. No new bugs found this time — everything worked on the first try. Full details: `docs/test-execution-log.md`.
+- **Phase 4 — Module 3 (Remote Patient Monitoring):** all `api-spec.md` §5 endpoints (`/monitoring/readings` POST/GET, `/monitoring/alerts` GET, `/monitoring/alerts/{id}/acknowledge` PATCH). Threshold-based severity detection (`app/services/vitals.py`, 3 tiers across all 5 vitals). **Redis is now actually wired in** (`app/core/redis_client.py`) — running in Docker Compose since Phase 0 but unused until now — for the exact de-dup role ADR-002 scoped it to: a 5-minute per-patient key stops repeated abnormal readings from spamming duplicate alerts. Found and fixed ADR-020 first (`PatientCreate` had no way to create a linked login — no patient could ever exercise "self" access at all, including this phase's own endpoints; fixed by adding optional `email`/`password`, mirroring `ProviderCreate`). Verified two ways: 12 new pytest tests (suite now 53/53) including the literal exit-criteria scenario, plus a live run against **real Redis** (not the test suite's in-memory fake) — 3 abnormal readings produced exactly 1 alert. Full details: `docs/test-execution-log.md`.
 
 **In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
-- Phases 4-10: remote monitoring, AI risk assessment, executive dashboard, observability/security (OPA/Prometheus/Grafana/Trivy), AWS deployment, the 17 mandatory diagrams as actual files, and any real frontend UI beyond the Phase 0 placeholder screen
+- Phases 5-10: AI risk assessment, executive dashboard, observability/security (OPA/Prometheus/Grafana/Trivy), AWS deployment, the 17 mandatory diagrams as actual files, and any real frontend UI beyond the Phase 0 placeholder screen
 - AWS budget alarm status — unknown, unverified
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
@@ -101,32 +102,37 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 3 — Module 2: Telemedicine Appointment & Consultation (DONE, fully verified against real Docker Compose + PostgreSQL).** All endpoints implemented and tested two ways: 10 new pytest tests (suite now 34/34) and a live Docker Compose + PostgreSQL walkthrough verified directly by Claude. No new bugs found this round.
+**CURRENT PHASE: Phase 4 — Module 3: Remote Patient Monitoring (DONE, fully verified against real Docker Compose + PostgreSQL + real Redis).** All endpoints implemented and tested two ways: 12 new pytest tests (suite now 53/53, using a fake Redis) and a live run against real Redis (not simulated) confirming the exact exit criteria — 3 abnormal readings → exactly 1 alert. Found and fixed ADR-020 (patients had no way to get a login at all) along the way.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Commit and push Phase 3, then start Phase 4 (Module 3 — Remote Patient
-Monitoring).
+Commit and push Phase 4, then start Phase 5 (Module 4 — AI-Assisted Health
+Risk Assessment).
 
 OBJECTIVE:
-Vitals ingestion endpoints, abnormal-reading detection rules, clinical
-alerting, Redis wired in for de-duplication, per api-spec.md §5 and
-impmemnentaion-plan.md Phase 4. Redis is not wired into the FastAPI app at
-all yet (docker-compose.yml runs the redis container, but nothing in
-backend/app/ connects to it) - this is the first phase that actually needs it.
+Dataset preprocessing (Pandas/NumPy), model training (Scikit-learn) on
+Synthea-derived features, prediction API with confidence scores, prediction
+history persisted, per api-spec.md §6 and impmemnentaion-plan.md Phase 5.
+This is the first phase needing pandas/numpy/scikit-learn - not yet in
+requirements.txt or installed anywhere. The `predictions` table already
+exists (Phase 1 models) but nothing writes to it yet.
 
 STATUS:
-Phase 2 (5206032) and the Docker/bcrypt fixes (a503a75) are pushed. Phase 3
-work is complete and verified but NOT YET COMMITTED as of this note.
+Phases 2-4 (5206032, a503a75, f24884a) are pushed. Phase 4 work (monitoring +
+ADR-020 patient-login fix) is complete and verified but NOT YET COMMITTED as
+of this note.
 
-FILES TO COMMIT NEXT (Phase 3):
-backend/app/schemas/appointment.py, consultation.py, report.py (+AppointmentReport),
-backend/app/api/v1/appointments.py (new), providers.py (+schedule endpoint),
-reports.py (+appointments endpoint), router.py, backend/tests/test_appointments.py
-(new, 10 tests), docs/impmemnentaion-plan.md (Phase 3 status),
-docs/test-execution-log.md (+Phase 3 section), PROJECT_CONTEXT.md (this file).
+FILES TO COMMIT NEXT (Phase 4):
+backend/app/core/redis_client.py (new), backend/app/services/__init__.py +
+vitals.py (new), backend/app/schemas/monitoring.py (new),
+backend/app/schemas/patient.py (+email/password, ADR-020),
+backend/app/api/v1/monitoring.py (new), patients.py (ADR-020 linked-login
+logic), router.py, backend/tests/test_vitals.py + test_monitoring.py (new),
+tests/test_patients.py (+2 tests), tests/conftest.py (+FakeRedis),
+docs/deccission.md (+ADR-020), docs/impmemnentaion-plan.md (Phase 4 status),
+docs/test-execution-log.md (+Phase 4 section), PROJECT_CONTEXT.md (this file).
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
@@ -134,14 +140,14 @@ Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
 
 ## 11. NEXT STEPS
 
-1. Commit and push Phase 3 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
-2. Start Phase 4: Module 3 (Remote Patient Monitoring) — vitals ingestion, abnormal-reading detection, alerting, first real use of Redis, per `api-spec.md` §5
+1. Commit and push Phase 4 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
+2. Start Phase 5: Module 4 (AI-Assisted Health Risk Assessment) — needs pandas/numpy/scikit-learn added to requirements.txt, per `api-spec.md` §6
 3. Resolve the still-open decisions listed in §13/§17 before they block later phases
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit Phase 3 and push (pending token/user push), then begin Phase 4:
-monitoring readings + alerts + Redis de-dup per docs/api-spec.md §5.
+Commit Phase 4 and push (pending token/user push), then begin Phase 5:
+AI risk classifier trained on Synthea-derived features per docs/api-spec.md §6.
 ```
 
 ## 12. Project Roadmap
@@ -176,9 +182,19 @@ monitoring readings + alerts + Redis de-dup per docs/api-spec.md §5.
 - [x] Provider schedule endpoint
 - [x] Appointment/operational report (`/reports/appointments`)
 - [x] 10 new pytest tests (suite now 34/34); real Docker Compose + PostgreSQL walkthrough verified
-- [ ] Phase 3 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 3 work committed/pushed to GitHub (commit `f24884a`)
 
-**Phase 4–6 — Modules 3–5 (backend + frontend + AI)**
+**Phase 4 — Module 3: Remote Patient Monitoring**
+- [x] Vitals ingestion (`POST /monitoring/readings`, Patient self-submission)
+- [x] Reading history (`GET /monitoring/readings/{patientId}`)
+- [x] Threshold-based abnormal detection (3 severity tiers, `app/services/vitals.py`)
+- [x] Alerts: list (`GET /monitoring/alerts`) + acknowledge (`PATCH .../acknowledge`)
+- [x] Redis actually wired in for alert de-dup (first real use since Phase 0)
+- [x] ADR-020: `PatientCreate` gains optional login (patients could not log in at all before this)
+- [x] 12 new pytest tests (suite now 53/53); real Docker Compose + PostgreSQL + **real Redis** verified — exit criteria (3 abnormal readings → 1 alert) confirmed against real infra, not just the test fake
+- [ ] Phase 4 work committed/pushed to GitHub — pending token/user push
+
+**Phase 5–6 — Modules 4–5 (backend + frontend + AI)**
 - [ ] Not started (any module)
 
 **Phase 7 — Observability & Security**
@@ -401,6 +417,63 @@ NEXT ACTION: Commit and push Phase 3 (see section 10's file list); then
   phase that actually needs Redis (currently running in Docker Compose but
   unused by the FastAPI app) - vitals ingestion, abnormal-reading detection,
   alert de-duplication, per api-spec.md §5.
+```
+
+```
+DATE: 2026-08-22 (same day, continued yet further still)
+WHAT WE DID: Committed and pushed Phase 3 (f24884a). Built Phase 4 (Module 3
+  - Remote Patient Monitoring): app/core/redis_client.py (first real Redis
+  usage in the project - a module-level redis.Redis client via get_redis()),
+  app/services/vitals.py (pure threshold function, 3 severity tiers across
+  all 5 vitals - kept separate from the router specifically so it's unit-
+  testable in isolation per Testing-startegy.md's "Unit: business logic"
+  category), app/schemas/monitoring.py, and app/api/v1/monitoring.py
+  (POST/GET /monitoring/readings, GET /monitoring/alerts, PATCH
+  /monitoring/alerts/{id}/acknowledge) - alert de-dup via a 5-minute
+  per-patient Redis key, exactly ADR-002's scoped role for Redis. Installed
+  the redis pip package (was in requirements.txt since Phase 0 but never
+  actually installed in this sandbox until now). Added a FakeRedis class to
+  tests/conftest.py (in-memory get/set, no real Redis needed for pytest) and
+  wrote 12 new tests (test_vitals.py unit tests + test_monitoring.py router
+  tests, including test_abnormal_reading_produces_exactly_one_alert_deduped -
+  the literal Phase 4 exit criteria). While building this, tried to actually
+  exercise POST /monitoring/readings (Patient-only role) and discovered a
+  real blocking gap: patients created via POST /patients have no way to get
+  a login at all (PatientCreate only had demographic fields) - so every
+  "self (Patient)" access path api-spec.md's role tables promise across
+  Modules 1-3 was unreachable via the documented API. Fixed as ADR-020:
+  PatientCreate now optionally accepts email/password, mirroring how
+  ProviderCreate already works. This is the same pattern as ADR-018 (Phase
+  2's assign-patient gap) - found by trying to actually use a promised
+  feature, not by reading the spec. Ran ruff+black (clean after two small
+  line-length fixes). Restarted the backend container (bind-mounted app/, no
+  rebuild) after each round of changes and ran two live E2E scripts against
+  real Docker Compose + PostgreSQL + REAL Redis (not the test fake): first
+  confirmed all 4 new endpoints in /openapi.json, then a full walkthrough -
+  admin creates patient WITH a login (ADR-020) - patient logs in - submits a
+  normal reading (no alert) - submits 3 abnormal readings in a row - doctor
+  sees EXACTLY ONE alert (severity critical) - reading history shows all 4
+  readings - doctor acknowledges the alert. This is the first phase where
+  the exit criteria itself (de-dup) was verified against real infrastructure
+  rather than just a test double.
+WHAT CHANGED: Module 3 (Remote Patient Monitoring) backend fully built and
+  verified. Three of five PRD modules now have working, Docker/Postgres/
+  Redis-verified APIs. Patients can finally log in at all (ADR-020) - this
+  retroactively unblocks "self" access testing for Phases 2-3's endpoints
+  too, not just Phase 4's.
+WHAT WORKED: Threshold logic, Redis dedup, and role scoping all worked
+  correctly on the first pass once ADR-020 was fixed. Full pytest suite (53
+  tests) and full live Postgres+Redis walkthrough both clean.
+WHAT DID NOT WORK initially (now fixed): patients had no way to obtain a
+  login - not a bug introduced this phase, but a pre-existing gap from
+  Phase 2 that this phase was the first to actually need and therefore
+  the first to notice.
+CURRENT STATE: Phase 4 complete and verified against real Redis, NOT YET
+  COMMITTED.
+NEXT ACTION: Commit and push Phase 4 (see section 10's file list); then
+  start Phase 5 (Module 4 - AI-Assisted Health Risk Assessment) - needs
+  pandas/numpy/scikit-learn added to requirements.txt (not present yet),
+  per api-spec.md §6.
 ```
 
 ## 19. Claude Instructions
