@@ -27,6 +27,15 @@ services:
       timeout: 5s
       retries: 10
 
+  opa:
+    image: openpolicyagent/opa:0.70.0
+    restart: unless-stopped
+    command: ["run", "--server", "--addr", "0.0.0.0:8181", "/policies"]
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./opa/policies:/policies
+
   backend:
     build:
       context: ../backend
@@ -34,6 +43,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-globalcare}:${POSTGRES_PASSWORD:-globalcare}@postgres:5432/${POSTGRES_DB:-globalcare}
       REDIS_URL: redis://redis:6379/0
+      OPA_URL: http://opa:8181
       # data/synthea/ lives at the repo root, outside the backend/ build context
       # (can't be COPY'd into the image) - bind-mounted instead. See
       # backend/scripts/fetch_synthea.py.
@@ -48,11 +58,39 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      opa:
+        condition: service_started
     volumes:
       - ../backend/app:/app/app
       - ../backend/scripts:/app/scripts
       - ../data:/data
       - ../docs:/docs
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
 
   frontend:
     build:

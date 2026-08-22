@@ -7,7 +7,7 @@
 - **Project name:** GlobalCare — Enterprise Remote Healthcare Management Platform (GitHub repo: `Ai-Powered-Healthcare-Plateform`)
 - **Project type:** Academic capstone (Diploma in AIOPS, EduQual Level 6, al-Nafi International College) — built as a real proof-of-concept enterprise web platform, not a toy exercise
 - **Project purpose:** Design, document, and build a proof-of-concept healthcare platform for a fictional client, "GlobalCare Telehealth Network," to pass a 3-stage exam (presentation, live demo + GitHub review, viva voce)
-- **Current development stage:** Phases 0-6 done and verified against real Docker Compose + PostgreSQL + Redis (2026-08-22). All five PRD modules have working, tested backend REST APIs — 72 passing pytest tests plus live end-to-end verification against real infrastructure for every phase. Phase 6 also delivered the first real frontend: JWT login plus three routed React dashboard views (Unified, Executive Overview, Healthcare Operations) built to the "Clinical Precision" template and verified with real seeded data via browser automation. Phase 7 (Observability/Security) is next.
+- **Current development stage:** Phases 0-7 done and verified against real Docker Compose + PostgreSQL + Redis + OPA + Prometheus + Grafana (2026-08-22). All five PRD modules have working, tested backend REST APIs plus a full frontend for the Executive Dashboard — 77 passing pytest tests, 11/11 Rego policy unit tests, and live end-to-end verification against real infrastructure for every phase. Phase 7 formalized RBAC via a real OPA server, wired Prometheus + Grafana for live metrics, and ran a real Trivy scan (`docs/security-scan-report.md`). Phase 8 (AWS, optional stretch) or Phase 9 (diagrams/docs) is next — mandatory deliverables are functionally complete.
 - **Main objective:** A Docker-Compose-deployable platform (5 functional modules) + a complete documentation set + 17 required architecture diagrams, defensible live in front of an examiner.
 
 ## 2. Project Summary
@@ -90,11 +90,12 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 - **Phase 4 — Module 3 (Remote Patient Monitoring):** all `api-spec.md` §5 endpoints (`/monitoring/readings` POST/GET, `/monitoring/alerts` GET, `/monitoring/alerts/{id}/acknowledge` PATCH). Threshold-based severity detection (`app/services/vitals.py`, 3 tiers across all 5 vitals). **Redis is now actually wired in** (`app/core/redis_client.py`) — running in Docker Compose since Phase 0 but unused until now — for the exact de-dup role ADR-002 scoped it to: a 5-minute per-patient key stops repeated abnormal readings from spamming duplicate alerts. Found and fixed ADR-020 first (`PatientCreate` had no way to create a linked login — no patient could ever exercise "self" access at all, including this phase's own endpoints; fixed by adding optional `email`/`password`, mirroring `ProviderCreate`). Verified two ways: 12 new pytest tests (suite now 53/53) including the literal exit-criteria scenario, plus a live run against **real Redis** (not the test suite's in-memory fake) — 3 abnormal readings produced exactly 1 alert. Full details: `docs/test-execution-log.md`.
 - **Phase 5 — Module 4 (AI-Assisted Health Risk Assessment):** all `api-spec.md` §6 endpoints (`POST /ai/risk-assessment`, `GET /ai/predictions/{patientId}`, `GET /ai/model/metadata`). Added pandas/numpy/scikit-learn/joblib. `scripts/train_risk_model.py` builds a training set from all 957 real `health_readings` rows, labels them via a weighted point-score heuristic (ADR-021, deliberately different from Module 3's alert-threshold logic so the classifier isn't just trivially replicating existing code), and trains a `RandomForestClassifier` — real measured accuracy/precision/recall/F1 written to `docs/ai-evaluation-report.md` (new). Feature extraction is shared verbatim between training and inference (`app/services/risk_features.py`) to avoid train/serve skew. Found and fixed a second occurrence of the exact Phase 1 `SYNTHEA_DATA_DIR` bug class: the evaluation report's write path resolved to a container-only location until a `DOCS_DIR` env var + `../docs:/docs` bind mount were added (see §17 item 11 — this is now a recognized recurring bug pattern, not a one-off). Verified two ways: 12 new pytest tests (suite now 65/65), and a live Docker Compose + PostgreSQL run — patient submits vitals → doctor runs an assessment → prediction stored with category/confidence/recommendation → prediction history (doctor + patient self) → model metadata (admin) → role-denial check, all correct. Full details: `docs/test-execution-log.md`.
 - **Phase 6 — Module 5 (Executive Healthcare Operations Dashboard):** backend — `GET /dashboard/overview`, `GET /dashboard/trends`, `GET /dashboard/provider-activity`, `GET /reports/executive` (`app/api/v1/dashboard.py`, `app/schemas/dashboard.py`), all real SQL aggregation, no fabricated figures. Frontend — the first real UI work since the Phase 0 placeholder: JWT login (`/login`) plus three routed, role-gated React views matching the "Clinical Precision" template exactly — Unified home (`/dashboard`), Executive Overview with a live Chart.js trend line (`/dashboard/executive`, Executive-only), Healthcare Operations (`/dashboard/operations`). Wherever the template assumed untracked data (bed occupancy, no-show rate, provider presence/load), substituted a real computable equivalent instead (ADR-022, `docs/UIUX.md` §5 "honest data only"). Verified two ways: 7 new pytest tests (suite now 72/72), ruff+black clean; and a live Docker Compose + PostgreSQL + frontend run via browser automation with 204 real seeded patients — logged in as both `administrator` and `executive` demo users, confirmed all three views render correct real data, confirmed `ProtectedRoute` correctly redirects an administrator away from the executive-only route, confirmed the Executive-only "Export Data" button downloads the real JSON report. Found and fixed three real bugs: a `tailwind.config.js`/`postcss.config.js`/`eslint.config.js` Docker bind-mount gap (ADR-023, same bug class as `SYNTHEA_DATA_DIR`/`DOCS_DIR`, this time for dev tooling), a stale backend container after adding `appointments_today_by_status` (uvicorn runs without `--reload`), and an ESLint config missing browser globals + JSX-usage detection (fixed by adding `globals.browser` and `eslint-plugin-react`'s recommended rules). Full details: `docs/test-execution-log.md`.
+- **Phase 7 — Observability & Security Hardening:** Prometheus + Grafana — `prometheus-fastapi-instrumentator` (ADR-025) auto-instruments every route and exposes `/metrics`; `infra/prometheus/prometheus.yml` scrapes it every 5s; Grafana auto-provisions a Prometheus datasource and a `GlobalCare API` dashboard (request rate, p95 latency, 5xx rate, requests by status). OPA — `app/api/deps.py`'s `require_roles()` now delegates every role-gated endpoint's allow/deny decision to a real OPA server's `allow_role` Rego rule (`infra/opa/policies/authz.rego`, `app/core/opa_client.py`), fail-closed on any error reaching OPA — formalizes ADR-006 with zero changes to the ~30 individual routes, since they all share the one dependency. A second Rego rule (`allow_patient_access`) covers `Security.md` §3's row-level example policies and is unit-tested but deliberately not wired into any call site — row-level checks stay in the API layer per `Security.md` §9 (ADR-024 has the full scoping rationale). Trivy — `infra/trivy_scan.sh` (containerized, no local install) scans both built images; `infra/generate_security_report.py` turns the JSON into `docs/security-scan-report.md` (ADR-026), a real scan result. Verified three ways: 77 pytest tests (5 new: `test_opa_client.py`), ruff+black clean; `opa test infra/opa/policies` 11/11 passing; a live Docker Compose run with all 7 services — real OPA correctly denied executive on `POST /patients` (403) and allowed it on `/dashboard/trends` (200), Prometheus's backend scrape target reported `health: up` with real non-zero request counts, Grafana's provisioned datasource/dashboard both resolved and its Prometheus proxy returned live data matching a direct query. The Trivy scan found two real, fixable CVEs in directly-pinned deps (`python-jose` CRITICAL, `python-multipart` ×3) — bumped to `python-jose==3.5.0`/`python-multipart==0.0.32`, re-verified 77/77 passing, rebuilt, re-scanned, confirmed both gone (backend Critical 4→3, High 60→57). Remaining findings (mostly Debian OS packages with no upstream fix yet, plus a deliberately-pinned `starlette` and Vite's transitive npm tree) are documented transparently rather than chased to zero. Full details: `docs/test-execution-log.md`.
 
 **In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
-- Phase 7 (Observability/Security — OPA/Prometheus/Grafana/Trivy), Phase 8 (AWS, stretch), Phase 9 (the 17 mandatory diagrams as actual files), Phase 10 (formal testing/demo prep)
+- Phase 8 (AWS, stretch), Phase 9 (the 17 mandatory diagrams as actual files), Phase 10 (formal testing/demo prep)
 - AWS budget alarm status — unknown, unverified
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
@@ -104,38 +105,40 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 6 — Module 5: Executive Healthcare Operations Dashboard (DONE, fully verified against real Docker Compose + PostgreSQL + live browser automation).** All backend aggregation endpoints implemented; all three frontend dashboard views built to the "Clinical Precision" template and verified rendering real data as both `administrator` and `executive` demo users; 72/72 pytest tests passing; `npm run lint` clean. Three real bugs found and fixed during verification (dev-tooling Docker bind-mount gap, stale backend container, broken ESLint config) — see §8 and ADR-022/ADR-023.
+**CURRENT PHASE: Phase 7 — Observability & Security Hardening (DONE, fully verified against real Docker Compose with all 7 services live).** Prometheus + Grafana show live metrics; OPA is the real authority behind every role-gated endpoint (fail-closed); Trivy scan produced `docs/security-scan-report.md` with two real CVEs found and fixed. 77/77 pytest tests passing, 11/11 Rego unit tests passing. Mandatory exam-brief deliverables (5 modules + dashboard + Docker Compose + security/observability tooling) are now functionally complete — remaining phases are optional (AWS) or documentation/demo-prep.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Commit and push Phase 6, then start Phase 7 (Observability & Security
-Hardening).
+Commit and push Phase 7, then move to Phase 9 (Documentation & Diagrams)
+or Phase 8 (AWS, optional stretch) — Phase 7 is the last MANDATORY
+implementation phase per the exam brief.
 
 OBJECTIVE:
-Prometheus metrics instrumentation, Grafana dashboards, OPA policy
-authoring, Trivy scans wired into the build process, per docs/Security.md
-and impmemnentaion-plan.md Phase 7.
+Phase 9: the 17 mandatory diagrams as actual diagram files (currently
+prose-only in architecture.md), MkDocs site build verification, and the
+Installation/Deployment/User/Admin guides. Phase 8 (AWS) remains optional
+and non-blocking per developement-rules.md and the exam brief.
 
 STATUS:
-Phase 5 (ac851b0) is pushed. Phase 6 work (dashboard backend + full React
-frontend) is complete and verified but NOT YET COMMITTED as of this note.
+Phase 6 (26847f8) is pushed. Phase 7 work (OPA/Prometheus/Grafana/Trivy)
+is complete and verified but NOT YET COMMITTED as of this note.
 
-FILES TO COMMIT NEXT (Phase 6):
-backend/app/schemas/dashboard.py (new), backend/app/api/v1/dashboard.py
-(new), backend/app/api/v1/reports.py (+/reports/executive), router.py
-(wired dashboard router), backend/tests/test_dashboard.py (new),
-infra/docker-compose.yml (+tailwind/postcss/eslint config bind mounts),
-frontend/tailwind.config.js (full design tokens), frontend/src/index.css
-(+glass-card/status-pill utilities), frontend/eslint.config.js (fixed
-browser globals + JSX-usage detection), frontend/src/api/ (new),
-frontend/src/auth/ (new), frontend/src/components/ (new),
-frontend/src/pages/ (new), frontend/src/App.jsx + main.jsx (real routing,
-replacing the Phase 0 placeholder), docs/deccission.md (+ADR-022,
-ADR-023), docs/impmemnentaion-plan.md (Phase 6 status),
-docs/test-execution-log.md (+Phase 6 section), docs/UIUX.md (§5 Open
-Items resolved), PROJECT_CONTEXT.md (this file).
+FILES TO COMMIT NEXT (Phase 7):
+backend/app/core/opa_client.py (new), backend/app/api/deps.py
+(require_roles delegates to OPA), backend/app/core/config.py (+opa_url),
+backend/app/main.py (+Instrumentator /metrics), backend/requirements.txt
+(+prometheus-fastapi-instrumentator, python-jose/python-multipart security
+bumps), backend/tests/conftest.py (+FakeOPA), backend/tests/test_opa_client.py
+(new), infra/docker-compose.yml (+opa/prometheus/grafana services),
+infra/opa/policies/ (new: authz.rego, authz_test.rego),
+infra/prometheus/prometheus.yml (new), infra/grafana/ (new: provisioning +
+dashboard JSON), infra/trivy_scan.sh (new), infra/generate_security_report.py
+(new), docs/security-scan-report.md (new, generated), docs/deccission.md
+(+ADR-024, ADR-025, ADR-026), docs/impmemnentaion-plan.md (Phase 7 status),
+docs/test-execution-log.md (+Phase 7 section), docs/README.md + mkdocs.yml
+(+security-scan-report.md), PROJECT_CONTEXT.md (this file).
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
@@ -144,14 +147,15 @@ Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
 ## 11. NEXT STEPS
 
 1. Commit and push Phase 6 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
-2. Start Phase 7: Observability & Security Hardening — Prometheus, Grafana, OPA, Trivy, per `docs/Security.md`
-3. Consider dedicated management UIs (patient list, appointment booking, etc.) as future/stretch work — not required by the exam brief, which only mandates the dashboard for the frontend (§4 module 5)
+2. Start Phase 9: Documentation & Diagrams — the 17 mandatory diagrams as real diagram files (Mermaid/PlantUML per ADR-008), MkDocs site build, Installation/Deployment/User/Admin guides
+3. Phase 8 (AWS deployment) remains optional/stretch — only pursue if time permits after Phase 9/10
+4. Consider dedicated management UIs (patient list, appointment booking, etc.) as future/stretch work — not required by the exam brief, which only mandates the dashboard for the frontend (§4 module 5)
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit Phase 6 and push (pending token/user push), then begin Phase 7:
-Prometheus/Grafana metrics + OPA policies + Trivy scanning per
-docs/Security.md.
+Commit Phase 7 and push (pending token/user push), then begin Phase 9:
+the 17 mandatory architecture diagrams as real files, per
+docs/architecture.md §6 and ADR-008.
 ```
 
 ## 12. Project Roadmap
@@ -213,10 +217,15 @@ docs/Security.md.
 - [x] Three dashboard views built to the "Clinical Precision" template: Unified, Executive Overview (Chart.js trend line), Healthcare Operations
 - [x] "Honest data only" substitutions for untracked template metrics (ADR-022)
 - [x] 7 new pytest tests (suite now 72/72); `npm run lint` clean; real Docker Compose + PostgreSQL + browser-automation walkthrough verified as both administrator and executive
-- [ ] Phase 6 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 6 work committed/pushed to GitHub (commit `26847f8`)
 
 **Phase 7 — Observability & Security**
-- [ ] Not started
+- [x] Prometheus metrics (`prometheus-fastapi-instrumentator`, `/metrics`) + Grafana dashboard (auto-provisioned datasource + `GlobalCare API` dashboard)
+- [x] OPA formalizes RBAC — `require_roles()` delegates to a real OPA server, fail-closed (ADR-024)
+- [x] Rego policies authored + unit-tested (`opa test`, 11/11 passing)
+- [x] Trivy scan of both built images → `docs/security-scan-report.md` (ADR-026); 2 real CVEs found and fixed (`python-jose`, `python-multipart`)
+- [x] 5 new pytest tests (suite now 77/77); real Docker Compose run with all 7 services verified (real OPA decisions, live Prometheus/Grafana data)
+- [ ] Phase 7 work committed/pushed to GitHub — pending token/user push
 
 **Phase 8 — AWS Deployment (stretch, optional)**
 - [ ] Not started
@@ -237,11 +246,13 @@ Full ADR log: `docs/deccission.md`. Key ones that constrain future work:
 - **FHIR conceptual alignment only** — do not deploy a real HAPI FHIR/OpenMRS/OpenEMR server — ADR-003
 - **Docker Compose is mandatory**; AWS is an optional, non-required stretch — ADR-004
 - **Synthea (MITRE) is the primary synthetic data source** — ADR-005, ADR-011 (supplementary Kaggle dataset still open)
-- **JWT + narrowly-scoped OPA policies** for RBAC, not a general policy platform — ADR-006
+- **JWT + narrowly-scoped OPA policies** for RBAC, not a general policy platform — ADR-006. As of Phase 7, this is real: `require_roles()` calls a live OPA server (`allow_role` Rego rule), fail-closed. Row-level checks ("doctor's own assigned patients") deliberately stay in the API layer, not OPA — ADR-024.
 - **UI/UX comes from the supplied "Clinical Precision" template** — do not design UI independently — ADR-010
 - **Dashboard = 3 cooperating views** (Unified/Executive/Operations), not one screen — see `docs/UIUX.md` §3 (routing resolved: `/dashboard`, `/dashboard/executive`, `/dashboard/operations`)
 - **Dashboard KPIs never fabricate untracked template metrics** (bed occupancy, no-shows, presence indicators) — substitute a real computable equivalent instead — ADR-022
 - **Frontend dev-tooling config files (`tailwind.config.js`, `postcss.config.js`, `eslint.config.js`) are bind-mounted in Docker Compose**, not baked into the image — edit-and-recreate, not rebuild — ADR-023
+- **Metrics via `prometheus-fastapi-instrumentator`** — auto-instruments every route, no custom metric names to keep in sync with the Grafana dashboard — ADR-025
+- **Trivy scan output → generated Markdown report** (`docs/security-scan-report.md`), same pattern as `ai-evaluation-report.md` — not hand-maintained, findings documented transparently rather than chased to zero — ADR-026
 
 ## 14. Non-Negotiable Constraints
 
@@ -653,6 +664,96 @@ CURRENT STATE: Phase 6 complete and verified against real Docker Compose +
 NEXT ACTION: Commit and push Phase 6 (see section 10's file list); then
   start Phase 7 (Observability & Security Hardening) - Prometheus metrics,
   Grafana dashboards, OPA policies, Trivy scans, per docs/Security.md.
+```
+
+```
+DATE: 2026-08-22 (same day, continued yet further still)
+WHAT WE DID: Committed and pushed Phase 6 (26847f8). Built Phase 7
+  (Observability & Security Hardening) - the last MANDATORY implementation
+  phase per the exam brief. Metrics: added prometheus-fastapi-instrumentator
+  to requirements.txt, wired Instrumentator().instrument(app).expose(app,
+  endpoint="/metrics") into app/main.py (ADR-025); infra/prometheus/
+  prometheus.yml scrapes backend:8000/metrics every 5s; Grafana
+  auto-provisions a Prometheus datasource and a hand-authored "GlobalCare
+  API" dashboard JSON (request rate by endpoint, p95 latency, 5xx rate,
+  requests by status) via infra/grafana/provisioning/. OPA: wrote
+  infra/opa/policies/authz.rego (allow_role backing require_roles(); a
+  second allow_patient_access rule covering Security.md §3's row-level
+  examples, authored+tested but deliberately not wired into any call site -
+  see ADR-024 for why row-level checks stay in the API layer instead,
+  consistent with what Security.md §9's threat table already said). Wrote
+  app/core/opa_client.py (OPAClient, fails closed on any HTTP error) and
+  changed app/api/deps.py's require_roles() to call it instead of a Python
+  `in` check - this one function change makes every existing role-gated
+  route (~30+) genuinely OPA-backed with zero other router edits. Added a
+  FakeOPA fixture to tests/conftest.py mirroring the Rego logic exactly,
+  following the same pattern as FakeRedis, so pytest never needs a running
+  OPA server. Wrote 11 Rego unit tests (authz_test.rego, opa test - 11/11
+  passing) and 5 new pytest tests for OPAClient itself (test_opa_client.py,
+  mocking httpx.post - allow/deny/fail-closed-on-connection-error/
+  fail-closed-on-5xx/fail-closed-on-missing-result-key). Trivy: wrote
+  infra/trivy_scan.sh (runs containerized aquasec/trivy, no local install)
+  and infra/generate_security_report.py (parses Trivy JSON into
+  docs/security-scan-report.md, same generated-report pattern as
+  ai-evaluation-report.md - ADR-026). Hit and fixed a real environment-
+  drift bug while installing the new Prometheus dependency: this sandbox's
+  host Python had drifted to unpinned versions newer than requirements.txt
+  (FastAPI 0.141.1 vs the pinned 0.115.6) from earlier ad-hoc installs
+  across the session; installing prometheus-fastapi-instrumentator (which
+  caps starlette<1.0.0) downgraded starlette in a way incompatible with the
+  drifted FastAPI, breaking 59 of 77 tests - fixed by reinstalling `pip
+  install -r requirements.txt` to realign the host exactly with the pinned
+  versions (not a real application bug, the Docker image was never
+  affected since it builds requirements.txt fresh). Rebuilt the backend
+  image and brought up all 7 services (postgres/redis/opa/backend/
+  prometheus/grafana/frontend) via real Docker Compose. Verified directly:
+  curled OPA's decision API for both an allow and a deny case; logged in as
+  real admin/executive demo users and confirmed the REAL OPA server (not
+  FakeOPA) correctly allows/denies real requests over HTTP (executive
+  correctly 403'd on POST /patients, correctly 200'd on GET
+  /dashboard/trends); confirmed Prometheus's scrape target for the backend
+  reports health "up"; generated real traffic and confirmed Prometheus
+  recorded real non-zero request counts; confirmed Grafana's provisioned
+  datasource and dashboard both exist via its API, and that Grafana's own
+  Prometheus-proxy query returns the same live data as querying Prometheus
+  directly. Ran the real Trivy scan against both built images - found two
+  real, fixable CVEs in directly-pinned backend deps (python-jose
+  CVE-2024-33663 CRITICAL, python-multipart with 3 CVEs) - bumped both to
+  their fixed versions, reran the full test suite (77/77 still passing, no
+  behavior change), rebuilt, rescanned, confirmed both gone from the report
+  (backend Critical 4->3, High 60->57). Left the remaining findings (mostly
+  Debian OS packages with no upstream fix yet, a deliberately-pinned
+  starlette version, and Vite's transitive npm dependency tree) documented
+  transparently in docs/security-scan-report.md rather than chased to
+  zero - consistent with the project's established practice of reporting
+  real limitations instead of hiding them.
+WHAT CHANGED: All mandatory exam-brief deliverables are now functionally
+  complete: 5 working backend modules, a full frontend for the Executive
+  Dashboard, Docker Compose deployment, AND the observability/security
+  tooling (Prometheus/Grafana/OPA/Trivy) the brief calls for. What remains
+  is optional (AWS, Phase 8) or documentation/demo-prep (Phases 9-10).
+WHAT WORKED: The single-function OPA integration point (require_roles())
+  meant formalizing RBAC via a real policy engine touched zero router
+  files beyond deps.py itself - the FakeRedis pattern generalized cleanly
+  to FakeOPA. The Trivy->generate_security_report.py->Markdown pipeline
+  mirrored the AI evaluation report pattern closely enough that there was
+  no new design decision needed, just an application of an established one.
+WHAT DID NOT WORK initially (now fixed): the host Python environment's
+  drift from requirements.txt's pins (pre-existing, not introduced this
+  phase, but only surfaced now because installing a new dependency
+  triggered a downgrade that exposed the mismatch) caused 59 test
+  "failures" that were actually a host-environment problem, not an
+  application bug - diagnosed by comparing the installed fastapi version
+  against what pip show reported vs. what requirements.txt pins, fixed by
+  a clean reinstall.
+CURRENT STATE: Phase 7 complete and verified against real Docker Compose
+  with all 7 services live (including real OPA, Prometheus, and Grafana,
+  not fakes/mocks), NOT YET COMMITTED. docs/security-scan-report.md is a
+  real generated file that needs to be committed alongside the source code.
+NEXT ACTION: Commit and push Phase 7 (see section 10's file list); then
+  move to Phase 9 (Documentation & Diagrams - the 17 mandatory diagrams as
+  real files) since Phase 7 was the last MANDATORY implementation phase;
+  Phase 8 (AWS) remains optional/stretch.
 ```
 
 ## 19. Claude Instructions

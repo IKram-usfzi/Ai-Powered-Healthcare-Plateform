@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app import models  # noqa: F401  (registers all 9 tables on Base.metadata)
 from app.api.deps import get_db
+from app.core.opa_client import get_opa_client
 from app.core.redis_client import get_redis
 from app.core.security import create_token, hash_password
 from app.db.base import Base
@@ -31,6 +32,16 @@ class FakeRedis:
         return True
 
 
+class FakeOPA:
+    """In-memory stand-in for a real OPA server — mirrors the allow_role rule in
+    infra/opa/policies/authz.rego exactly (see authz_test.rego for the Rego-side
+    unit tests of the same logic), so pytest exercises the identical decision
+    without a running OPA instance."""
+
+    def allow_role(self, role: str, allowed_roles: list[str]) -> bool:
+        return role in allowed_roles
+
+
 @pytest.fixture()
 def db_session(tmp_path):
     engine = create_engine(f"sqlite:///{tmp_path / 'test.db'}")
@@ -50,12 +61,18 @@ def fake_redis():
 
 
 @pytest.fixture()
-def client(db_session, fake_redis):
+def fake_opa():
+    return FakeOPA()
+
+
+@pytest.fixture()
+def client(db_session, fake_redis, fake_opa):
     def override_get_db():
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_redis] = lambda: fake_redis
+    app.dependency_overrides[get_opa_client] = lambda: fake_opa
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()

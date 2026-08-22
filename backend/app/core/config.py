@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://globalcare:globalcare@postgres:5432/globalcare"
     redis_url: str = "redis://redis:6379/0"
+    opa_url: str = "http://opa:8181"
 
     jwt_secret_key: str = "change-me"
     jwt_algorithm: str = "HS256"

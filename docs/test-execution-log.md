@@ -288,9 +288,86 @@ patients, 54 providers):
    import used only in JSX was flagged as unused). Fixed by adding `globals.browser` and
    `react.configs.recommended.rules` to the config, plus the missing bind mount from bug #1.
 
+## Phase 7 — Observability & Security Hardening
+
+**Automated suite** (`cd backend && pytest -q`), 2026-08-22: **77 passed, 0 failed** (5 new tests:
+`test_opa_client.py`, covering the `OPAClient`'s allow/deny/fail-closed behavior against a mocked
+`httpx.post`). Reinstalling `requirements.txt` pinned versions was required first — see "A real
+environment-drift bug" below.
+
+**Rego unit tests** (`opa test infra/opa/policies -v`, via containerized
+`openpolicyagent/opa:0.70.0`), 2026-08-22: **11/11 passed** — `allow_role` (in/not-in the allowed
+list, multi-role lists, empty list) and `allow_patient_access` (administrator/executive full
+access, patient self-only, doctor assigned-only, doctor denied on an unassigned or null-provider
+patient).
+
+**Lint/format:** `ruff check .` — clean. `black --check .` — clean.
+
+**A real environment-drift bug found while installing the new Prometheus dependency:** this
+sandbox's host Python has, over the course of the session, drifted to unpinned package versions
+newer than `requirements.txt` (FastAPI 0.141.1 vs. the pinned 0.115.6) — a pre-existing gap between
+what host-side `pytest` runs were actually testing against and what the Docker image installs.
+Installing `prometheus-fastapi-instrumentator==7.0.0` (which caps `starlette<1.0.0`) forced pip to
+downgrade the host's starlette to 0.52.1, which is incompatible with the drifted FastAPI 0.141.1 —
+59 of 77 tests failed with `AttributeError: '_IncludedRoute' ...`. Not a real application bug: the
+Docker image builds `requirements.txt` fresh in an isolated layer and was never affected. Fixed by
+reinstalling `pip install -r requirements.txt` on the host to realign it exactly with the pinned
+versions, restoring full consistency between host-side test runs and the Docker image (72 passed
+again immediately after).
+
+**Real Docker Compose run** (all 7 services: postgres, redis, opa, backend, prometheus, grafana,
+frontend), 2026-08-22:
+
+| Step | Result |
+|---|---|
+| `docker compose up -d` | ✅ all 7 containers started, postgres/redis healthy |
+| `GET /metrics` (backend) | ✅ 200, Prometheus text format, real process/request metrics |
+| `POST /v1/data/globalcare/authz/allow_role` (OPA, admin allowed) | ✅ `{"result": true}` |
+| `POST /v1/data/globalcare/authz/allow_role` (OPA, patient denied) | ✅ `{"result": false}` |
+| Login as administrator → `GET /reports/registration` | ✅ 200 (real OPA decision, not FakeOPA) |
+| Login as executive → `POST /patients` (admin-only) | ✅ 403 (real OPA decision denies as expected) |
+| Login as executive → `GET /dashboard/trends` (executive-only) | ✅ 200 |
+| Prometheus target health (`/api/v1/targets`) | ✅ `backend:8000` reports `health: "up"` |
+| Prometheus query `sum(http_requests_total)` after generating traffic | ✅ real non-zero count (148) |
+| Grafana `/api/health` | ✅ `{"database":"ok"}` |
+| Grafana provisioned datasource (`/api/datasources`) | ✅ Prometheus datasource present, `isDefault: true` |
+| Grafana provisioned dashboard (`/api/search`) | ✅ `GlobalCare API` dashboard present at `/d/globalcare-api` |
+| Grafana → Prometheus proxy query (`/api/datasources/proxy/uid/prometheus/...`) | ✅ real live data returned, matching the direct Prometheus query |
+
+**Trivy scan** (`infra/trivy_scan.sh`, containerized `aquasec/trivy:0.58.0`, no local install),
+2026-08-22 — full report: `docs/security-scan-report.md`.
+
+First run (before dependency fixes):
+
+| Image | Critical | High | Medium | Low |
+|---|---|---|---|---|
+| `infra-backend:latest` | 4 | 60 | 75 | 71 |
+| `infra-frontend:latest` | 9 | 72 | 142 | 85 |
+
+Two directly-pinned backend dependencies had CVEs with available fixes: `python-jose` (CVE-2024-33663,
+CRITICAL, fixed in 3.4.0) and `python-multipart` (3 CVEs, all fixed by 0.0.30). Bumped to
+`python-jose==3.5.0` and `python-multipart==0.0.32` (`backend/requirements.txt`), reinstalled,
+re-ran the full pytest suite (77/77 still passing — no behavior change to JWT issuance/verification
+or form parsing), rebuilt the backend image, and re-scanned:
+
+| Image | Critical | High | Medium | Low |
+|---|---|---|---|---|
+| `infra-backend:latest` | 3 | 57 | 73 | 68 |
+| `infra-frontend:latest` | 9 | 72 | 142 | 85 |
+
+Both target CVEs confirmed gone from the report. Remaining backend findings are Debian OS packages
+(`perl-base`, `util-linux` family, `openssl`, etc. — no upstream fix available yet at scan time) and
+`starlette==0.41.3`, which stays pinned for FastAPI 0.115.6 compatibility (ADR-025's default metric
+set assumes this FastAPI/starlette pairing). Frontend findings are almost entirely the Debian/Go
+base image and Vite's own transitive npm dependency tree (`tar`, `minimatch`, `brace-expansion`,
+`cross-spawn`, `glob`, `sigstore`) — a major Vite version bump was judged out of scope for this pass
+given the risk to the Tailwind/PostCSS pipeline (ADR-015) for a POC with synthetic data only.
+Documented transparently in `docs/security-scan-report.md` rather than chased to zero, consistent
+with this project's practice of reporting real limitations (`docs/ai-evaluation-report.md`'s thin
+`high`-risk class).
+
 ## Not yet run
 
 - Frontend component tests (React Testing Library) — no test runner configured yet; verification
-  for Phase 6 relied on the pytest backend suite plus live browser automation against real Docker
-  Compose services
-- Trivy scan — planned for Phase 7
+  for Phases 6-7 relied on the pytest backend suite plus live browser automation / direct HTTP
+  verification against real Docker Compose services

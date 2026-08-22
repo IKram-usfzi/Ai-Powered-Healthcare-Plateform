@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from app.core.opa_client import OPAClient, get_opa_client
 from app.core.security import decode_token
 from app.db.base import get_db
 from app.models.enums import UserRole
@@ -31,11 +32,18 @@ def get_current_user(
 
 
 def require_roles(*roles: UserRole):
-    """Interim RBAC for Phase 2 — role checks live at the API layer directly.
-    Phase 7 (deccission.md ADR-006) replaces/augments this with OPA policies."""
+    """docs/deccission.md ADR-006/ADR-024: the allow/deny decision is delegated
+    to OPA's allow_role Rego rule (infra/opa/policies/authz.rego) rather than a
+    Python `in` check — this only builds the input document and enforces OPA's
+    decision. Row-level checks (e.g. "doctor's own assigned patients") stay in
+    the API layer per Security.md §9, not in OPA — see ADR-024 for why."""
+    allowed = [role.value for role in roles]
 
-    def checker(current_user: User = Depends(get_current_user)) -> User:
-        if current_user.role not in roles:
+    def checker(
+        current_user: User = Depends(get_current_user),
+        opa: OPAClient = Depends(get_opa_client),
+    ) -> User:
+        if not opa.allow_role(current_user.role.value, allowed):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You do not have permission to perform this action",
