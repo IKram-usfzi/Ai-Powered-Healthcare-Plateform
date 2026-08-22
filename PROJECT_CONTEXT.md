@@ -7,7 +7,7 @@
 - **Project name:** GlobalCare — Enterprise Remote Healthcare Management Platform (GitHub repo: `Ai-Powered-Healthcare-Plateform`)
 - **Project type:** Academic capstone (Diploma in AIOPS, EduQual Level 6, al-Nafi International College) — built as a real proof-of-concept enterprise web platform, not a toy exercise
 - **Project purpose:** Design, document, and build a proof-of-concept healthcare platform for a fictional client, "GlobalCare Telehealth Network," to pass a 3-stage exam (presentation, live demo + GitHub review, viva voce)
-- **Current development stage:** Phases 0-5 done and verified against real Docker Compose + PostgreSQL + Redis (2026-08-22). Four of five PRD modules have working, tested backend REST APIs (Patient/Provider Management, Telemedicine, Remote Patient Monitoring, AI Risk Assessment) — 65 passing pytest tests plus live end-to-end verification against real infrastructure for every phase. Frontend is still just the Phase 0 placeholder screen — no real UI for any module yet (Phase 6 is next, and is the first phase that touches it).
+- **Current development stage:** Phases 0-6 done and verified against real Docker Compose + PostgreSQL + Redis (2026-08-22). All five PRD modules have working, tested backend REST APIs — 72 passing pytest tests plus live end-to-end verification against real infrastructure for every phase. Phase 6 also delivered the first real frontend: JWT login plus three routed React dashboard views (Unified, Executive Overview, Healthcare Operations) built to the "Clinical Precision" template and verified with real seeded data via browser automation. Phase 7 (Observability/Security) is next.
 - **Main objective:** A Docker-Compose-deployable platform (5 functional modules) + a complete documentation set + 17 required architecture diagrams, defensible live in front of an examiner.
 
 ## 2. Project Summary
@@ -69,13 +69,13 @@ Detailed architecture (incl. AWS stretch topology, 17-diagram inventory): `docs/
 
 | Module | Purpose | Status |
 |---|---|---|
-| Patient & Provider Management | Registration, profiles, facility/provider assignment | BACKEND API DONE (Phase 2) — frontend UI not started (Phase 6) |
-| Telemedicine Appointments | Scheduling, consultations, status tracking | BACKEND API DONE (Phase 3) — frontend UI not started (Phase 6) |
-| Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | BACKEND API DONE (Phase 4) — frontend UI not started (Phase 6) |
-| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | BACKEND API DONE (Phase 5) — frontend UI not started (Phase 6) |
-| Executive Operations Dashboard | 3-view KPI/ops dashboard (design fully specced) | NOT STARTED (design complete) |
+| Patient & Provider Management | Registration, profiles, facility/provider assignment | BACKEND API DONE (Phase 2) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
+| Telemedicine Appointments | Scheduling, consultations, status tracking | BACKEND API DONE (Phase 3) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
+| Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | BACKEND API DONE (Phase 4) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
+| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | BACKEND API DONE (Phase 5) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
+| Executive Operations Dashboard | 3-view KPI/ops dashboard (Unified/Executive/Operations) | DONE (Phase 6) — backend aggregation + full React frontend, verified against real data |
 
-All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`. Four (all but the Executive Dashboard) have working, verified backend APIs as of Phase 5. None have frontend UI yet (Phase 6).
+All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`, and all five have working, verified backend APIs as of Phase 6. The Executive Dashboard is the only module with a full dedicated frontend so far — the other four modules' data is visible through the dashboards (patients, appointments, alerts, predictions all appear as real aggregated figures) but don't yet have their own dedicated management screens (e.g. no patient-list/registration-form UI); that remains future/stretch work beyond the mandatory Phase 6 scope.
 
 ## 8. Current Implementation Status
 
@@ -89,11 +89,12 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 - **Phase 3 — Module 2 (Telemedicine Appointment & Consultation):** all `api-spec.md` §4 endpoints (`/appointments` POST/GET, `/appointments/{id}/status` PATCH, `/consultations` POST, `/consultations/{patientId}` GET, `/providers/{id}/schedule` GET, `/reports/appointments` GET). Recording a consultation auto-completes its appointment. Verified two ways: 10 new pytest tests (suite now 34/34 passing) and a live Docker Compose + PostgreSQL walkthrough (restarted the backend container to pick up the bind-mounted code, no rebuild needed) — book → doctor login → view schedule → update status → record consultation → history → report → role-denial check, all correct, response bodies inspected directly. No new bugs found this time — everything worked on the first try. Full details: `docs/test-execution-log.md`.
 - **Phase 4 — Module 3 (Remote Patient Monitoring):** all `api-spec.md` §5 endpoints (`/monitoring/readings` POST/GET, `/monitoring/alerts` GET, `/monitoring/alerts/{id}/acknowledge` PATCH). Threshold-based severity detection (`app/services/vitals.py`, 3 tiers across all 5 vitals). **Redis is now actually wired in** (`app/core/redis_client.py`) — running in Docker Compose since Phase 0 but unused until now — for the exact de-dup role ADR-002 scoped it to: a 5-minute per-patient key stops repeated abnormal readings from spamming duplicate alerts. Found and fixed ADR-020 first (`PatientCreate` had no way to create a linked login — no patient could ever exercise "self" access at all, including this phase's own endpoints; fixed by adding optional `email`/`password`, mirroring `ProviderCreate`). Verified two ways: 12 new pytest tests (suite now 53/53) including the literal exit-criteria scenario, plus a live run against **real Redis** (not the test suite's in-memory fake) — 3 abnormal readings produced exactly 1 alert. Full details: `docs/test-execution-log.md`.
 - **Phase 5 — Module 4 (AI-Assisted Health Risk Assessment):** all `api-spec.md` §6 endpoints (`POST /ai/risk-assessment`, `GET /ai/predictions/{patientId}`, `GET /ai/model/metadata`). Added pandas/numpy/scikit-learn/joblib. `scripts/train_risk_model.py` builds a training set from all 957 real `health_readings` rows, labels them via a weighted point-score heuristic (ADR-021, deliberately different from Module 3's alert-threshold logic so the classifier isn't just trivially replicating existing code), and trains a `RandomForestClassifier` — real measured accuracy/precision/recall/F1 written to `docs/ai-evaluation-report.md` (new). Feature extraction is shared verbatim between training and inference (`app/services/risk_features.py`) to avoid train/serve skew. Found and fixed a second occurrence of the exact Phase 1 `SYNTHEA_DATA_DIR` bug class: the evaluation report's write path resolved to a container-only location until a `DOCS_DIR` env var + `../docs:/docs` bind mount were added (see §17 item 11 — this is now a recognized recurring bug pattern, not a one-off). Verified two ways: 12 new pytest tests (suite now 65/65), and a live Docker Compose + PostgreSQL run — patient submits vitals → doctor runs an assessment → prediction stored with category/confidence/recommendation → prediction history (doctor + patient self) → model metadata (admin) → role-denial check, all correct. Full details: `docs/test-execution-log.md`.
+- **Phase 6 — Module 5 (Executive Healthcare Operations Dashboard):** backend — `GET /dashboard/overview`, `GET /dashboard/trends`, `GET /dashboard/provider-activity`, `GET /reports/executive` (`app/api/v1/dashboard.py`, `app/schemas/dashboard.py`), all real SQL aggregation, no fabricated figures. Frontend — the first real UI work since the Phase 0 placeholder: JWT login (`/login`) plus three routed, role-gated React views matching the "Clinical Precision" template exactly — Unified home (`/dashboard`), Executive Overview with a live Chart.js trend line (`/dashboard/executive`, Executive-only), Healthcare Operations (`/dashboard/operations`). Wherever the template assumed untracked data (bed occupancy, no-show rate, provider presence/load), substituted a real computable equivalent instead (ADR-022, `docs/UIUX.md` §5 "honest data only"). Verified two ways: 7 new pytest tests (suite now 72/72), ruff+black clean; and a live Docker Compose + PostgreSQL + frontend run via browser automation with 204 real seeded patients — logged in as both `administrator` and `executive` demo users, confirmed all three views render correct real data, confirmed `ProtectedRoute` correctly redirects an administrator away from the executive-only route, confirmed the Executive-only "Export Data" button downloads the real JSON report. Found and fixed three real bugs: a `tailwind.config.js`/`postcss.config.js`/`eslint.config.js` Docker bind-mount gap (ADR-023, same bug class as `SYNTHEA_DATA_DIR`/`DOCS_DIR`, this time for dev tooling), a stale backend container after adding `appointments_today_by_status` (uvicorn runs without `--reload`), and an ESLint config missing browser globals + JSX-usage detection (fixed by adding `globals.browser` and `eslint-plugin-react`'s recommended rules). Full details: `docs/test-execution-log.md`.
 
 **In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
-- Phase 6 (Executive Dashboard, needs the frontend UI which nothing has built yet), Phase 7 (Observability/Security — OPA/Prometheus/Grafana/Trivy), Phase 8 (AWS, stretch), Phase 9 (the 17 mandatory diagrams as actual files), Phase 10 (formal testing/demo prep)
+- Phase 7 (Observability/Security — OPA/Prometheus/Grafana/Trivy), Phase 8 (AWS, stretch), Phase 9 (the 17 mandatory diagrams as actual files), Phase 10 (formal testing/demo prep)
 - AWS budget alarm status — unknown, unverified
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
@@ -103,44 +104,38 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 5 — Module 4: AI-Assisted Health Risk Assessment (DONE, fully verified against real Docker Compose + PostgreSQL).** All endpoints implemented, model trained on real seeded data (957 readings), 65/65 pytest tests passing, live Docker walkthrough verified directly by Claude. Found and fixed a second occurrence of the Phase 1 `SYNTHEA_DATA_DIR`-class bug (this time for the AI evaluation report's output path).
+**CURRENT PHASE: Phase 6 — Module 5: Executive Healthcare Operations Dashboard (DONE, fully verified against real Docker Compose + PostgreSQL + live browser automation).** All backend aggregation endpoints implemented; all three frontend dashboard views built to the "Clinical Precision" template and verified rendering real data as both `administrator` and `executive` demo users; 72/72 pytest tests passing; `npm run lint` clean. Three real bugs found and fixed during verification (dev-tooling Docker bind-mount gap, stale backend container, broken ESLint config) — see §8 and ADR-022/ADR-023.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Commit and push Phase 5, then start Phase 6 (Module 5 — Executive Healthcare
-Operations Dashboard).
+Commit and push Phase 6, then start Phase 7 (Observability & Security
+Hardening).
 
 OBJECTIVE:
-Aggregation endpoints, KPI/trend queries, React + Tailwind + Chart.js
-implementation of the three dashboard views (Unified/home, Executive
-Overview, Healthcare Operations) per docs/UIUX.md §3 and
-impmemnentaion-plan.md Phase 6. This is the FIRST phase touching the
-frontend since Phase 0's placeholder screen - the actual "Clinical
-Precision" UI template (UIUX Design/) finally gets used. Everything built
-so far (Phases 2-5) is backend-only.
+Prometheus metrics instrumentation, Grafana dashboards, OPA policy
+authoring, Trivy scans wired into the build process, per docs/Security.md
+and impmemnentaion-plan.md Phase 7.
 
 STATUS:
-Phases 2-4 (5206032, a503a75, f24884a, 42a587c) are pushed. Phase 5 work
-(AI risk classifier) is complete and verified but NOT YET COMMITTED as of
-this note. The trained model artifacts (backend/app/ml_models/*.joblib,
-*.json) and docs/ai-evaluation-report.md are generated files that need to
-be committed too, not just source code.
+Phase 5 (ac851b0) is pushed. Phase 6 work (dashboard backend + full React
+frontend) is complete and verified but NOT YET COMMITTED as of this note.
 
-FILES TO COMMIT NEXT (Phase 5):
-backend/app/services/risk_features.py, risk_labels.py, risk_model.py (new),
-backend/app/schemas/ai.py (new), backend/app/api/v1/ai.py (new), router.py,
-backend/scripts/train_risk_model.py (new), backend/app/ml_models/ (new,
-generated model + metadata - COMMIT AS BINARY/DATA ARTIFACTS),
-backend/requirements.txt (+pandas/numpy/scikit-learn/joblib),
-backend/tests/test_risk_features_and_labels.py + test_ai.py (new),
-backend/pyproject.toml (+per-file-ignore for the report generator),
-infra/docker-compose.yml (+DOCS_DIR env var, +../docs:/docs mount),
-docs/deccission.md (+ADR-021), docs/impmemnentaion-plan.md (Phase 5 status),
-docs/test-execution-log.md (+Phase 5 section), docs/Testing-startegy.md
-(link to the report), docs/README.md + mkdocs.yml (+ai-evaluation-report.md),
-docs/ai-evaluation-report.md (new, generated), PROJECT_CONTEXT.md (this file).
+FILES TO COMMIT NEXT (Phase 6):
+backend/app/schemas/dashboard.py (new), backend/app/api/v1/dashboard.py
+(new), backend/app/api/v1/reports.py (+/reports/executive), router.py
+(wired dashboard router), backend/tests/test_dashboard.py (new),
+infra/docker-compose.yml (+tailwind/postcss/eslint config bind mounts),
+frontend/tailwind.config.js (full design tokens), frontend/src/index.css
+(+glass-card/status-pill utilities), frontend/eslint.config.js (fixed
+browser globals + JSX-usage detection), frontend/src/api/ (new),
+frontend/src/auth/ (new), frontend/src/components/ (new),
+frontend/src/pages/ (new), frontend/src/App.jsx + main.jsx (real routing,
+replacing the Phase 0 placeholder), docs/deccission.md (+ADR-022,
+ADR-023), docs/impmemnentaion-plan.md (Phase 6 status),
+docs/test-execution-log.md (+Phase 6 section), docs/UIUX.md (§5 Open
+Items resolved), PROJECT_CONTEXT.md (this file).
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
@@ -148,15 +143,15 @@ Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
 
 ## 11. NEXT STEPS
 
-1. Commit and push Phase 5 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
-2. Start Phase 6: Module 5 (Executive Healthcare Operations Dashboard) — first phase touching the frontend/UI template, per `docs/UIUX.md` §3 and `api-spec.md` §7
-3. Resolve the still-open decisions listed in §13/§17 before they block later phases (§17 item 5(b)/(c) specifically block Phase 6 — dashboard routing and s22/s25 in-scope questions)
+1. Commit and push Phase 6 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
+2. Start Phase 7: Observability & Security Hardening — Prometheus, Grafana, OPA, Trivy, per `docs/Security.md`
+3. Consider dedicated management UIs (patient list, appointment booking, etc.) as future/stretch work — not required by the exam brief, which only mandates the dashboard for the frontend (§4 module 5)
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit Phase 5 and push (pending token/user push), then begin Phase 6:
-executive dashboard aggregation endpoints + first real frontend work per
-docs/api-spec.md §7 and docs/UIUX.md §3.
+Commit Phase 6 and push (pending token/user push), then begin Phase 7:
+Prometheus/Grafana metrics + OPA policies + Trivy scanning per
+docs/Security.md.
 ```
 
 ## 12. Project Roadmap
@@ -210,10 +205,15 @@ docs/api-spec.md §7 and docs/UIUX.md §3.
 - [x] RandomForestClassifier trained on real seeded data (957 readings), real measured metrics (ADR-021)
 - [x] `docs/ai-evaluation-report.md` generated (Testing-startegy.md §3 deliverable)
 - [x] 12 new pytest tests (suite now 65/65); real Docker Compose + PostgreSQL walkthrough verified
-- [ ] Phase 5 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 5 work committed/pushed to GitHub (commit `ac851b0`)
 
-**Phase 6 — Module 5 (frontend + dashboard)**
-- [ ] Not started
+**Phase 6 — Module 5: Executive Healthcare Operations Dashboard**
+- [x] Dashboard aggregation endpoints (`/dashboard/overview`, `/dashboard/trends`, `/dashboard/provider-activity`, `/reports/executive`)
+- [x] JWT login UI + role-gated routing (`ProtectedRoute`)
+- [x] Three dashboard views built to the "Clinical Precision" template: Unified, Executive Overview (Chart.js trend line), Healthcare Operations
+- [x] "Honest data only" substitutions for untracked template metrics (ADR-022)
+- [x] 7 new pytest tests (suite now 72/72); `npm run lint` clean; real Docker Compose + PostgreSQL + browser-automation walkthrough verified as both administrator and executive
+- [ ] Phase 6 work committed/pushed to GitHub — pending token/user push
 
 **Phase 7 — Observability & Security**
 - [ ] Not started
@@ -239,7 +239,9 @@ Full ADR log: `docs/deccission.md`. Key ones that constrain future work:
 - **Synthea (MITRE) is the primary synthetic data source** — ADR-005, ADR-011 (supplementary Kaggle dataset still open)
 - **JWT + narrowly-scoped OPA policies** for RBAC, not a general policy platform — ADR-006
 - **UI/UX comes from the supplied "Clinical Precision" template** — do not design UI independently — ADR-010
-- **Dashboard = 3 cooperating views** (Unified/Executive/Operations), not one screen — see `docs/UIUX.md` §3
+- **Dashboard = 3 cooperating views** (Unified/Executive/Operations), not one screen — see `docs/UIUX.md` §3 (routing resolved: `/dashboard`, `/dashboard/executive`, `/dashboard/operations`)
+- **Dashboard KPIs never fabricate untracked template metrics** (bed occupancy, no-shows, presence indicators) — substitute a real computable equivalent instead — ADR-022
+- **Frontend dev-tooling config files (`tailwind.config.js`, `postcss.config.js`, `eslint.config.js`) are bind-mounted in Docker Compose**, not baked into the image — edit-and-recreate, not rebuild — ADR-023
 
 ## 14. Non-Negotiable Constraints
 
@@ -303,7 +305,7 @@ STATUS: Well-established this session — pushed successfully 3 times using `git
 STATUS: Confirmed — an earlier local clone in a prior session diverged from what the user actually pushed (different file set/commit). IMPACT: Medium — future sessions must `git fetch && git reset --hard origin/main` (after checking for uncommitted work) before trusting the local tree, never assume the local sandbox clone is current. NEXT ACTION: Standard practice for every new session (see §19).
 
 **5. Several design decisions still open**
-STATUS: Partially resolved. (a) Synthea-only vs. + supplementary Kaggle vitals dataset (ADR-011) — RESOLVED this session as ADR-017 (Synthea only). Still open: (b) dashboard routing — 3 routes vs. role-based default (`docs/UIUX.md` §5), (c) whether `UIUX Design/s22` (Documents) and `s25` (Patient Mobile App) are in scope at all — neither is a mandatory module, (d) AWS account creation date (pre/post 15 Jul 2025) — determines which AWS Free Tier model applies, unknown/unverified. NEXT ACTION: Resolve before the phase that needs each decision (Phase 6 for (b)/(c), Phase 8 for (d)).
+STATUS: Mostly resolved. (a) Synthea-only vs. + supplementary Kaggle vitals dataset (ADR-011) — RESOLVED as ADR-017 (Synthea only). (b) Dashboard routing — RESOLVED this session (Phase 6): 3 explicit routes (`/dashboard`, `/dashboard/executive`, `/dashboard/operations`), not a role-based single-route default — see `docs/UIUX.md` §5 and `PROJECT_CONTEXT.md` §13. (c) `UIUX Design/s22` (Documents) and `s25` (Patient Mobile App) — RESOLVED as out of scope; neither is a mandatory module and Phase 6 did not build them. Still open: (d) AWS account creation date (pre/post 15 Jul 2025) — determines which AWS Free Tier model applies, unknown/unverified. NEXT ACTION: Resolve (d) before Phase 8 (AWS, stretch) begins.
 
 **6. AWS budget alarm status**
 STATUS: UNKNOWN — needs verification. Phase 0's exit criteria calls for one; not confirmed done or not done. NEXT ACTION: Verify before any AWS work (Phase 8) begins.
@@ -575,6 +577,82 @@ NEXT ACTION: Commit and push Phase 5 (see section 10's file list, including
   report.md); then start Phase 6 (Module 5 - Executive Healthcare Operations
   Dashboard) - the first phase touching the actual frontend/UI template,
   per api-spec.md §7 and docs/UIUX.md §3.
+```
+
+```
+DATE: 2026-08-22 (same day, continued yet further still)
+WHAT WE DID: Committed and pushed Phase 5 (ac851b0). Built Phase 6 (Module 5
+  - Executive Healthcare Operations Dashboard), the first phase to touch the
+  frontend since Phase 0's placeholder screen. Backend: app/schemas/
+  dashboard.py + app/api/v1/dashboard.py with three shared aggregation
+  functions (build_overview, build_trends, build_provider_activity) reused
+  by both direct routes and a new GET /reports/executive composing all
+  three - real SQL aggregation against patients/appointments/health_
+  readings/alerts/predictions, no fabricated figures. Found and fixed a
+  string-vs-enum comparison bug (Alert.severity == "critical" doesn't match
+  the SQLAlchemy Enum column - fixed to AlertSeverity.CRITICAL). Wrote 7
+  pytest tests (test_dashboard.py, suite now 72/72). Frontend: rewrote
+  tailwind.config.js with the full "Clinical Precision" design token set
+  copied verbatim from the template's embedded Tailwind configs (colors,
+  fonts, spacing, border-radius all exact); built an API client, JWT auth
+  context, protected routing, a shared TopNav, and three dashboard pages
+  (DashboardUnified, DashboardExecutive with a live Chart.js trend line,
+  DashboardOperations) faithfully ported from UIUX Design/s5, s2, s17.
+  Wherever the template assumed data the platform doesn't track (bed
+  occupancy, no-show rate, provider presence/load, a pixel-positioned Gantt
+  timeline), substituted a real computable equivalent instead of inventing
+  a number - documented as ADR-022 ("honest data only"). Replaced App.jsx's
+  Phase 0 placeholder with real routing (Login, 3 dashboard routes, role-
+  gated via ProtectedRoute). Verified against the REAL running Docker
+  Compose stack (not a second local dev server - localhost:5173 was already
+  the live frontend container) via browser automation: logged in as both
+  administrator and executive demo users, confirmed all three dashboards
+  render correct real data (204 patients, live KPIs, a rendered Chart.js
+  canvas), confirmed ProtectedRoute correctly redirects an administrator
+  away from /dashboard/executive back to /dashboard, confirmed the
+  Executive-only "Export Data" button calls GET /reports/executive (200)
+  and triggers a JSON download. Found and fixed three real bugs along the
+  way: (1) docker-compose.yml's frontend service only bind-mounted src/ and
+  index.html, not tailwind.config.js/postcss.config.js - editing the design
+  tokens on the host had no effect until both were added to volumes: and
+  the container recreated (docker compose up -d --no-deps frontend) - same
+  bug class as SYNTHEA_DATA_DIR/DOCS_DIR (§17 item 11), this time for dev
+  tooling; (2) the frontend briefly crashed reading
+  overview.appointments_today_by_status.completed because the backend
+  container had never been restarted after that field was added to the
+  code (uvicorn runs without --reload) - fixed with docker compose restart
+  backend, plus defensive optional chaining in the frontend regardless; (3)
+  npm run lint reported 30 false-positive errors (fetch/localStorage/
+  document/Blob/URL "not defined", every JSX-only component import flagged
+  "unused") because eslint.config.js had no browser globals and didn't
+  extend eslint-plugin-react's recommended rules - fixed the config (added
+  globals.browser + react.configs.recommended.rules) and discovered the
+  SAME bind-mount gap applied to eslint.config.js too (fixed as part of bug
+  #1's ADR, now ADR-023). Ran the full backend suite on the host Python
+  (not the Docker container, which is missing the tests/ bind mount by
+  design) - 72 passed, ruff clean, black clean (after reformatting one
+  >100-char line in the new dashboard.py).
+WHAT CHANGED: All five PRD modules now have working, Docker/Postgres-
+  verified backend APIs, AND the Executive Dashboard has a full working
+  frontend - the first UI work of the whole project beyond the Phase 0
+  placeholder. Mandatory deliverables (Docker Compose deployment, 5
+  modules, dashboard) are now functionally complete; what remains is
+  observability/security hardening (Phase 7), diagrams/docs polish (Phase
+  9), and demo prep (Phase 10) - plus optional AWS (Phase 8).
+WHAT WORKED: The shared aggregation-function design (build_overview etc.)
+  paid off immediately when GET /reports/executive needed the exact same
+  data as the three individual endpoints. The "honest data only" principle
+  from earlier phases (real Redis dedup, real trained model) extended
+  cleanly to dashboard KPIs without needing new discussion.
+WHAT DID NOT WORK initially (all three now fixed): the tailwind/postcss/
+  eslint config Docker bind-mount gap; the stale backend container after a
+  schema field addition; the ESLint config's missing browser globals and
+  JSX-usage detection producing 30 false-positive lint errors.
+CURRENT STATE: Phase 6 complete and verified against real Docker Compose +
+  PostgreSQL + live browser automation, NOT YET COMMITTED.
+NEXT ACTION: Commit and push Phase 6 (see section 10's file list); then
+  start Phase 7 (Observability & Security Hardening) - Prometheus metrics,
+  Grafana dashboards, OPA policies, Trivy scans, per docs/Security.md.
 ```
 
 ## 19. Claude Instructions

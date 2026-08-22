@@ -140,8 +140,10 @@ Full detail for these will be written when their implementation phase (see `impm
 
 ---
 
-## 5. Open Items
+## 5. Open Items — resolved (Phase 6, 2026-08-22)
 
-1. **Dashboard routing:** confirm the 3-route approach (`/dashboard`, `/dashboard/executive`, `/dashboard/operations`) vs. a single role-based default view — recommend the 3-route approach for flexibility and to fully honor the template as supplied.
-2. **s16 "Healthcare Insights"** wasn't detailed above — worth a quick look before Phase 6 wraps, since it likely feeds the "healthcare trend analytics" part of Module 5 alongside the Clinical Activity & RPM chart.
-3. **s22 Documents / s25 Mobile App:** confirm these are out of scope for the graded capstone (they exist in the template but aren't part of the brief's 5 mandatory modules) before any implementation time is spent on them.
+1. **Dashboard routing: RESOLVED — 3-route approach adopted**, exactly as recommended (`/dashboard`, `/dashboard/executive`, `/dashboard/operations`), all reachable via the top-nav Overview/Operations toggle from the template.
+2. **s16 "Healthcare Insights": RESOLVED — not built in Phase 6.** Module 5's "healthcare trend analytics" requirement (`api-spec.md` §7, `GET /dashboard/trends`) is satisfied by the Executive Overview's Clinical Activity & RPM chart. `impmemnentaion-plan.md` Phase 6's exit criteria only requires the three documented dashboard views reflecting live data — s16 remains catalogued in §4 as a future enhancement, not a Phase 6 requirement.
+3. **s22 Documents / s25 Mobile App: RESOLVED — confirmed out of scope**, per this document's own original recommendation (neither maps to one of the 5 mandatory modules). No implementation time spent on either.
+
+**Additional Phase 6 note — honest data only:** several of the template's mock KPIs have no backing data model in this project (e.g. "Bed Occupancy," per-provider real-time presence/workload-%, appointment wait-time tracking — none of these are tracked anywhere in `backend-schema.md`). Rather than fabricate numbers for these, Phase 6 substitutes real, computable equivalents (e.g. Active Providers count instead of Bed Occupancy) and keeps the template's exact visual language (cards, colors, typography, layout) while every number shown is a real query result — consistent with every other phase's "no fabricated data" standard. See `impmemnentaion-plan.md` Phase 6 status for the specific substitutions.

@@ -228,7 +228,69 @@ loaded successfully by the pytest suite running under this environment's Python 
 
 **Lint/format:** `ruff check .` — clean. `black --check .` — clean.
 
+## Phase 6 — Module 5 (Executive Dashboard)
+
+**Automated suite** (`cd backend && pytest -q`), 2026-08-22: **72 passed, 0 failed** (7 new tests:
+`test_dashboard.py`, using a `_seed_dashboard_data` helper that builds a full facility/provider/
+patient/appointment/reading/alert/prediction chain).
+
+- `GET /dashboard/overview`: role denial for a non-admin/non-executive user; reflects real seeded
+  patient/appointment/monitoring/alert/prediction counts
+- `GET /dashboard/trends`: Executive-only (403 for Administrator); returns exactly 7 days,
+  including today's seeded activity
+- `GET /dashboard/provider-activity`: reflects real per-provider appointment/patient counts
+- `GET /reports/executive`: Executive-only; composes overview + trends + provider-activity
+  correctly
+
+**A real bug found while writing the aggregation query, not caught by manual review:**
+`Alert.severity == "critical"` compared the enum column against a bare string, which SQLAlchemy's
+`Enum` type does not match correctly — fixed to `Alert.severity == AlertSeverity.CRITICAL`.
+
+**Lint/format:** `ruff check .` — clean (after reformatting a >100-char line in `dashboard.py`).
+`black --check .` — clean.
+
+**Real Docker Compose + PostgreSQL + frontend run** (browser automation against
+`http://localhost:5173`, backend at `http://localhost:8000`), 2026-08-22, real seeded data (204
+patients, 54 providers):
+
+| Step | Result |
+|---|---|
+| Login as `administrator` demo user | ✅ redirected to Unified dashboard (`/dashboard`) |
+| Login as `executive` demo user | ✅ redirected to Executive Overview (`/dashboard/executive`) |
+| Unified dashboard KPIs | ✅ Total Patients 204, Active Monitoring 2, High Risk 0, real appointment count |
+| Executive Overview KPIs + Chart.js trend line | ✅ real 7-day vitals/alerts trend rendered (canvas confirmed present, 732×288) |
+| Executive Overview → AI Risk Assessment panel | ✅ real `top_risk_patients` from live data (empty state correct: 0 high-risk) |
+| Executive Overview → Operational Efficiency | ✅ real `appointments_today_by_status` breakdown (Scheduled/Completed/Cancelled) |
+| Healthcare Operations dashboard | ✅ real busiest-providers table + provider roster + alerts panel (403-graceful for Executive role on `/monitoring/alerts`) |
+| `ProtectedRoute`: administrator → `/dashboard/executive` | ✅ redirected back to `/dashboard` (role not permitted) |
+| Executive-only "Export Data" button (Unified dashboard) | ✅ `GET /reports/executive` → 200, JSON download triggered |
+| `npm run lint` (frontend) | ✅ 0 errors (after fixing the ESLint config — see below) |
+
+**Two real infrastructure bugs found and fixed during this verification:**
+
+1. **Stale frontend dev config (bind-mount gap):** `docker-compose.yml`'s `frontend` service only
+   bind-mounted `src/` and `index.html`, not `tailwind.config.js`, `postcss.config.js`, or (found
+   later, same root cause) `eslint.config.js` — so the running container kept using the config
+   baked into the image at build time. Editing these files on the host had no effect until they
+   were added to the service's `volumes:` list and the container recreated
+   (`docker compose up -d --no-deps frontend`). Same class of bug as the Phase 1
+   `SYNTHEA_DATA_DIR` / Phase 5 `DOCS_DIR` path issues, this time for dev tooling instead of a
+   script path.
+2. **Stale backend container after a schema field addition:** the frontend briefly crashed
+   (`Cannot read properties of undefined (reading 'completed')`) because
+   `appointments_today_by_status` had been added to the backend code but the `backend` container
+   was never restarted — uvicorn runs without `--reload` in this deployment. Fixed with
+   `docker compose restart backend`; hardened the frontend defensively with optional chaining
+   (`overview.appointments_today_by_status?.completed ?? 0`) regardless.
+3. **ESLint config missing browser globals and JSX-usage detection:** `eslint.config.js` had no
+   `languageOptions.globals` (so `fetch`, `localStorage`, `document`, `Blob`, `URL` all flagged as
+   undefined) and didn't extend `eslint-plugin-react`'s recommended rules (so every component
+   import used only in JSX was flagged as unused). Fixed by adding `globals.browser` and
+   `react.configs.recommended.rules` to the config, plus the missing bind mount from bug #1.
+
 ## Not yet run
 
-- Frontend component tests (React Testing Library) — no frontend UI logic exists yet beyond the Phase 0 placeholder screen
+- Frontend component tests (React Testing Library) — no test runner configured yet; verification
+  for Phase 6 relied on the pytest backend suite plus live browser automation against real Docker
+  Compose services
 - Trivy scan — planned for Phase 7

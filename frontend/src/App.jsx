@@ -1,24 +1,29 @@
-import { useEffect, useState } from "react";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import Login from "./pages/Login";
+import DashboardUnified from "./pages/DashboardUnified";
+import DashboardExecutive from "./pages/DashboardExecutive";
+import DashboardOperations from "./pages/DashboardOperations";
 
 export default function App() {
-  const [apiStatus, setApiStatus] = useState("checking...");
-
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/health`)
-      .then((res) => res.json())
-      .then((data) => setApiStatus(data.status))
-      .catch(() => setApiStatus("unreachable"));
-  }, []);
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-50">
-      <h1 className="font-heading text-2xl font-bold text-slate-900">GlobalCare</h1>
-      <p className="text-slate-600">
-        Enterprise Remote Healthcare Management Platform — Phase 0 scaffold
-      </p>
-      <p className="text-sm text-slate-500">Backend API status: {apiStatus}</p>
-    </main>
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        <Route element={<ProtectedRoute roles={["administrator", "executive"]} />}>
+          <Route path="/dashboard" element={<DashboardUnified />} />
+          <Route path="/dashboard/operations" element={<DashboardOperations />} />
+        </Route>
+
+        <Route element={<ProtectedRoute roles={["executive"]} />}>
+          <Route path="/dashboard/executive" element={<DashboardExecutive />} />
+        </Route>
+
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }

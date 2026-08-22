@@ -3,5 +3,21 @@
 @tailwind utilities;
 
 body {
-  @apply font-body text-slate-900;
+  @apply font-body-md text-on-surface bg-[#F4F7FA] antialiased;
+}
+
+/* Shared component classes from the supplied template (UIUX Design/s2, s5, s17) */
+@layer utilities {
+  .glass-card {
+    @apply bg-surface-container-lowest shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-surface-container rounded-2xl p-6 transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0px_12px_32px_rgba(0,0,0,0.08)];
+  }
+  .status-pill-high {
+    @apply bg-error-container text-on-error-container font-label-sm text-label-sm px-3 py-1 rounded-full;
+  }
+  .status-pill-med {
+    @apply bg-surface-variant text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full;
+  }
+  .status-pill-low {
+    @apply bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm px-3 py-1 rounded-full;
+  }
 }
