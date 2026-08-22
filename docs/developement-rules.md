@@ -22,7 +22,7 @@ Conventional Commits style:
 
 ## 3. Code Style
 
-- **Python:** PEP 8; formatter/linter (e.g., Black + isort + Flake8/Ruff — tool choice confirmed at implementation start); type hints on public functions.
+- **Python:** PEP 8; Black (formatter) + Ruff (linter, includes import sorting) — confirmed in `deccission.md` ADR-014; type hints on public functions.
 - **React/JS:** ESLint + Prettier; functional components; consistent naming matching the API resource names in `api-spec.md`.
 
 ## 4. Repository Structure (planned)

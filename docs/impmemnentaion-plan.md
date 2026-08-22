@@ -1,11 +1,12 @@
 # Implementation Plan (Phased Roadmap)
 
 **Related:** `developement-rules.md`, `Testing-startegy.md`
-**Status:** Planning complete; implementation not yet started (per current instruction — documentation first).
+**Status:** Phase 0 in progress — see Phase 0 status line below.
 
 ## Phase 0 — Foundation
 Repo structure, Git/GitHub setup, base Docker Compose skeleton (empty services), README skeleton, MkDocs init, `deccission.md` started, AWS account/budget-alarm setup.
 **Exit criteria:** `docker compose up` runs empty scaffolding without error; repo pushed to GitHub.
+**Status:** Repo structure, `docker-compose.yml`, backend/frontend skeletons, root README, and MkDocs config are done and verified locally (FastAPI `/api/v1/health` runs and responds; `mkdocs build --strict` passes). Not yet verified: `docker compose up` itself (no Docker in the authoring sandbox — needs a run on the student's own machine) and AWS budget-alarm setup (status unknown, deferred to Phase 8).
 
 ## Phase 1 — Data & Domain Modeling
 Finalize PostgreSQL schema per `backend-schema.md`; produce Database ERD; obtain/generate the Synthea dataset and map it to the schema; decide on the supplementary Kaggle vitals dataset question from `deccission.md` (ADR-011).

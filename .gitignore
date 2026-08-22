@@ -1,1 +1,35 @@
 *.pdf
+
+# --- Python / backend ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+frontend/build/
+.vite/
+
+# --- Env & secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Docker / infra ---
+*.log
+
+# --- MkDocs ---
+site/
+
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/

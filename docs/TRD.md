@@ -47,7 +47,7 @@ Technical requirements needed to satisfy the PRD within the exam's laptop-resour
 ## 5. Integration Requirements
 
 - React ↔ FastAPI over REST, JWT bearer auth.
-- FastAPI ↔ PostgreSQL via an ORM (tooling choice deferred to implementation phase).
+- FastAPI ↔ PostgreSQL via SQLAlchemy 2.0 + Alembic + psycopg3 (confirmed, `deccission.md` ADR-013).
 - FastAPI ↔ Redis for caching/rate-limiting/alert de-dup.
 - FastAPI metrics ↔ Prometheus (scrape endpoint) ↔ Grafana (dashboards).
 - FastAPI ↔ OPA for policy-based authorization decisions.

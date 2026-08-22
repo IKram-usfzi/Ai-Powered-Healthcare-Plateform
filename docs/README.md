@@ -3,7 +3,7 @@
 **Capstone Project 19 · Diploma in AIOPS (EduQual Level 6) · al-Nafi International College**
 **Student:** Ikram Ullah | **Client (fictional, assessment purposes):** GlobalCare Telehealth Network
 
-> Status: **Planning / Documentation phase.** No implementation has started yet — this repository currently holds the requirements, architecture, and process documentation that implementation will follow.
+> Status: **Phase 0 (Foundation) in progress.** Documentation set is complete; `backend/`, `frontend/`, and `infra/` now hold a running skeleton (FastAPI health endpoint, React/Vite/Tailwind app, Docker Compose wiring). See root [`README.md`](../README.md) and [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) for current status.
 
 ## 1. What this project is
 

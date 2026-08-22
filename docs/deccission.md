@@ -67,3 +67,21 @@ Each entry: Decision, Context, Status, Consequences. Status values: Proposed / A
 **Decision:** Adopt Tailwind CSS as the React styling approach and Chart.js as the client-side charting library for all interactive, in-browser dashboard visuals, to match the template exactly. Reserve Plotly/Matplotlib (brief §7) for Python-side outputs that don't need to be interactive React components — e.g., the AI evaluation report, exported/static analytics charts, and any Jupyter-style exploratory analysis during Module 4 development. Material Symbols Outlined is the icon set; Manrope + Inter are the two typefaces, loaded via Google Fonts.
 **Status:** Accepted.
 **Consequences:** Frontend dependency list grows slightly (Tailwind, Chart.js, Google Fonts, Material Symbols) beyond the original brief's Python-only stack table — this is additive, not a conflict, since Plotly/Matplotlib still satisfy the brief's checklist for report-generation contexts. `TRD.md` and `developement-rules.md` should list these explicitly once implementation starts.
+
+## ADR-013 — Backend ORM & migrations: SQLAlchemy 2.0 + Alembic + psycopg3
+**Context:** `backend-schema.md` §5 deferred ORM/migration tooling choice to implementation start (Phase 0/1).
+**Decision:** SQLAlchemy 2.0 (declarative models) as the ORM, Alembic for versioned migrations, `psycopg[binary]` (psycopg3) as the PostgreSQL driver.
+**Status:** Accepted.
+**Consequences:** Standard, well-documented combination; Alembic migrations become the only sanctioned way to change schema in a running environment, per `developement-rules.md` §8.
+
+## ADR-014 — Python lint/format tooling: Black + Ruff
+**Context:** `developement-rules.md` §3 left the formatter/linter choice open ("Black + isort + Flake8/Ruff — tool choice confirmed at implementation start").
+**Decision:** Black for formatting; Ruff for linting (Ruff's `I` ruleset replaces isort, so no separate isort dependency is needed).
+**Status:** Accepted.
+**Consequences:** One fewer dependency than a Black+isort+Flake8 combination; config lives in `backend/pyproject.toml`.
+
+## ADR-015 — Frontend build tooling: Vite (npm-installed Tailwind, not CDN)
+**Context:** The supplied UI/UX template (`UIUX Design/s*/code.html`) uses Tailwind via CDN `<script>` tags for standalone screen previews (ADR-012). The actual React application needs a real build pipeline.
+**Decision:** Use Vite as the React build tool/dev server; install Tailwind CSS as an npm dependency with PostCSS (not the CDN script) for the production React app. The CDN approach in the template files remains fine for the standalone preview screens under `UIUX Design/`, which are reference material, not the shipped app.
+**Status:** Accepted.
+**Consequences:** Standard, fast dev-server experience (Vite HMR); Tailwind's utility classes and design tokens (Manrope/Inter/Material Symbols, per ADR-012) are preserved identically between the template previews and the real app.

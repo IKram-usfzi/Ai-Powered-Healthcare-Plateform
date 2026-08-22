@@ -54,4 +54,4 @@ erDiagram
 
 ## 5. Migration Strategy (planned)
 
-A migration tool (e.g., Alembic, to be confirmed during implementation) will version schema changes; no manual/ad-hoc schema edits against a running environment. Every schema change is expected to be paired with an ADR entry in `deccission.md` if it reflects a design decision (not just a fix).
+Alembic (confirmed, `deccission.md` ADR-013) versions schema changes; no manual/ad-hoc schema edits against a running environment. Every schema change is expected to be paired with an ADR entry in `deccission.md` if it reflects a design decision (not just a fix).

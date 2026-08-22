@@ -1,0 +1,35 @@
+site_name: GlobalCare — Enterprise Remote Healthcare Management Platform
+site_description: Capstone documentation site (PRD, TRD, architecture, API, schema, ADRs)
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+
+nav:
+  - Overview: README.md
+  - Product Requirements: PRD.md
+  - Technical Requirements: TRD.md
+  - Architecture: architecture.md
+  - API Specification: api-spec.md
+  - Database Schema: backend-schema.md
+  - Process Flows: flow.md
+  - UI/UX: UIUX.md
+  - Security: Security.md
+  - Testing Strategy: Testing-startegy.md
+  - Development Rules: developement-rules.md
+  - Implementation Plan: impmemnentaion-plan.md
+  - Decisions (ADR log): deccission.md
+
+markdown_extensions:
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
