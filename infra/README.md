@@ -14,23 +14,28 @@ docker compose up --build
 - PostgreSQL: localhost:5432
 - Redis: localhost:6379
 
-Works out of the box with built-in defaults — no `.env` file required for this Phase 0
-scaffold. Before real credentials/secrets exist (Phase 2+), copy `../backend/.env.example`
-to `../backend/.env` and `../frontend/.env.example` to `../frontend/.env` and adjust values;
-`docker-compose.yml` can then be updated to load them via `env_file`.
+Works out of the box with built-in defaults, including a default `JWT_SECRET_KEY` (see
+`backend/app/core/config.py`). **Before any real/shared deployment**, copy
+`../backend/.env.example` to `../backend/.env` (at minimum, set a real `JWT_SECRET_KEY`) and
+`../frontend/.env.example` to `../frontend/.env`; `docker-compose.yml` can then be updated to
+load them via `env_file`.
 
-## Database setup (Phase 1)
+## Database setup (Phase 1) + dev login (Phase 2)
 
 Once `postgres` is up (via `docker compose up`), apply the schema and load sample data:
 
 ```bash
 cd backend
 alembic upgrade head                        # creates all 9 tables (docs/backend-schema.md)
+python scripts/seed_dev_users.py             # admin@globalcare-demo.com / executive@... , password ChangeMe123!
 python scripts/fetch_synthea.py              # downloads the Synthea CSV sample (~9 MB)
 python scripts/seed_synthea.py --patients 200 --max-readings 5
 ```
 
-See `docs/backend-schema.md` §6 for the Synthea → schema field mapping.
+`seed_dev_users.py` credentials are dev/demo only — never use them in a real deployment. See
+`docs/backend-schema.md` §6 for the Synthea → schema field mapping, and `docs/api-spec.md` for
+the full REST API contract (`/auth/*`, `/patients`, `/providers`, `/facilities`,
+`/reports/registration` are implemented as of Phase 2).
 
 ## Services
 

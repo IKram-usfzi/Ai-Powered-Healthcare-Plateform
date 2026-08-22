@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import DateTime, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -15,12 +15,14 @@ class Appointment(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     patient_id: Mapped[int] = mapped_column(ForeignKey("patients.id"), index=True)
     provider_id: Mapped[int] = mapped_column(ForeignKey("providers.id"), index=True)
-    scheduled_at: Mapped[datetime] = mapped_column(index=True)
+    scheduled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     status: Mapped[AppointmentStatus] = mapped_column(
         Enum(AppointmentStatus, name="appointment_status"),
         default=AppointmentStatus.SCHEDULED,
     )
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
 
     patient: Mapped["Patient"] = relationship(back_populates="appointments")
     provider: Mapped["Provider"] = relationship(back_populates="appointments")

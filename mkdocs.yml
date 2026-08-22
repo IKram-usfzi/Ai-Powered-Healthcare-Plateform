@@ -20,6 +20,7 @@ nav:
   - UI/UX: UIUX.md
   - Security: Security.md
   - Testing Strategy: Testing-startegy.md
+  - Test Execution Log: test-execution-log.md
   - Development Rules: developement-rules.md
   - Implementation Plan: impmemnentaion-plan.md
   - Decisions (ADR log): deccission.md

@@ -1,13 +1,42 @@
 [tool.black]
 line-length = 100
-target-version = ["py311"]
+# See the ruff target-version comment below: py310 avoids Black's AST safety-check
+# warning when run under this environment's Python 3.10, while still producing code
+# that's fully valid on the Dockerfile's python:3.11-slim.
+target-version = ["py310"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+# Deliberately py310, one below the Docker image's py311 (Dockerfile): keeps
+# UP-rules from suggesting 3.11-only stdlib (e.g. datetime.UTC) that breaks
+# local verification on a 3.10 interpreter. 3.10-targeted code still runs
+# fine under 3.11.
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency injection is built on Depends(...)/Query(...)/etc. as
+# argument defaults - that's the framework's documented pattern, not the
+# mutable-default-argument bug B008 exists to catch.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Body",
+    "app.api.deps.require_roles",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# SQLAlchemy 2.0 Mapped["ClassName"] forward refs are resolved by the ORM's
+# mapper registry at configure_mappers() time (verified directly in
+# tests/conftest.py and by the Alembic autogenerate step), not by static
+# analysis — pyflakes can't see that and flags them as undefined names.
+"app/models/*.py" = ["F821"]
+# Alembic autogenerate produces its own (long, machine-formatted) migration
+# files; they're generated output, not hand-authored code.
+"alembic/versions/*.py" = ["E501"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

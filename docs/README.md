@@ -3,7 +3,7 @@
 **Capstone Project 19 · Diploma in AIOPS (EduQual Level 6) · al-Nafi International College**
 **Student:** Ikram Ullah | **Client (fictional, assessment purposes):** GlobalCare Telehealth Network
 
-> Status: **Phase 0 (Foundation) in progress.** Documentation set is complete; `backend/`, `frontend/`, and `infra/` now hold a running skeleton (FastAPI health endpoint, React/Vite/Tailwind app, Docker Compose wiring). See root [`README.md`](../README.md) and [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) for current status.
+> Status: **Phase 2 (Module 1 — Patient & Provider Management) done.** Phases 0-2 complete: repo/Docker Compose scaffold, database schema + Synthea seed data, and a working JWT-authenticated REST API for patients/providers/facilities/registration reporting. See the root `README.md` and `PROJECT_CONTEXT.md` (both at the repository root, one level up from this `docs/` folder) for current status and the phased roadmap.
 
 ## 1. What this project is
 
@@ -52,6 +52,7 @@ Full rationale in [`TRD.md`](./TRD.md) and [`deccission.md`](./deccission.md).
 | [`impmemnentaion-plan.md`](./impmemnentaion-plan.md) | Phased delivery roadmap |
 | [`Security.md`](./Security.md) | Security design and standards-compliance mapping |
 | [`Testing-startegy.md`](./Testing-startegy.md) | Test levels, AI evaluation approach, coverage |
+| [`test-execution-log.md`](./test-execution-log.md) | Running log of test runs (pass/fail counts, bugs found/fixed) |
 | [`UIUX.md`](./UIUX.md) | UI/UX reference — pending supplied template |
 
 ## 4. Laptop / resource requirements

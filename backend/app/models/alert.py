@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import DateTime, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -19,7 +19,9 @@ class Alert(Base):
     status: Mapped[AlertStatus] = mapped_column(
         Enum(AlertStatus, name="alert_status"), default=AlertStatus.OPEN
     )
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
 
     patient: Mapped["Patient"] = relationship(back_populates="alerts")
     reading: Mapped["HealthReading"] = relationship(back_populates="alerts")

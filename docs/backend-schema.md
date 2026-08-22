@@ -22,7 +22,7 @@ erDiagram
 
 **users** — authentication & role identity (`patient`, `doctor`, `administrator`, `executive`). Key fields: id, email, password_hash, role, created_at.
 
-**patients** — patient profile (may link to a `users` record). Key fields: id, user_id (nullable), full_name, date_of_birth, gender, contact_info, registered_at.
+**patients** — patient profile (may link to a `users` record). Key fields: id, user_id (nullable), full_name, date_of_birth, gender, contact_info, registered_at, assigned_provider_id (nullable FK → providers.id — ADR-018).
 
 **providers** — physicians. Key fields: id, user_id, full_name, specialty, facility_id, license_ref (simulated), created_at.
 

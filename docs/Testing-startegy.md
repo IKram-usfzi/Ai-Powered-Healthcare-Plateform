@@ -41,7 +41,7 @@ A dedicated Docker Compose test profile (or test-specific service overrides) so 
 
 ## 7. Test Execution Summary
 
-A running log/report of test runs (pass/fail counts, notable failures and fixes) maintained as implementation proceeds, to satisfy the "test execution summary" requirement in the live demonstration stage (brief §10, Stage 2).
+A running log/report of test runs (pass/fail counts, notable failures and fixes) maintained as implementation proceeds, to satisfy the "test execution summary" requirement in the live demonstration stage (brief §10, Stage 2). Maintained at [`test-execution-log.md`](./test-execution-log.md).
 
 ## 8. Regression Discipline
 

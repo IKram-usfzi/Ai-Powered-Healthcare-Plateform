@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Enum, Float, ForeignKey, String, Text
+from sqlalchemy import DateTime, Enum, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -18,6 +18,8 @@ class Prediction(Base):
     confidence_score: Mapped[float] = mapped_column(Float)
     model_version: Mapped[str] = mapped_column(String(50))
     recommendation: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
+    )
 
     patient: Mapped["Patient"] = relationship(back_populates="predictions")

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Float, ForeignKey, Integer
+from sqlalchemy import DateTime, Float, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -21,7 +21,7 @@ class HealthReading(Base):
     temperature: Mapped[float] = mapped_column(Float)
     glucose: Mapped[float] = mapped_column(Float)
     recorded_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc), index=True
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
     )
 
     patient: Mapped["Patient"] = relationship(back_populates="health_readings")

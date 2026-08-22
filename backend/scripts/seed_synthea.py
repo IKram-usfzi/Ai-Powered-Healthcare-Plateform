@@ -26,6 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from app.core.security import hash_password  # noqa: E402
 from app.db.base import Base, SessionLocal, engine  # noqa: E402
 from app.models import Facility, HealthReading, Patient, Provider, User  # noqa: E402
 from app.models.enums import UserRole  # noqa: E402
@@ -104,17 +105,22 @@ def seed(num_patients: int, max_readings: int) -> None:
     facility_by_org_id: dict[str, Facility] = {}
     for org_id in {p["ORGANIZATION"] for p in provider_rows}:
         org = organizations[org_id]
-        facility = Facility(name=org["NAME"], type="hospital", location=f"{org['CITY']}, {org['STATE']}")
+        facility = Facility(
+            name=org["NAME"], type="hospital", location=f"{org['CITY']}, {org['STATE']}"
+        )
         session.add(facility)
         facility_by_org_id[org_id] = facility
     session.flush()
 
+    # Dev/demo login only — never a real credential. Lets every seeded provider log in
+    # via POST /auth/login to exercise the Phase 2 API end-to-end.
+    dev_password_hash = hash_password("ChangeMe123!")
+
     for row in provider_rows:
         user = User(
-            email=f"provider+{row['Id'][:8]}@globalcare.test",
-            password_hash="seed-placeholder-not-a-real-hash",  # set for real in Phase 2 (auth)
+            email=f"provider+{row['Id'][:8]}@globalcare-demo.com",
+            password_hash=dev_password_hash,
             role=UserRole.DOCTOR,
-            created_at=datetime.now(),
         )
         session.add(user)
         session.flush()
@@ -125,7 +131,6 @@ def seed(num_patients: int, max_readings: int) -> None:
                 specialty=row["SPECIALITY"].title(),
                 facility_id=facility_by_org_id[row["ORGANIZATION"]].id,
                 license_ref=row["Id"][:12],
-                created_at=datetime.now(),
             )
         )
 
@@ -136,7 +141,6 @@ def seed(num_patients: int, max_readings: int) -> None:
             date_of_birth=date.fromisoformat(row["BIRTHDATE"]),
             gender={"M": "Male", "F": "Female"}.get(row["GENDER"], row["GENDER"]),
             contact_info=f"{row['ADDRESS']}, {row['CITY']}, {row['STATE']} {row['ZIP']}",
-            registered_at=datetime.now(),
         )
         session.add(patient)
         patient_objs[row["Id"]] = patient
@@ -160,11 +164,17 @@ def seed(num_patients: int, max_readings: int) -> None:
                 heart_rate=round(float(fields["heart_rate"][1])),
                 systolic_bp=round(float(fields["systolic_bp"][1])),
                 diastolic_bp=round(float(fields["diastolic_bp"][1])),
-                glucose=round(float(fields["glucose"][1]), 1) if "glucose" in fields else simulate_glucose(),
+                glucose=(
+                    round(float(fields["glucose"][1]), 1)
+                    if "glucose" in fields
+                    else simulate_glucose()
+                ),
                 spo2=round(float(fields["spo2"][1])) if "spo2" in fields else simulate_spo2(),
-                temperature=round(float(fields["temperature"][1]), 1)
-                if "temperature" in fields
-                else simulate_temperature(),
+                temperature=(
+                    round(float(fields["temperature"][1]), 1)
+                    if "temperature" in fields
+                    else simulate_temperature()
+                ),
                 recorded_at=recorded_at,
             )
         )

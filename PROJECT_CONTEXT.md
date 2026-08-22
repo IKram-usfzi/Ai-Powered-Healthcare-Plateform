@@ -7,7 +7,7 @@
 - **Project name:** GlobalCare — Enterprise Remote Healthcare Management Platform (GitHub repo: `Ai-Powered-Healthcare-Plateform`)
 - **Project type:** Academic capstone (Diploma in AIOPS, EduQual Level 6, al-Nafi International College) — built as a real proof-of-concept enterprise web platform, not a toy exercise
 - **Project purpose:** Design, document, and build a proof-of-concept healthcare platform for a fictional client, "GlobalCare Telehealth Network," to pass a 3-stage exam (presentation, live demo + GitHub review, viva voce)
-- **Current development stage:** Phase 0 (Foundation) and Phase 1 (Data & Domain Modeling) done and verified locally. All 9 database entities exist as SQLAlchemy models with a working Alembic migration, and a Synthea-derived sample dataset loads successfully. No REST API business logic yet (Phase 2+) — only a health-check endpoint and a placeholder React screen.
+- **Current development stage:** Phases 0-2 done and verified locally. Database schema (9 SQLAlchemy models + Alembic migration), Synthea seed data, and a working JWT-authenticated REST API for Module 1 (patients/providers/facilities/registration reporting) all exist and are tested (24 passing pytest tests + a manual end-to-end curl walkthrough). Frontend is still just the Phase 0 placeholder screen — no real UI for any module yet (Phase 6).
 - **Main objective:** A Docker-Compose-deployable platform (5 functional modules) + a complete documentation set + 17 required architecture diagrams, defensible live in front of an examiner.
 
 ## 2. Project Summary
@@ -69,7 +69,7 @@ Detailed architecture (incl. AWS stretch topology, 17-diagram inventory): `docs/
 
 | Module | Purpose | Status |
 |---|---|---|
-| Patient & Provider Management | Registration, profiles, facility/provider assignment | NOT STARTED |
+| Patient & Provider Management | Registration, profiles, facility/provider assignment | BACKEND API DONE (Phase 2) — frontend UI not started (Phase 6) |
 | Telemedicine Appointments | Scheduling, consultations, status tracking | NOT STARTED |
 | Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | NOT STARTED |
 | AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | NOT STARTED |
@@ -79,105 +79,75 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 
 ## 8. Current Implementation Status
 
-**Completed** (verified locally in this sandbox; not yet pushed — see §17 item 3):
-- Full documentation set (12 files) committed and pushed: PRD, TRD, architecture, api-spec, backend-schema, deccission (ADR log), developement-rules, flow, impmemnentaion-plan, Security, Testing-startegy, UIUX
-- UI/UX template received and catalogued — 25 screens, "Clinical Precision" design system, pushed to the repo under `UIUX Design/`
-- GitHub repository created and pushed by the user directly from their own machine: `github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform`, branch `main`, commit `efe49df` ("Initial commit: project docs, UI/UX designs, and technology stack")
-- Tech stack, architecture, database schema (design-level, no DDL yet), API contract (design-level, no code yet), and 15 ADRs decided and documented (ADR-013/014/015 added this session for ORM/lint/frontend-build tooling)
-- **Phase 0 (Foundation) scaffolding, built and verified this session:**
-  - `backend/` — FastAPI app (`app/main.py`, `app/core/config.py`, `app/api/v1/health.py` + router), `requirements.txt` (pinned), `pyproject.toml` (Black+Ruff config), `Dockerfile`, `.env.example`. **Verified: ran `uvicorn app.main:app` directly in the sandbox (Docker unavailable here) — `GET /api/v1/health` returned `{"status":"ok"}`, `/docs` returned 200.**
-  - `frontend/` — React + Vite + Tailwind app (`src/App.jsx` pings the backend health endpoint), `package.json`, `vite.config.js`, `tailwind.config.js`, `postcss.config.js`, `eslint.config.js`, `Dockerfile`, `.env.example`. **Not executed** — no Node/npm in this sandbox; config was written carefully but only visually reviewed, not run.
-  - `infra/docker-compose.yml` — wires `postgres`, `redis`, `backend`, `frontend` with healthchecks; `infra/README.md` documents quick start. **Not executed** — no Docker in this sandbox; deliberately avoids requiring a pre-existing `.env` file so it should run out of the box, but this is unverified.
-  - Root `README.md` created (previously missing — was §17 known issue #2, now resolved).
-  - `.gitignore` strengthened: added Python/Node/env/OS ignores (previously only `*.pdf` — was §17 known issue #1, now resolved).
-  - `mkdocs.yml` + `docs-requirements.txt` (mkdocs-material). **Verified: `mkdocs build --strict` succeeded with zero warnings.**
-  - Doc cross-references updated to reflect these decisions: `docs/deccission.md` (ADR-013/014/015), `docs/developement-rules.md` §3, `docs/backend-schema.md` §5, `docs/TRD.md` §5, `docs/README.md` status line, `docs/impmemnentaion-plan.md` Phase 0 status.
+**Completed and pushed to GitHub** (`github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform`, `main`):
+- Full documentation set (12+ files: PRD, TRD, architecture, api-spec, backend-schema, deccission/ADR log, developement-rules, flow, impmemnentaion-plan, Security, Testing-startegy, UIUX, test-execution-log) and the 25-screen UI/UX template under `UIUX Design/`.
+- **Phase 0 — Foundation:** `backend/` (FastAPI skeleton), `frontend/` (React+Vite+Tailwind skeleton), `infra/docker-compose.yml`, root `README.md`, `mkdocs.yml`. Verified: FastAPI health endpoint runs; `mkdocs build --strict` clean; frontend+backend later confirmed running together (see below).
+- **Phase 1 — Data & Domain Modeling:** 9 SQLAlchemy models matching `backend-schema.md`, Alembic migration, `fetch_synthea.py`/`seed_synthea.py`. Verified: migration up/down clean on SQLite; seed script loads 200 patients/50 facilities/50 providers/953 health_readings with real Synthea vitals + physiologically-plausible simulated SpO2/temperature.
+- **Phase 2 — Module 1 (Patient & Provider Management), this session:** JWT auth (`app/core/security.py`, `app/api/deps.py`) + all `api-spec.md` §2-3 endpoints (`/auth/*`, `/patients`, `/providers`, `/facilities`, `/reports/registration`), with role-based access control including the doctor-scoped "assigned patients only" rule and patient self-access. **Verified two ways:** a full manual curl walkthrough (all happy paths + 3 role-denial checks correct) and 24 automated pytest tests, all passing (`backend/tests/`). Ruff+Black clean. Full details: `docs/test-execution-log.md`.
+- Sandbox capability discovery: Node.js and pip can both be obtained without sudo (portable binaries) — see §17 item 7. Frontend was actually run and confirmed talking to the live backend (not just "written but unverified" as earlier sessions had it).
+- ADR-016 through ADR-019 (blood pressure split, Synthea-only confirmed, `assigned_provider_id` added to close an api-spec/schema gap, all timestamps made timezone-aware) — each found and fixed during real implementation/verification, not speculative.
 
-**In Progress:**
-- Nothing actively mid-implementation. Phase 0 scaffolding is functionally complete pending a real `docker compose up` run on the student's own machine (this sandbox has no Docker/Node — see §17 item 7).
-
-**Phase 1 (Data & Domain Modeling), built and verified this session:**
-- `backend/app/models/` — 9 SQLAlchemy 2.0 models (User, Patient, Provider, Facility, Appointment,
-  Consultation, HealthReading, Alert, Prediction) matching `docs/backend-schema.md` exactly, plus
-  `app/models/enums.py` (UserRole, AppointmentStatus, AlertSeverity, AlertStatus, RiskCategory) and
-  `app/db/base.py` (engine/session/Base). **Verified:** `configure_mappers()` succeeds, no relationship errors.
-- `backend/alembic/` — initial migration (`788de84b0f84_initial_schema.py`) autogenerated from the
-  models. **Verified:** `alembic upgrade head` and `alembic downgrade base` both succeed against
-  SQLite (no PostgreSQL in this sandbox — real Postgres run still pending, see §17 item 7).
-- `backend/scripts/fetch_synthea.py` + `seed_synthea.py` — downloads the Synthea CSV sample
-  (`synthetichealth.github.io/synthea-sample-data`, 8.98 MB zip — note: `synthea.mitre.org`
-  directly failed TLS verification from this sandbox, used the GitHub-hosted mirror instead) and
-  maps it into the schema. **Verified end-to-end:** 200 sampled patients → 50 facilities, 50
-  providers, 953 `health_readings` rows; heart_rate/systolic_bp/diastolic_bp/glucose are real
-  Synthea LOINC-coded observation values, spo2/temperature are simulated (real data only covers
-  ~5% of encounters for those two). Fixed a real bug found during verification: provider name
-  cleaning left embedded digits (e.g. "Tomas436 Sauer") because Synthea's provider `NAME` field
-  isn't pre-split like patients' FIRST/LAST — now strips trailing digits per word, not just at the
-  string's end.
-- ADR-016 (blood pressure split into `systolic_bp`/`diastolic_bp`) and ADR-017 (ADR-011 resolved:
-  Synthea only, no supplementary Kaggle dataset — confirmed by directly inspecting the downloaded
-  CSV's LOINC codes before deciding) added to `docs/deccission.md`; `docs/backend-schema.md` §6
-  (new) documents the Synthea → schema field mapping.
+**In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
-- MkDocs site not yet published (build verified locally, not deployed)
-- Any of the 17 mandatory architecture diagrams as actual diagram files (only described in prose in `docs/architecture.md` and `docs/flow.md`; the ERD in `backend-schema.md` §1 is Mermaid source, not yet exported)
-- AWS deployment (stretch goal) — not started
-- All real API business logic for Modules 1–5 (auth, patients, appointments, monitoring, AI, dashboard endpoints) — only a health-check endpoint exists so far; Phase 2 starts this
+- Real PostgreSQL/Docker Compose run (still needs a Docker-capable machine — this sandbox has neither Docker nor a way to install Postgres without a sudo password)
+- Phases 3-10: telemedicine appointments, remote monitoring, AI risk assessment, executive dashboard, observability/security (OPA/Prometheus/Grafana/Trivy), AWS deployment, the 17 mandatory diagrams as actual files, and any real frontend UI beyond the Phase 0 placeholder screen
+- AWS budget alarm status — unknown, unverified
 
-**Blocked:**
-- None currently. (Direct git push *from this cloud sandbox* was blocked in an earlier session by the sandbox's own git proxy when no token was supplied; this session pushed successfully once the user supplied a PAT directly. See §17 item 3 — treat as "works when a token is provided," not "always blocked.")
+**Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
 
 ## 9. Current Development Phase
 
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 1 — Data & Domain Modeling (functionally complete, pending real-Postgres verification).** Done: 9 SQLAlchemy models, Alembic migration (verified on SQLite), Synthea CSV obtained and mapped, ADR-011 resolved as ADR-017, `backend-schema.md` finalized (ADR-016). Outstanding: a real `alembic upgrade head` run against actual PostgreSQL (needs Docker — not available in this sandbox, and no sudo to install Postgres locally either — see §17 item 7), and pushing this session's commits to GitHub.
+**CURRENT PHASE: Phase 2 — Module 1: Patient & Provider Management (done, pending real-Postgres verification).** All endpoints implemented and tested (manual walkthrough + 24 pytest tests, all passing). Outstanding: a real run against actual PostgreSQL/Docker (this sandbox has neither — see §17 item 7), and pushing this session's commit to GitHub.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Get this session's Phase 1 work pushed to GitHub, then start Phase 2
-(Module 1 — Patient & Provider Management API).
+Push this session's Phase 2 work, then start Phase 3 (Module 2 — Telemedicine
+Appointment & Consultation).
 
 OBJECTIVE:
-Build real REST endpoints per api-spec.md §3 (POST/GET /patients, /providers,
-/facilities, assign-patient, registration report), with JWT auth foundation
-and the role model (Patient/Doctor/Admin/Executive), per
-impmemnentaion-plan.md Phase 2.
+Scheduling, consultation records, appointment status tracking, provider
+schedules, operational reports per api-spec.md §4 and
+impmemnentaion-plan.md Phase 3.
 
 STATUS:
-Phase 1 committed locally, not yet pushed (need a token or the user's own
-push). Phase 2 not yet started.
+Phase 2 committed locally, not yet pushed (need a token or the user's own
+push). Phase 3 not yet started.
 
-FILES BEING MODIFIED (this session, Phase 1):
-backend/app/db/ (new), backend/app/models/ (new, 9 entities + enums),
-backend/alembic/ (new, initial migration), backend/scripts/fetch_synthea.py,
-backend/scripts/seed_synthea.py (new), .gitignore (+data/synthea/raw/, *.db),
-docs/deccission.md (+ADR-016/017), docs/backend-schema.md (§2 BP split, new §6),
-docs/impmemnentaion-plan.md (Phase 1 status), infra/README.md (DB setup steps).
+FILES ADDED/MODIFIED (this session, Phase 2):
+backend/app/core/security.py (new, JWT+bcrypt), backend/app/api/deps.py (new,
+auth/RBAC dependencies), backend/app/schemas/ (new, Pydantic DTOs),
+backend/app/api/v1/{auth,patients,providers,facilities,reports}.py (new),
+backend/app/api/v1/router.py, backend/app/main.py (error-shape handler),
+backend/app/models/patient.py (+assigned_provider_id, ADR-018), all 9 models
+(DateTime(timezone=True) fix, ADR-019), backend/alembic/versions/ (migration
+regenerated clean since nothing had been deployed yet), backend/tests/ (new,
+24 tests), backend/scripts/seed_dev_users.py (new), backend/pyproject.toml
+(ruff/black config additions), docs/deccission.md (+ADR-018/019),
+docs/backend-schema.md, docs/impmemnentaion-plan.md (Phase 2 status),
+docs/test-execution-log.md (new), docs/README.md, mkdocs.yml, README.md,
+infra/README.md.
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
-User (or a Docker-capable environment) then runs the real
-`docker compose up` → `alembic upgrade head` → `seed_synthea.py` sequence
-against actual PostgreSQL to get the verification this sandbox can't provide.
 ```
 
 ## 11. NEXT STEPS
 
-1. Commit and push this session's Phase 1 work (needs the user's GitHub token or the user pushing from their own machine — see §17 item 3)
-2. Ideally: user runs the real Postgres path (`docker compose up` → `alembic upgrade head` → seed script) at some point to confirm this sandbox's SQLite-based verification actually holds on Postgres too
-3. Start Phase 2: Module 1 (Patient & Provider Management) — CRUD endpoints per `api-spec.md` §3, JWT auth foundation, role model, registration report
+1. Commit and push this session's Phase 2 work (needs the user's GitHub token or the user pushing from their own machine — see §17 item 3)
+2. Ideally: user runs the real Postgres/Docker path at some point to confirm this sandbox's SQLite-based verification holds
+3. Start Phase 3: Module 2 (Telemedicine Appointment & Consultation) — scheduling, consultation records, status tracking, provider schedules, operational reports per `api-spec.md` §4
 4. Resolve the still-open decisions listed in §13/§17 before they block later phases
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit the Phase 1 work and push (pending token/user push), then begin
-Phase 2: JWT auth foundation + Module 1 CRUD endpoints
-(patients/providers/facilities) per docs/api-spec.md §2-3.
+Commit the Phase 2 work and push (pending token/user push), then begin
+Phase 3: appointments + consultations CRUD per docs/api-spec.md §4.
 ```
 
 ## 12. Project Roadmap
@@ -185,7 +155,7 @@ Phase 2: JWT auth foundation + Module 1 CRUD endpoints
 **Phase 0 — Foundation**
 - [x] Repository created, pushed to GitHub
 - [x] README, ADR log (`deccission.md`)
-- [x] `backend/` / `frontend/` / `infra/` folder skeleton (written; backend verified running, frontend/infra not — no Node/Docker in this sandbox)
+- [x] `backend/` / `frontend/` / `infra/` folder skeleton (backend and frontend both verified running, together, via a portable Node.js install; `docker-compose.yml` itself still unverified — no Docker in this sandbox)
 - [x] `docker-compose.yml` skeleton (written, not yet run — no Docker in this sandbox)
 - [x] `.gitignore` strengthened beyond `*.pdf`
 - [x] MkDocs initialized (`mkdocs build --strict` verified locally)
@@ -195,9 +165,17 @@ Phase 2: JWT auth foundation + Module 1 CRUD endpoints
 **Phase 1 — Data & Domain Modeling**
 - [x] PostgreSQL schema as real SQLAlchemy models + Alembic migration (verified on SQLite; real Postgres run still pending)
 - [x] Synthea dataset pulled/generated and mapped (`fetch_synthea.py`/`seed_synthea.py`, verified: 200 patients/50 facilities/50 providers/953 health_readings)
-- [ ] This session's Phase 1 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 1 work committed/pushed to GitHub (commit `9ba98b2`)
 
-**Phase 2–6 — Modules 1–5 (backend + frontend + AI)**
+**Phase 2 — Module 1: Patient & Provider Management**
+- [x] JWT auth (`/auth/login`, `/auth/refresh`, `/auth/me`)
+- [x] Patients/Providers/Facilities CRUD per `api-spec.md` §3
+- [x] Role model + doctor-scoped/patient-self-access authorization
+- [x] Registration report (`/reports/registration`)
+- [x] 24 automated pytest tests, all passing; manual E2E curl walkthrough verified
+- [ ] This session's Phase 2 work committed/pushed to GitHub — pending token/user push
+
+**Phase 3–6 — Modules 2–5 (backend + frontend + AI)**
 - [ ] Not started (any module)
 
 **Phase 7 — Observability & Security**
@@ -281,8 +259,8 @@ STATUS: Fixed — `.gitignore` now covers Python (`__pycache__/`, `.venv/`, etc.
 **2. No root-level `README.md`** — RESOLVED this session
 STATUS: Fixed — root `README.md` created, points into `docs/README.md` for the full index. NEXT ACTION: None.
 
-**3. Direct git push from a cloud/Claude-Code sandbox is blocked**
-STATUS: Confirmed — this session's sandbox git proxy rejected pushes to this repo ("not in this session's authorized repository set"). IMPACT: Medium for workflow — any future cloud-sandbox session cannot push directly; the user must push from their own machine (as they successfully did for the current commit). NEXT ACTION: None required unless the user wants to fix the sandbox authorization; otherwise just remember this constraint.
+**3. Direct git push from this sandbox needs a user-supplied token — otherwise it's blocked**
+STATUS: Well-established this session — pushed successfully 3 times using `git push https://<user>:<token>@github.com/...` (no `-u`, so the token is never written to `.git/config`; confirmed clean after every push). Without a token, an earlier session hit a sandbox git-proxy rejection ("not in this session's authorized repository set"). IMPACT: Low — just ask the user for a token each session/whenever the previous one might be stale; they've supplied the same token 3 times across this session without rotating it despite being advised to. NEXT ACTION: Always ask for a token before attempting to push; never assume one from a prior turn is still available (this code doesn't persist secrets between turns) or still valid.
 
 **4. Cloud sandbox local clones go stale**
 STATUS: Confirmed — an earlier local clone in a prior session diverged from what the user actually pushed (different file set/commit). IMPACT: Medium — future sessions must `git fetch && git reset --hard origin/main` (after checking for uncommitted work) before trusting the local tree, never assume the local sandbox clone is current. NEXT ACTION: Standard practice for every new session (see §19).
@@ -296,56 +274,63 @@ STATUS: UNKNOWN — needs verification. Phase 0's exit criteria calls for one; n
 **7. This sandbox has no Docker, no PostgreSQL, and no passwordless sudo. Node/npm and pip are NOT pre-installed but CAN be obtained without sudo (portable binaries) — do this at the start of any session that needs them, don't assume they're still there from a prior session.**
 STATUS: Confirmed and refined this session. `apt-cache policy postgresql` shows it's installable but not installed; `sudo -ln` requires a password we don't have — did not attempt to bypass this (PostgreSQL genuinely cannot be run here). BUT: pip was obtained via `curl bootstrap.pypa.io/get-pip.py | python3 - --user` (no sudo needed), and Node v20.18.1 was obtained by downloading the official portable tarball (`nodejs.org/dist/v20.18.1/node-v20.18.1-linux-x64.tar.xz`, ~26 MB) and extracting to `~/.local/node` (no sudo needed) — both installed outside the project directory, in the sandbox user's home dir, so they may or may not persist into a future session depending on sandbox lifecycle; re-check with `node --version`/`pip3 --version` rather than assuming either is gone or present. IMPACT: Low now for backend+frontend verification — both actually ran together this session (`npm install` succeeded, `npm run dev` served the real Vite/React/Tailwind app, which successfully fetched `/api/v1/health` from the live FastAPI backend, confirming CORS and the full non-Docker stack wiring). Remaining gap is narrower: only Docker itself and real PostgreSQL are unverifiable here (Docker needs cgroups/namespaces typically requiring root in a container sandbox — not attempted; real Postgres needs either Docker or a sudo-gated apt install). NEXT ACTION: If Node/pip aren't already present at the start of a session, re-fetch them the same way before assuming frontend work can't be verified. Still don't claim `docker compose up` or a real PostgreSQL run works without the user (or a Docker-capable environment) actually confirming it — that gap is real and unchanged.
 
+**8. `email-validator` (used by Pydantic `EmailStr`) rejects `.test`/`.local`/`.example`/`.invalid` as reserved special-use domains**
+STATUS: Confirmed by direct testing. IMPACT: Low, but easy to trip over — any seed/test/dev data using RFC 2606 "safe for docs" domains like `user@example.test` fails Pydantic validation even with `check_deliverability=False`, because the reserved-domain check isn't a deliverability check. `globalcare-demo.com`/`*.globalcare-demo.com` and `demo.globalcare.io` both pass. NEXT ACTION: Keep using `@globalcare-demo.com` for all seed/dev/test email addresses across the codebase (already applied in `seed_dev_users.py`, `seed_synthea.py`, `tests/`).
+
+**9. `pkill -f <pattern>` can match its own invoking shell and kill the whole script mid-run**
+STATUS: Confirmed twice this session — a multi-line Bash tool command that both started a background server (e.g. `nohup uvicorn ... --port 8002 &`) and later called `pkill -f "...--port 8002"` sometimes had the pattern also match the wrapping `bash -c '<the whole script text>'` process, killing the script before later lines ran (partial/confusing output, unrelated-looking exit codes like 144). IMPACT: Low but wastes a turn re-diagnosing "why did my script only run halfway." NEXT ACTION: Prefer `kill <specific-pid>` (from `pgrep` run in a separate prior tool call, not inline in the same script) over `pkill -f` with a pattern that might overlap the script's own command text; or use distinct, unlikely-to-collide filter strings.
+
 ## 18. Last Working Session
 
 ```
-DATE: 2026-08-22 (same-day session, continued)
-WHAT WE DID: Pushed the Phase 0 commit (367b98b) once the user supplied a
-  GitHub token — pushed without -u this time so the token was never written
-  to .git/config (a slip from the previous push, caught and avoided). Then
-  built Phase 1 (Data & Domain Modeling): 9 SQLAlchemy 2.0 models under
-  backend/app/models/ matching backend-schema.md, app/db/base.py, and an
-  Alembic setup (backend/alembic/) with an autogenerated initial migration.
-  Installed sqlalchemy/alembic/psycopg[binary] via pip --user. Verified the
-  migration applies and reverses cleanly against SQLite (no Postgres in this
-  sandbox, and no passwordless sudo to install it — confirmed via `sudo -ln`,
-  did not attempt to bypass). Searched for and downloaded the Synthea CSV
-  sample dataset (synthea.mitre.org itself failed TLS verification from this
-  sandbox; used the synthetichealth.github.io/synthea-sample-data GitHub
-  Pages mirror instead, resolved via its GitHub API-backed downloads listing).
-  Inspected observations.csv directly to confirm which vitals LOINC codes
-  are actually present before writing ADR-017 (Synthea-only, no Kaggle
-  supplement) — heart rate/BP/glucose are common (~13k rows each across 1171
-  patients), SpO2/temperature are rare (~5% of encounters). Wrote
-  fetch_synthea.py + seed_synthea.py, ran them end-to-end: 200 patients → 50
-  facilities, 50 providers, 953 health_readings. Found and fixed a real bug
-  during verification (provider name cleaning left embedded digits, e.g.
-  "Tomas436 Sauer", because Synthea's provider NAME field isn't pre-split
-  like patients' FIRST/LAST). Logged ADR-016 (blood_pressure split into
-  systolic_bp/diastolic_bp — a genuine schema refinement, not just an
-  implementation detail) and ADR-017 in deccission.md; added backend-schema.md
-  §6 documenting the Synthea→schema mapping; updated impmemnentaion-plan.md
-  Phase 1 status and infra/README.md with DB setup steps.
-WHAT CHANGED: Repo now has a full data layer (models + migration + seed
-  tooling), not just an empty scaffold. Not yet committed/pushed this half of
-  the session.
-WHAT WORKED: Full pipeline verified end-to-end on SQLite: model imports,
-  mapper configuration, migration up/down, and the Synthea seed script all
-  ran successfully with sane output (spot-checked actual row data, not just
-  exit codes — e.g. confirmed vitals ranges were physiologically plausible).
-WHAT DID NOT WORK / COULD NOT BE VERIFIED: No real PostgreSQL run — this
-  sandbox has neither Docker nor a way to install Postgres without a sudo
-  password. SQLite is a reasonable logical stand-in for "does this code run
-  and produce sane output" but is NOT the same as verifying Postgres-specific
-  behavior (native ENUM types, etc.). Do not report the Phase 1 exit
-  criteria ("schema migrated into a running PostgreSQL container") as fully
-  met — say SQLite-verified, Postgres-pending, same framing as Phase 0's
-  Docker gap.
-CURRENT STATE: Phase 1 functionally complete pending (a) a real Postgres run
-  and (b) pushing this session's commit to GitHub.
-NEXT ACTION: Commit this session's Phase 1 work; ask the user how they want
-  to push; then start Phase 2 (JWT auth + Module 1 CRUD endpoints per
-  api-spec.md §2-3).
+DATE: 2026-08-22 (same-day session, continued further)
+WHAT WE DID: Pushed Phase 1 (commit 9ba98b2). User asked to "see the working
+  stuff" — got a portable Node.js v20 running (no sudo, tarball from
+  nodejs.org), ran npm install + npm run dev for real, and showed both the
+  live backend (Swagger /docs) and live frontend (fetching the backend's
+  health check) in the Browser pane. This upgraded frontend verification from
+  "written but untested" to "actually confirmed running." Then built Phase 2
+  (Module 1 API): JWT auth (app/core/security.py: bcrypt + jose), RBAC
+  dependencies (app/api/deps.py: require_roles factory, interim substitute
+  for the OPA policies planned in Phase 7), Pydantic schemas, and all
+  api-spec.md §2-3 endpoints (auth, patients, providers, facilities,
+  registration report) with the doctor-scoped/patient-self-access rules from
+  Security.md §3. Found and fixed two real schema gaps while implementing:
+  ADR-018 (patients.assigned_provider_id didn't exist — the assign-patient
+  endpoint had nothing to write to) and ADR-019 (every timestamp column was
+  timezone-naive while every default value was timezone-aware — a latent
+  PostgreSQL bug). Since no migration had been deployed anywhere yet, the two
+  existing migrations were deleted and regenerated as one clean "initial
+  schema" migration rather than layering a third fix-up migration on top.
+  Wrote 24 pytest tests (backend/tests/) covering happy paths, 404s, role
+  denial, patient self-access, and duplicate-email conflicts — all passing.
+  Also ran a full manual curl walkthrough against a live server first, which
+  caught two real things: (1) email-validator rejects .test/.local as
+  reserved domains (switched all seed/test emails to @globalcare-demo.com),
+  (2) a stale SQLite file descriptor from an earlier manual test produced a
+  transient "readonly database" error (sandbox artifact, not an app bug —
+  resolved by fully killing old server processes and using a fresh DB
+  filename). Ran ruff+black, fixed all findings (reverted a Python-3.11-only
+  UP017 auto-fix since this sandbox only has 3.10; configured
+  extend-immutable-calls for FastAPI's Depends()-as-default pattern; per-file
+  F821 ignore for SQLAlchemy's Mapped["ClassName"] forward refs). Created
+  docs/test-execution-log.md (Testing-startegy.md §7's "test execution
+  summary" deliverable) and caught/fixed a real mkdocs --strict failure from
+  a prior session's edit (docs/README.md had markdown links pointing outside
+  docs_dir).
+WHAT CHANGED: Repo now has a real, tested REST API for Module 1, not just a
+  data layer. Committed locally, not yet pushed this half of the session.
+WHAT WORKED: Everything, verified two independent ways (manual + automated).
+  24/24 pytest tests pass. ruff and black both clean. mkdocs --strict clean.
+  Migration up/down/up cycle clean on SQLite.
+WHAT DID NOT WORK / COULD NOT BE VERIFIED: Still no real PostgreSQL/Docker
+  run — same gap as Phase 0/1, unchanged. Don't claim it's verified without
+  the user (or a Docker-capable environment) actually confirming it.
+CURRENT STATE: Phase 2 functionally complete pending (a) a real Postgres/
+  Docker run and (b) pushing this session's commit to GitHub.
+NEXT ACTION: Commit this session's Phase 2 work; ask the user how they want
+  to push; then start Phase 3 (Module 2 — Telemedicine Appointment &
+  Consultation) per api-spec.md §4.
 ```
 
 ## 19. Claude Instructions

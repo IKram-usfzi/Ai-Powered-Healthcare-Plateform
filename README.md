@@ -3,15 +3,17 @@
 **Capstone Project 19 · Diploma in AIOPS (EduQual Level 6) · al-Nafi International College**
 **Student:** Ikram Ullah | **Client (fictional, assessment purposes):** GlobalCare Telehealth Network
 
-> Status: **Phase 0 (Foundation) — scaffolding in progress.** Full documentation set is complete;
-> `backend/`, `frontend/`, and `infra/` now hold a running skeleton (see §3 below).
+> Status: **Phase 2 (Module 1 — Patient & Provider Management) done.** JWT-authenticated REST API
+> for patients/providers/facilities/registration reporting, backed by a real database schema and
+> Synthea-derived seed data. See §3 below.
 
 Full project overview, requirements, and documentation index: [`docs/README.md`](./docs/README.md).
 
 ## 1. Repository layout
 
 ```
-/backend        FastAPI application (Phase 0 skeleton — /api/v1/health only so far)
+/backend        FastAPI application — auth, patients/providers/facilities/reports (Phase 2),
+                 SQLAlchemy models + Alembic migration (Phase 1), Synthea seed scripts, pytest suite
 /frontend       React + Vite + Tailwind application (Phase 0 skeleton)
 /infra          Docker Compose setup wiring backend, frontend, PostgreSQL, Redis
 /docs           Full documentation set (PRD, TRD, architecture, API spec, schema, ADRs, ...)
