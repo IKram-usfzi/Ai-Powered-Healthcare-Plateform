@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Risk Assessment Detail - GlobalCare</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fefcff",
+                      "tertiary-fixed-dim": "#c0c6db",
+                      "secondary-fixed": "#dbe1ff",
+                      "tertiary-fixed": "#dce2f7",
+                      "on-primary-container": "#fefcff",
+                      "primary": "#0058be",
+                      "on-tertiary-fixed-variant": "#404758",
+                      "inverse-surface": "#273143",
+                      "primary-container": "#2170e4",
+                      "outline-variant": "#c2c6d6",
+                      "tertiary-container": "#6e7487",
+                      "surface-variant": "#d9e3fb",
+                      "surface-bright": "#f9f9ff",
+                      "primary-fixed-dim": "#adc6ff",
+                      "inverse-on-surface": "#ecf0ff",
+                      "surface-container-high": "#dfe8ff",
+                      "error-container": "#ffdad6",
+                      "on-background": "#111c2d",
+                      "background": "#f9f9ff",
+                      "on-secondary": "#ffffff",
+                      "inverse-primary": "#adc6ff",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed": "#141b2b",
+                      "surface": "#f9f9ff",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#005ac2",
+                      "on-secondary-fixed": "#00174b",
+                      "on-surface": "#111c2d",
+                      "on-surface-variant": "#424754",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#d8e2ff",
+                      "surface-container-low": "#f0f3ff",
+                      "on-primary-fixed": "#001a42",
+                      "on-tertiary": "#ffffff",
+                      "surface-container": "#e8eeff",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#316bf3",
+                      "tertiary": "#555c6e",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-dim": "#d0daf2",
+                      "surface-container-highest": "#d9e3fb",
+                      "outline": "#727785",
+                      "on-primary-fixed-variant": "#004395",
+                      "on-tertiary-container": "#fefcff",
+                      "secondary": "#0051d5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "12px",
+                      "container-max": "1440px",
+                      "margin-mobile": "16px",
+                      "gutter": "24px",
+                      "stack-lg": "48px",
+                      "base": "8px",
+                      "stack-md": "24px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Manrope"
+                      ],
+                      "display-kpi": [
+                              "Manrope"
+                      ],
+                      "headline-lg-mobile": [
+                              "Manrope"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Manrope"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Manrope"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-kpi": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-low shadow-[0px_4px_20px_rgba(0,0,0,0.03)] bg-white shadow-sm dark:bg-surface-container-low docked full-width top-0 z-50 fixed w-full">
+<div class="flex justify-between items-center w-full px-10 h-16 max-w-container-max mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-bold text-on-surface dark:text-on-surface">GlobalCare</span>
+</div>
+<!-- Navigation Links (Web) -->
+<nav class="hidden md:flex items-center space-x-1">
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container dark:hover:bg-surface-container-high transition-all font-label-md text-label-md" href="#">Overview</a>
+<a class="px-4 py-2 rounded-full text-on-surface dark:text-on-secondary-container border-b-2 border-primary dark:border-primary-fixed pb-1 font-bold font-label-md text-label-md scale-95 duration-150 ease-in-out" href="#">Patients</a>
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container dark:hover:bg-surface-container-high transition-all font-label-md text-label-md" href="#">Appointments</a>
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container dark:hover:bg-surface-container-high transition-all font-label-md text-label-md" href="#">Telemedicine</a>
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container dark:hover:bg-surface-container-high transition-all font-label-md text-label-md" href="#">Monitoring</a>
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container dark:hover:bg-surface-container-high transition-all font-label-md text-label-md" href="#">Analytics</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-outline-variant">
+<img alt="Dr. Julian Vance, Chief of Surgery" class="w-full h-full object-cover" data-alt="A professional headshot of Dr. Julian Vance, Chief of Surgery, in a modern clinical setting with soft, bright, white-mode lighting. High quality medical enterprise portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt3V7jgWn3sVtQK_2ASnL_e25jv9mr0UsUN8PGDvGKVKCUin1o5Y5KzVIhsEJyyJOL7_rB4bQLCAWbbnNbmHF4MrxQcg3LTj8FIp_YaD7ZVJTwrtrM-gvodOFmgY5P2DRZ-DpNKlFMpv2P5e2XI8dBbDSaFN4kvHGzheugNrYf3iCSaP19dcEosGGLXm4nKOr3yOpLK7rniexU9e1o3Sea7fiemlrdaVZ0lguuuWe8by9oqMvu7c6i7Q"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar & Main Content Wrapper -->
+<div class="flex pt-16 min-h-screen">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline docked full-height left-0 w-64 fixed left-0 top-16 bottom-0 flex flex-col py-6 space-y-2 z-40 hidden md:flex">
+<!-- Header -->
+<div class="px-6 mb-6 flex flex-col items-center text-center">
+<div class="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-surface-container shadow-sm">
+<img alt="Selected Patient Avatar" class="w-full h-full object-cover" data-alt="A clear, professional patient profile picture of an adult male in a well-lit, sterile medical environment. Calm and clinical aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3lTiJHm-VQjXvEUQB387futzqimmp2Il4zsqWCU7DERphI2vyqJnnAWc8Wzzy6Jx1BIwvSah2hwvd62Ff0V09PIMcB94wI9s81_s0DronwV54doEIohUrv6bMqcqB4MrT1OsM90SJa6qupzGt3c2oc1xLkoI9fQYKwWxTOr8gMtqawK19hYH1DrckYUvtydahAgqopqjClQuwTs_c8ak-sOGHgWdsbQX10OZ2xyNdDY9BMSw_OSDwVA"/>
+</div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">Sarah Jenkins</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">ID: 442-9910 • 42y Female</p>
+<button class="mt-4 px-4 py-2 bg-error-container text-on-error-container rounded-full font-label-md text-label-md font-semibold hover:bg-error hover:text-on-error transition-colors w-full flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">emergency</span>
+                    Emergency Access
+                </button>
+</div>
+<!-- Tabs -->
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high mx-2 rounded-xl hover:bg-surface-container-highest transition-colors font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+                    Patient Context
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-xl mx-2 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined filled" data-icon="monitoring">monitoring</span>
+                    Vitals
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high mx-2 rounded-xl hover:bg-surface-container-highest transition-colors font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+                    Labs
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high mx-2 rounded-xl hover:bg-surface-container-highest transition-colors font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined" data-icon="image">image</span>
+                    Imaging
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high mx-2 rounded-xl hover:bg-surface-container-highest transition-colors font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined" data-icon="pill">pill</span>
+                    Medications
+                </a>
+</nav>
+<!-- Footer Tabs -->
+<div class="mt-auto px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-colors font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                    Help Desk
+                </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full">
+<!-- Breadcrumbs & Header -->
+<div class="mb-stack-lg">
+<div class="flex items-center text-label-md font-label-md text-on-surface-variant mb-4 space-x-2">
+<a class="hover:text-primary transition-colors" href="#">Patients</a>
+<span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Ahmed Khan</a>
+<span class="material-symbols-outlined" style="font-size: 16px;">chevron_right</span>
+<span class="text-on-surface font-semibold">AI Risk Detail</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg md:text-[32px] font-bold text-on-surface mb-2">AI Risk Assessment Detail</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Predictive analysis for Ahmed Khan based on real-time vitals and historical data.</p>
+</div>
+<!-- Two Column Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column (Narrower) -->
+<div class="lg:col-span-4 space-y-gutter">
+<!-- Risk Score Card -->
+<div class="bg-white rounded-[20px] p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7] flex flex-col items-center justify-center text-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 w-full text-left">Current Risk Level</h3>
+<!-- Circular Gauge Sim -->
+<div class="relative w-48 h-48 flex items-center justify-center rounded-full border-8 border-surface-container mb-4">
+<!-- SVG for ring progress could go here, simulating with CSS -->
+<div class="absolute inset-0 rounded-full border-8 border-error rounded-full" style="clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);"></div>
+<div class="flex flex-col items-center">
+<span class="font-display-kpi text-display-kpi text-error">78</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">High Risk</span>
+</div>
+</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-full inline-flex items-center gap-2 mt-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 18px;">psychiatry</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">86% Prediction Confidence</span>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="bg-white rounded-[20px] p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7] space-y-3">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Quick Actions</h3>
+<button class="w-full bg-primary text-on-primary py-3 px-4 rounded-full font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">folder_shared</span>
+                            Open Patient Profile
+                        </button>
+<button class="w-full bg-white border border-[#EEF3F7] text-on-surface py-3 px-4 rounded-full font-label-md text-label-md font-semibold hover:bg-surface-container-low transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">person_add</span>
+                            Assign Provider
+                        </button>
+<button class="w-full bg-white border border-[#EEF3F7] text-on-surface py-3 px-4 rounded-full font-label-md text-label-md font-semibold hover:bg-surface-container-low transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">calendar_month</span>
+                            Schedule Follow-up
+                        </button>
+</div>
+</div>
+<!-- Right Column (Wider) -->
+<div class="lg:col-span-8 space-y-gutter">
+<!-- Risk Factors -->
+<div class="bg-white rounded-[20px] p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6">Impact Contribution by Factor</h3>
+<div class="space-y-5">
+<!-- Factor 1 -->
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="font-medium text-on-surface">SpO2 (Oxygen Saturation)</span>
+<span class="text-error font-medium">High Impact</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<!-- Factor 2 -->
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="font-medium text-on-surface">Blood Pressure</span>
+<span class="text-error font-medium">High Impact</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 70%"></div>
+</div>
+</div>
+<!-- Factor 3 -->
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="font-medium text-on-surface">Glucose</span>
+<span class="text-secondary-container font-medium">Medium Impact</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<!-- Factor 4 -->
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="font-medium text-on-surface">Age Factor</span>
+<span class="text-secondary-container font-medium">Medium Impact</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full" style="width: 40%"></div>
+</div>
+</div>
+<!-- Factor 5 -->
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="font-medium text-on-surface">Medication Compliance</span>
+<span class="text-tertiary font-medium">Low Impact</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Risk Trend -->
+<div class="bg-white rounded-[20px] p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7]">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Risk Trend</h3>
+<div class="flex space-x-2 bg-surface-container-low p-1 rounded-lg">
+<button class="px-3 py-1 text-label-sm font-label-sm rounded-md bg-white shadow-sm font-medium">7 Days</button>
+<button class="px-3 py-1 text-label-sm font-label-sm rounded-md text-on-surface-variant hover:bg-white/50">30 Days</button>
+<button class="px-3 py-1 text-label-sm font-label-sm rounded-md text-on-surface-variant hover:bg-white/50">90 Days</button>
+</div>
+</div>
+<!-- Simulated Chart -->
+<div class="h-48 w-full relative flex items-end justify-between pt-4 border-b border-surface-container">
+<!-- Grid lines -->
+<div class="absolute inset-0 flex flex-col justify-between z-0 pointer-events-none">
+<div class="border-b border-[#F1F5F9] w-full h-0"></div>
+<div class="border-b border-[#F1F5F9] w-full h-0"></div>
+<div class="border-b border-[#F1F5F9] w-full h-0"></div>
+</div>
+<!-- SVG Path for Line Chart Simulation -->
+<svg class="absolute inset-0 h-full w-full z-10" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M 0,80 L 16,75 L 33,60 L 50,65 L 66,40 L 83,25 L 100,20" fill="none" stroke="#0058be" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<path d="M 0,100 L 0,80 L 16,75 L 33,60 L 50,65 L 66,40 L 83,25 L 100,20 L 100,100 Z" fill="url(#blue-gradient)" opacity="0.1"></path>
+<defs>
+<lineargradient id="blue-gradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0058be"></stop>
+<stop offset="100%" stop-color="#0058be" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Data points -->
+<circle cx="83" cy="25" fill="#0058be" r="1.5"></circle>
+<circle cx="100" cy="20" fill="#ba1a1a" r="2" stroke="white" stroke-width="1"></circle>
+</svg>
+</div>
+<div class="flex justify-between text-label-sm font-label-sm text-on-surface-variant mt-2">
+<span>Mon</span>
+<span>Tue</span>
+<span>Wed</span>
+<span>Thu</span>
+<span>Fri</span>
+<span>Sat</span>
+<span>Today</span>
+</div>
+</div>
+<!-- AI Explanation -->
+<div class="bg-white rounded-[20px] p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                            AI Assessment Explanation
+                        </h3>
+<div class="space-y-4 font-body-md text-body-md text-on-surface-variant">
+<p class="flex items-start gap-3">
+<span class="material-symbols-outlined text-error mt-0.5" style="font-size: 20px;">arrow_downward</span>
+<span>The patient's recent oxygen saturation has decreased (avg. 88%).</span>
+</p>
+<p class="flex items-start gap-3">
+<span class="material-symbols-outlined text-error mt-0.5" style="font-size: 20px;">trending_up</span>
+<span>Blood pressure is elevated (145/92).</span>
+</p>
+<p class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary-container mt-0.5" style="font-size: 20px;">warning</span>
+<span>Glucose readings have increased over the last 48 hours.</span>
+</p>
+<div class="mt-6 p-4 bg-primary-fixed-dim/20 rounded-xl border border-primary-fixed-dim flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5">prescriptions</span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface text-[16px] mb-1">Recommended Action</h4>
+<p class="text-on-surface font-medium">Clinical review recommended immediately.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Health Risk Assessment - GlobalCare</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#141b2b",
+                    "secondary-fixed": "#dbe1ff",
+                    "on-primary-fixed-variant": "#004395",
+                    "inverse-surface": "#273143",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c2c6d6",
+                    "primary": "#0058be",
+                    "primary-fixed": "#d8e2ff",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "surface-variant": "#d9e3fb",
+                    "on-tertiary-container": "#fefcff",
+                    "surface-container-low": "#f0f3ff",
+                    "surface-container-highest": "#d9e3fb",
+                    "error-container": "#ffdad6",
+                    "surface": "#f9f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#adc6ff",
+                    "inverse-primary": "#adc6ff",
+                    "tertiary-fixed-dim": "#c0c6db",
+                    "inverse-on-surface": "#ecf0ff",
+                    "primary-container": "#2170e4",
+                    "tertiary-container": "#6e7487",
+                    "background": "#f9f9ff",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#404758",
+                    "surface-bright": "#f9f9ff",
+                    "on-surface": "#111c2d",
+                    "on-primary-fixed": "#001a42",
+                    "secondary": "#0051d5",
+                    "secondary-container": "#316bf3",
+                    "surface-tint": "#005ac2",
+                    "tertiary-fixed": "#dce2f7",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#fefcff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#424754",
+                    "surface-container": "#e8eeff",
+                    "surface-container-high": "#dfe8ff",
+                    "tertiary": "#555c6e",
+                    "on-secondary-fixed": "#00174b",
+                    "on-secondary-container": "#fefcff",
+                    "surface-dim": "#d0daf2",
+                    "on-background": "#111c2d",
+                    "outline": "#727785"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "base": "8px",
+                    "stack-md": "24px",
+                    "margin-mobile": "16px",
+                    "container-max": "1440px",
+                    "stack-sm": "12px",
+                    "margin-desktop": "40px",
+                    "stack-lg": "48px"
+            },
+            "fontFamily": {
+                    "headline-lg": [
+                            "Manrope"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Manrope"
+                    ],
+                    "headline-sm": [
+                            "Manrope"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "display-kpi": [
+                            "Manrope"
+                    ],
+                    "headline-md": [
+                            "Manrope"
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "11px",
+                            {
+                                    "lineHeight": "14px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-kpi": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+        },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        /* Ambient shadows for cards */
+        .card-shadow {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #EEF3F7;
+        }
+        
+        .card-hover:hover {
+            box-shadow: 0px 12px 32px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen flex overflow-hidden">
+<!-- Side Navigation -->
+<aside class="hidden md:flex flex-col h-screen w-64 rounded-r-xl bg-surface-container-lowest dark:bg-surface-container-low shadow-sm py-stack-md z-20 flex-shrink-0">
+<!-- Header -->
+<div class="px-margin-mobile mb-stack-md flex items-center gap-3">
+<img alt="GlobalCare Logo" class="h-8 w-8 object-contain rounded-md" data-alt="A clean, minimalist logo for a high-end enterprise healthcare software system called GlobalCare. The logo features a subtle geometric cross integrated with a continuous, smooth curve, rendered in a crisp primary blue (#3B82F6) against a pure white background. The aesthetic is extremely modern, authoritative, and clinical." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLZ1eAQ8ISQoV1cCIhfIKKNGc6UWCszzBaEYa-wbqNoKbv-WR1-WMMsdNANk-LgV4ozALQw5riOfPTpYo8k7qy2-N9237dEFs8mfrRMBxhwZ-oj0_0a8CqvtKEDaVTtzcqkgGO-4Fda5m8LZU5JmxpxdBXbXqCO21kRw775aZuzzjG4UgHy6pNX0yRxlEdnIcTU4yf6-dwnuuyoyATS_Vz7RQI1wyY801KNxzvBPLaNGrdpld-LRhbPQ"/>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">GlobalCare</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Health System</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface hover:translate-x-1 transition-transform active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface hover:translate-x-1 transition-transform active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Patients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface hover:translate-x-1 transition-transform active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-md text-label-md">Schedules</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full hover:translate-x-1 transition-transform active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface hover:translate-x-1 transition-transform active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">clinical_notes</span>
+<span class="font-label-md text-label-md">Records</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col overflow-hidden">
+<!-- TopAppBar (Mobile & Desktop) -->
+<header class="w-full h-16 bg-surface-container-lowest dark:bg-surface-container-low shadow-sm dark:shadow-none shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex justify-between items-center px-margin-desktop w-full max-w-container-max mx-auto z-10">
+<!-- Left: Mobile Menu / Search (If search on left) -->
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant p-2 -ml-2 rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden md:flex relative w-64 items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline">search</span>
+<input class="w-full h-10 pl-10 pr-4 bg-surface rounded-lg border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary font-body-sm text-body-sm text-on-surface placeholder:text-outline outline-none transition-all" placeholder="Search patients, records..." type="text"/>
+</div>
+</div>
+<!-- Mobile Logo (Center) -->
+<div class="md:hidden font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">
+                GlobalCare
+            </div>
+<!-- Right: Actions & Profile -->
+<div class="flex items-center gap-2 md:gap-4">
+<button class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors p-2 rounded-full hover:bg-surface-variant hidden md:flex">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors p-2 rounded-full hover:bg-surface-variant hidden md:flex">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2 hidden md:block"></div>
+<button class="flex items-center gap-2">
+<img alt="Clinical administrator profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A highly professional headshot of a clinical administrator in a bright, modern hospital setting. They are wearing a pristine white coat, smiling subtly. The lighting is soft and bright, emphasizing a high-trust, clinical environment. Corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEV2Oo1DP-oZKSRfQi6euoWMtct611-LvPCMbXbe9lJrHe2f7E5cHBi_hML0ntT4GckMoK_sxYGoNJNZAJaYGFIqGtNj2bJ2Sj808mZpsBrMQ4yZ7Z2GA1R3RuXh2FVw3PkQIaR8XwRJ-L3F-6HeXpJUICNgsQn6Qlx7M1o05wwCaD6Gx7PduKLpZI6QJBOaeVeYrPCutA3ITp5I7K2uN4ksbKJ5HlXi9KP1BsHlWz9CTII3MlKacQAg"/>
+</button>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop bg-background pb-32 md:pb-margin-desktop">
+<div class="max-w-container-max mx-auto space-y-stack-lg">
+<!-- Page Header -->
+<div class="mb-stack-lg">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">AI Health Risk Assessment</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Identify patients requiring clinical attention using lightweight AI-assisted risk analysis.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="bento-grid">
+<!-- KPI 1 -->
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest rounded-xl p-6 card-shadow card-hover flex flex-col justify-between h-32">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Patients Assessed</span>
+<div class="font-display-kpi text-display-kpi text-on-surface">1,240</div>
+</div>
+<!-- KPI 2 -->
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest rounded-xl p-6 card-shadow card-hover flex flex-col justify-between h-32 border-l-4 border-error">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-error uppercase tracking-wide font-bold">High Risk</span>
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface">126</div>
+</div>
+<!-- KPI 3 -->
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest rounded-xl p-6 card-shadow card-hover flex flex-col justify-between h-32 border-l-4 border-yellow-500">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-yellow-600 uppercase tracking-wide font-bold">Medium Risk</span>
+<span class="material-symbols-outlined text-yellow-500">info</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface">284</div>
+</div>
+<!-- KPI 4 -->
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest rounded-xl p-6 card-shadow card-hover flex flex-col justify-between h-32 border-l-4 border-green-500">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-green-700 uppercase tracking-wide font-bold">Low Risk</span>
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface">830</div>
+</div>
+<!-- Risk Distribution (Main Area - Left) -->
+<div class="col-span-12 md:col-span-8 space-y-gutter">
+<div class="bg-surface-container-lowest rounded-xl p-8 card-shadow">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">Risk Distribution</h2>
+<!-- Simplified Segmented Bar Viz -->
+<div class="w-full h-8 rounded-full overflow-hidden flex shadow-inner mb-4">
+<div class="bg-green-500 h-full flex items-center justify-center text-white font-label-sm" style="width: 72%;">72%</div>
+<div class="bg-yellow-500 h-full flex items-center justify-center text-white font-label-sm" style="width: 21%;">21%</div>
+<div class="bg-error h-full flex items-center justify-center text-white font-label-sm" style="width: 7%;">7%</div>
+</div>
+<div class="flex gap-6 mt-4 justify-center">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-green-500"></div>
+<span class="font-label-md text-label-md text-on-surface-variant">Low Risk (72%)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+<span class="font-label-md text-label-md text-on-surface-variant">Medium Risk (21%)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-error"></div>
+<span class="font-label-md text-label-md text-on-surface-variant">High Risk (7%)</span>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-surface-container-lowest rounded-xl p-8 card-shadow overflow-hidden">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Patients Requiring Attention</h2>
+<button class="flex items-center gap-2 text-primary hover:text-primary-container transition-colors font-label-md text-label-md">
+                                    View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/50 text-on-surface-variant font-label-md text-label-md">
+<th class="pb-3 font-medium">Patient</th>
+<th class="pb-3 font-medium">Risk Score</th>
+<th class="pb-3 font-medium">Risk Level</th>
+<th class="pb-3 font-medium">Primary Factor</th>
+<th class="pb-3 font-medium">Last Assessment</th>
+<th class="pb-3 font-medium">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface">
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<img alt="Ahmed Khan" class="w-8 h-8 rounded-full object-cover" data-alt="A small, professional headshot avatar of an older male patient named Ahmed Khan. The image is bright, high-contrast, and suitable for a clinical dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQqETv3awBvCd7M2AqcV_qAFOwCR377xYaNPGm_JW6wmLksKQYImCHfy373fFgl7tgqOpfmtpxvBzRmUBYAsI9RPDK9TE07cipTOp0hfs9Q12CGCAUTcYoO_JC3ewnTFtMwaosp6BNu9y4Th5VnTOCNpX87ACegMZfPdRBUPM40IrcuwZWsueWmAyn0NUvlFxxShRD1NDvRwPoQO9N4nlr7fFujnwqs-GJ0hXBj9O9cDIx2nECSAL1rg"/>
+<span class="font-medium">Ahmed Khan</span>
+</div>
+</td>
+<td class="py-4 font-display-kpi text-xl text-error">78</td>
+<td class="py-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">High</span>
+</td>
+<td class="py-4 text-on-surface-variant">Low SpO₂</td>
+<td class="py-4 text-on-surface-variant">2 min ago</td>
+<td class="py-4">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-colors text-label-sm font-label-sm">View Profile</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<img alt="Sara Ali" class="w-8 h-8 rounded-full object-cover" data-alt="A small, professional headshot avatar of a middle-aged female patient named Sara Ali. The image is bright, high-contrast, and suitable for a clinical dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiNuo3ejvKMgB0j1WrnoDdtzDsX7hre6ZwD7nBi6EZJqxl3thjr7Nw7el5ifaWpf8nV8sJerj8Bs8kMrArkWnq7ra0RXjGTEHamIgVqnoG-oY38pw-b-VdhRem9P_HKXq_n0QNCN-aJUekXlZerQqgafEWrBSc-WhZmU8z1nTw4ZngCYDIt49bcLiejotv_d-njz0sqVfOHFm2ac6p7HK1yctZU5LnRa0M5YPUOlygUg5_VevTOz6iDQ"/>
+<span class="font-medium">Sara Ali</span>
+</div>
+</td>
+<td class="py-4 font-display-kpi text-xl text-yellow-600">62</td>
+<td class="py-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 font-label-sm text-label-sm">Medium</span>
+</td>
+<td class="py-4 text-on-surface-variant">Elevated glucose</td>
+<td class="py-4 text-on-surface-variant">8 min ago</td>
+<td class="py-4">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-colors text-label-sm font-label-sm">View Profile</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Panel (Model Overview) -->
+<div class="col-span-12 md:col-span-4 space-y-gutter">
+<div class="bg-surface-container-lowest rounded-xl p-8 card-shadow h-full flex flex-col relative overflow-hidden">
+<!-- Subtle Background Shader Effect Placeholder -->
+<div class="absolute inset-0 opacity-10 pointer-events-none rounded-xl overflow-hidden">
+<div class="w-full h-full bg-gradient-to-br from-primary-fixed to-transparent"></div>
+</div>
+<div class="relative z-10 flex-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">model_training</span>
+                                    AI Model Overview
+                                </h2>
+<ul class="space-y-6">
+<li class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Model</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">Healthcare Risk Classifier v2.4</span>
+</li>
+<li class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status</span>
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+<span class="font-body-md text-body-md font-medium text-on-surface">Active &amp; Monitoring</span>
+</div>
+</li>
+<li class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Prediction Accuracy</span>
+<span class="font-display-kpi text-[32px] leading-10 text-primary">87%</span>
+</li>
+<li class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Last Updated</span>
+<span class="font-body-md text-body-md text-on-surface">Today, 08:00 AM</span>
+</li>
+</ul>
+</div>
+<div class="relative z-10 mt-8 pt-6 border-t border-outline-variant/30">
+<div class="flex items-start gap-2 p-4 bg-surface-container-low rounded-lg border border-outline-variant/50">
+<span class="material-symbols-outlined text-outline text-lg">info</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant italic leading-relaxed">
+                                        AI-generated risk assessments support clinical decision-making and do not replace professional clinical judgment. Clinical review recommended.
+                                    </p>
+</div>
+</div>
+</div>
+</div>
+</div> <!-- End Bento Grid -->
+</div>
+</main>
+</div>
+</body></html>

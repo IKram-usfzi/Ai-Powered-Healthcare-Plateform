@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GlobalCare - Analytics &amp; AI Risk Assessment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#d8e2ff",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "surface-container-low": "#f0f3ff",
+                        "on-secondary-container": "#fefcff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-tertiary-container": "#fefcff",
+                        "on-secondary-fixed": "#00174b",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#273143",
+                        "surface-bright": "#f9f9ff",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-primary-container": "#fefcff",
+                        "inverse-on-surface": "#ecf0ff",
+                        "surface-container-highest": "#d9e3fb",
+                        "secondary": "#0051d5",
+                        "surface": "#f9f9ff",
+                        "on-tertiary-fixed": "#141b2b",
+                        "on-background": "#111c2d",
+                        "on-surface-variant": "#424754",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "surface-container": "#e8eeff",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#dce2f7",
+                        "surface-container-high": "#dfe8ff",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#005ac2",
+                        "primary": "#0058be",
+                        "outline": "#727785",
+                        "inverse-primary": "#adc6ff",
+                        "outline-variant": "#c2c6d6",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "primary-container": "#2170e4",
+                        "tertiary": "#555c6e",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#6e7487",
+                        "surface-variant": "#d9e3fb",
+                        "secondary-container": "#316bf3",
+                        "background": "#f9f9ff",
+                        "surface-dim": "#d0daf2",
+                        "on-primary-fixed-variant": "#004395",
+                        "on-surface": "#111c2d",
+                        "on-primary-fixed": "#001a42"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "stack-md": "24px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "48px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "display-kpi": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Manrope"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-kpi": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        .shadow-level-1 {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        .card-hover:hover {
+            box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<!-- TopNavBar -->
+<nav class="bg-surface shadow-[0px_4px_20px_rgba(0,0,0,0.03)] bg-white sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-10 h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-on-surface">GlobalCare</span>
+<div class="hidden md:flex gap-6">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-5" href="#">Overview</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-5" href="#">Patients</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-5" href="#">Appointments</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-5" href="#">Telemedicine</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-5" href="#">Monitoring</a>
+<a class="font-label-md text-label-md text-on-surface border-b-2 border-primary pb-1 font-bold py-5 mt-[2px]" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Search..." type="text"/>
+</div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<img alt="Dr. Julian Vance, Chief of Surgery" class="w-8 h-8 rounded-full object-cover border border-outline-variant ml-2" data-alt="A professional headshot of a mature male doctor, Dr. Julian Vance, Chief of Surgery, wearing a white coat over a blue shirt, smiling warmly in a bright, modern clinical setting with soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeEL34V1Ie7m-sRjIgyAPfnQr1YWsiI52GBPe1_LGPSxNUu460n3cYiXP_WnWgqwzITlCSBv5gTDFcvaX6ydXj6DTkDSsf_59zH8F6Fp8-4CBTn6b7sMJzsZktaEv9n5I3TpMtmCQNhP7NX1FyNj4kcsHtKP41zr_PRxlsj6J79gkac1QPDLqhMpsGWruYTeND4aUQ37ygKKoCilBYDFjoqM21J_EG-iUQmKN8xI8IYZAkqSukcjHjog"/>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-stack-lg gap-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Hospital Analytics &amp; Risk</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Real-time insights and predictive AI risk modeling for GlobalCare facilities.</p>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-full text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Export Audit Logs
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary rounded-full text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">security</span>
+                    Security Overview
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Key Metrics Row (Full Width spanning) -->
+<div class="col-span-1 md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-gutter mb-stack-md">
+<!-- Metric 1 -->
+<div class="bg-white rounded-[20px] p-6 shadow-level-1 border border-[#EEF3F7] card-hover">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Active Patients</span>
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-1 rounded-lg">group</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface mb-2">2,451</div>
+<div class="flex items-center gap-1 font-body-sm text-body-sm text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+                        +12% this week
+                    </div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-white rounded-[20px] p-6 shadow-level-1 border border-[#EEF3F7] card-hover">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Bed Occupancy</span>
+<span class="material-symbols-outlined text-secondary bg-secondary-fixed p-1 rounded-lg">bed</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface mb-2">87%</div>
+<div class="flex items-center gap-1 font-body-sm text-body-sm text-amber-600 bg-amber-50 px-2 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                        Nearing capacity
+                    </div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-white rounded-[20px] p-6 shadow-level-1 border border-[#EEF3F7] card-hover">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Avg Readmission</span>
+<span class="material-symbols-outlined text-tertiary bg-tertiary-fixed p-1 rounded-lg">replay</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface mb-2">4.2%</div>
+<div class="flex items-center gap-1 font-body-sm text-body-sm text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-[16px]">trending_down</span>
+                        -0.5% vs last mo
+                    </div>
+</div>
+<!-- Metric 4 -->
+<div class="bg-white rounded-[20px] p-6 shadow-level-1 border border-[#EEF3F7] card-hover">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">AI Alerts Generated</span>
+<span class="material-symbols-outlined text-error bg-error-container p-1 rounded-lg">smart_toy</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface mb-2">128</div>
+<div class="flex items-center gap-1 font-body-sm text-body-sm text-error bg-error/10 px-2 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-[16px]">priority_high</span>
+                        12 High Priority
+                    </div>
+</div>
+</div>
+<!-- Left Column: Charts (8 cols) -->
+<div class="col-span-1 md:col-span-8 flex flex-col gap-gutter">
+<!-- Chart 1: Population Health Trends -->
+<div class="bg-white rounded-[20px] p-8 shadow-level-1 border border-[#EEF3F7]">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Population Health Trends</h2>
+<select class="bg-surface-container-low border border-outline-variant rounded-lg text-body-sm px-3 py-1 focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Last 30 Days</option>
+<option>Last Quarter</option>
+<option>Year to Date</option>
+</select>
+</div>
+<!-- Placeholder for Chart -->
+<div class="w-full h-64 bg-surface-container rounded-lg flex items-center justify-center border border-outline-variant/30 relative overflow-hidden">
+<div class="absolute bottom-0 left-0 w-full h-full opacity-20" style="background: linear-gradient(180deg, transparent 0%, var(--tw-colors-primary) 100%); clip-path: polygon(0 100%, 0 60%, 10% 55%, 20% 70%, 30% 65%, 40% 80%, 50% 50%, 60% 60%, 70% 40%, 80% 45%, 90% 20%, 100% 30%, 100% 100%);"></div>
+<div class="absolute bottom-0 left-0 w-full h-full opacity-10" style="background: linear-gradient(180deg, transparent 0%, var(--tw-colors-secondary) 100%); clip-path: polygon(0 100%, 0 80%, 15% 75%, 25% 85%, 40% 70%, 55% 90%, 65% 60%, 80% 75%, 95% 50%, 100% 60%, 100% 100%);"></div>
+<!-- Grid lines -->
+<div class="absolute inset-0 flex flex-col justify-between py-4 pointer-events-none">
+<div class="border-t border-outline-variant/20 w-full"></div>
+<div class="border-t border-outline-variant/20 w-full"></div>
+<div class="border-t border-outline-variant/20 w-full"></div>
+<div class="border-t border-outline-variant/20 w-full"></div>
+</div>
+<span class="text-on-surface-variant font-label-md">Interactive Line Chart Rendered Here</span>
+</div>
+</div>
+<!-- Lower Charts Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Resource Allocation -->
+<div class="bg-white rounded-[20px] p-6 shadow-level-1 border border-[#EEF3F7]">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4">Resource Allocation</h2>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-1">
+<span class="text-on-surface">ICU Staffing</span>
+<span class="text-on-surface-variant">92%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-1">
+<span class="text-on-surface">Ventilator Usage</span>
+<span class="text-on-surface-variant">45%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-secondary h-2 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-1">
+<span class="text-on-surface">ER Wait Times</span>
+<span class="text-error">110% (Over target)</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-error h-2 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Clinical Outcomes -->
+<div class="bg-white rounded-[20px] p-6 shadow-level-1 border border-[#EEF3F7]">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4">Clinical Outcomes</h2>
+<!-- Donut Chart Placeholder -->
+<div class="flex items-center justify-center h-32 relative">
+<div class="w-24 h-24 rounded-full border-8 border-primary border-r-surface-container border-b-secondary transform rotate-45"></div>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md text-on-surface">94%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Success</span>
+</div>
+</div>
+<div class="flex justify-center gap-4 mt-4 font-label-sm text-label-sm">
+<div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-primary"></span> Expected</div>
+<div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-secondary"></span> Exceeded</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: AI Risk Assessment (4 cols) -->
+<div class="col-span-1 md:col-span-4 flex flex-col gap-gutter">
+<div class="bg-surface-container-low rounded-[20px] p-6 border border-primary/20 shadow-level-1 h-full flex flex-col">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h2 class="font-headline-sm text-headline-sm text-primary">AI Risk Assessment</h2>
+</div>
+<!-- Heatmap Area -->
+<div class="mb-6">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-2 uppercase tracking-wider">Facility Risk Heatmap</h3>
+<div class="relative w-full h-48 bg-surface-container rounded-lg overflow-hidden border border-outline-variant/30">
+<!-- Simulated Heatmap using gradients -->
+<div class="absolute inset-0 opacity-60" style="background: radial-gradient(circle at 70% 30%, rgba(220, 38, 38, 0.8) 0%, transparent 40%), radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.6) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.4) 0%, transparent 60%);"></div>
+<!-- Overlay nodes -->
+<div class="absolute top-[30%] left-[70%] w-3 h-3 bg-error rounded-full shadow-[0_0_10px_rgba(220,38,38,1)] animate-pulse"></div>
+<div class="absolute top-[80%] left-[20%] w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,1)]"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 px-2 py-1 rounded text-[10px] font-label-sm text-on-surface shadow-sm">
+                                Floor 3: ICU Wing
+                            </div>
+</div>
+</div>
+<!-- Predicted Alerts List -->
+<div class="flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-3 uppercase tracking-wider">Predicted Future Alerts</h3>
+<div class="space-y-3">
+<!-- Alert 1 (High) -->
+<div class="bg-white p-3 rounded-lg border-l-4 border-error shadow-sm">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Sepsis Risk Elevated</span>
+<span class="bg-error-container text-error px-2 py-0.5 rounded text-[10px] font-bold">92% Prob</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">Patient ID: 88392 - ICU Bed 4. Vitals trending towards critical in next 4hrs.</p>
+</div>
+<!-- Alert 2 (Medium) -->
+<div class="bg-white p-3 rounded-lg border-l-4 border-amber-500 shadow-sm">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Staffing Shortage</span>
+<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">75% Prob</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">ER admissions projected to surge between 18:00 - 22:00.</p>
+</div>
+<!-- Alert 3 (Low) -->
+<div class="bg-white p-3 rounded-lg border-l-4 border-secondary shadow-sm">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Equipment Maint.</span>
+<span class="bg-secondary-fixed text-secondary px-2 py-0.5 rounded text-[10px] font-bold">60% Prob</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">MRI Unit B showing early signs of cooling system inefficiency.</p>
+</div>
+</div>
+</div>
+<button class="mt-4 w-full py-2 bg-white border border-outline-variant rounded-full text-primary font-label-md text-label-md hover:bg-surface-container transition-colors text-center">
+                        View All Predictions
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

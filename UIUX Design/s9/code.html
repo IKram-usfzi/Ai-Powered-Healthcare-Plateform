@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Telemedicine Waiting Room - GlobalCare</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c2c6d6",
+                        "inverse-surface": "#273143",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-low": "#f0f3ff",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f9f9ff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#adc6ff",
+                        "tertiary": "#555c6e",
+                        "secondary": "#0051d5",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#fefcff",
+                        "on-surface": "#111c2d",
+                        "tertiary-fixed": "#dce2f7",
+                        "outline": "#727785",
+                        "on-tertiary-container": "#fefcff",
+                        "surface-variant": "#d9e3fb",
+                        "secondary-container": "#316bf3",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-high": "#dfe8ff",
+                        "primary-container": "#2170e4",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "surface-dim": "#d0daf2",
+                        "surface": "#f9f9ff",
+                        "on-primary-fixed": "#001a42",
+                        "surface-container-highest": "#d9e3fb",
+                        "on-surface-variant": "#424754",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#fefcff",
+                        "tertiary-container": "#6e7487",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-container": "#e8eeff",
+                        "background": "#f9f9ff",
+                        "on-tertiary-fixed": "#141b2b",
+                        "on-primary-fixed-variant": "#004395",
+                        "on-background": "#111c2d",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-tint": "#005ac2",
+                        "on-secondary": "#ffffff",
+                        "primary": "#0058be",
+                        "inverse-on-surface": "#ecf0ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "margin-mobile": "16px",
+                        "stack-sm": "12px",
+                        "container-max": "1440px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Manrope"],
+                        "display-kpi": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-kpi": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .card-shadow {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        .card-shadow-hover:hover {
+            box-shadow: 0px 12px 32px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md antialiased selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation -->
+<nav class="bg-surface dark:bg-inverse-surface shadow-sm docked full-width top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin-desktop h-20 max-w-container-max mx-auto">
+<div class="flex items-center gap-stack-md">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary tracking-tight">GlobalCare</span>
+<div class="hidden md:flex ml-8 items-center h-full space-x-2">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 px-4 py-2 rounded-full font-label-md text-label-md" href="#">Overview</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 px-4 py-2 rounded-full font-label-md text-label-md" href="#">Patients</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 px-4 py-2 rounded-full font-label-md text-label-md" href="#">Appointments</a>
+<a class="bg-surface-container-high text-on-surface dark:text-inverse-on-surface font-bold px-4 py-2 rounded-full font-label-md text-label-md border-b-2 border-primary dark:border-inverse-primary pb-1" href="#">Telemedicine</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 px-4 py-2 rounded-full font-label-md text-label-md" href="#">Monitoring</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 px-4 py-2 rounded-full font-label-md text-label-md" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-shadow w-64" placeholder="Search patients..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors hidden sm:block">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors hidden sm:block">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-2 rounded-full hover:opacity-90 transition-opacity ml-2 scale-98 active:opacity-80 transition-transform">
+                    New Patient
+                </button>
+<img alt="Clinician Profile" class="w-10 h-10 rounded-full object-cover border border-outline-variant ml-4 cursor-pointer" data-alt="A professional headshot of a female clinician in a modern hospital setting, well-lit, wearing a white coat and a stethoscope, smiling slightly. Clean and bright clinical aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUR83E5tRe2vwjaKw9WLb_E_vC6vcBFsPtG_1zznsfDHzTCafde3ysrfEjXcTq4kyJy7qOAzDd-3M74b1s96TqJGPT9rk_YwCRyPZRPKvs2KbOBe0T6WbEvkafIBe4dsOB1jzK9oEzz1EBwQZr2009Whm_Rn0J8FjyJykO_HWkv018cDAzCFug2Uk9oOWXTl_ti2woLqmBcPkpAWCM05ZNP-2Yx8wrhFYjUlIv_S1aWJSHcbZ5YFiACg"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<!-- Page Header -->
+<header class="mb-stack-lg">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Telemedicine</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage today's virtual consultations.</p>
+</header>
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg">
+<!-- Waiting Patients -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow card-shadow-hover border border-[#EEF3F7] transition-all duration-300">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Waiting Patients</span>
+<div class="w-10 h-10 rounded-full bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined filled" data-icon="group">group</span>
+</div>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface">12</div>
+<div class="mt-2 flex items-center text-error font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] mr-1" data-icon="trending_up">trending_up</span>
+<span>+2 since last hour</span>
+</div>
+</div>
+<!-- Active Consultations -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow card-shadow-hover border border-[#EEF3F7] transition-all duration-300">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Active Consultations</span>
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined filled" data-icon="videocam">videocam</span>
+</div>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface">6</div>
+<div class="mt-2 flex items-center text-primary font-body-sm text-body-sm">
+<span class="relative flex h-2 w-2 mr-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span>Live sessions</span>
+</div>
+</div>
+<!-- Completed Today -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow card-shadow-hover border border-[#EEF3F7] transition-all duration-300">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Completed Today</span>
+<div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700">
+<span class="material-symbols-outlined filled" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface">38</div>
+<div class="mt-2 flex items-center text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] mr-1" data-icon="schedule">schedule</span>
+<span>On track</span>
+</div>
+</div>
+<!-- Average Wait Time -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow card-shadow-hover border border-[#EEF3F7] transition-all duration-300">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Average Wait Time</span>
+<div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+<span class="material-symbols-outlined filled" data-icon="timer">timer</span>
+</div>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-surface flex items-baseline gap-2">6 <span class="font-headline-sm text-headline-sm text-on-surface-variant">min</span></div>
+<div class="mt-2 flex items-center text-green-600 font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] mr-1" data-icon="trending_down">trending_down</span>
+<span>-2 min from yesterday</span>
+</div>
+</div>
+</div>
+<!-- Main Content Split -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-stack-lg">
+<!-- Left: Waiting Room (2/3 width) -->
+<div class="lg:col-span-2 flex flex-col gap-stack-sm">
+<div class="flex items-center justify-between mb-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Waiting Room</h2>
+<button class="text-primary hover:bg-surface-container-low px-4 py-2 rounded-full transition-colors font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span> Filter
+                    </button>
+</div>
+<!-- Patient Card 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-[#EEF3F7] flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<img alt="Ahmed Khan" class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-high" data-alt="A professional headshot of a middle-aged South Asian man, clear lighting, neutral expression, modern clinical setting background blurred out." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQ7jSj4UePK5A0vKbJqqGBFRVN1G_zzDY2QEviypW0kF12K5IeqaAQX69u8eyBaKuaZkxsiy7s7Ve69mOZ_OD-2h2B61qhWRSoXdYDnXwQ7_v-xptmZTRrdsYfiQeqjgi5vLs9sxhZGwKrrWbl-6oLGwgiHk4oOMA1PHn-XfcBeWxg8NskptFvga6afgtLaWhI88Sp3HcwOJOW1KlmSdpZWb0m2a6csIzxHQOQVq-fWE2wjJfnXPyA-w"/>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Ahmed Khan</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(54 years)</span>
+<span class="px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#991B1B] font-label-sm text-label-sm uppercase ml-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] filled" data-icon="warning">warning</span> High Risk
+                                </span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span> 10:30 AM</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="stethoscope">stethoscope</span> Follow-up consultation</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:items-end gap-3 mt-4 sm:mt-0 border-t sm:border-t-0 border-outline-variant pt-4 sm:pt-0">
+<div class="text-error font-label-md text-label-md flex items-center gap-1 bg-error-container/20 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="hourglass_top">hourglass_top</span> Waiting 4 min
+                        </div>
+<div class="flex gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">View Patient</button>
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px] filled" data-icon="videocam">videocam</span> Start Consultation
+                            </button>
+</div>
+</div>
+</div>
+<!-- Patient Card 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-[#EEF3F7] flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<img alt="Sara Ali" class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-high" data-alt="A professional headshot of a young Middle Eastern woman, clear lighting, neutral expression, modern clinical setting background blurred out." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRV9uMkbewCTiE72JCQEfwU-r9PG_BO3YLWBbVvVOwCKY4jbEj-Oh8iPpR5w2DokGqO9KAmXiyULdmgheF04OcaY-oUXekWR_CoWtE1ourIPAMfCQtVjC0uwDjPQYU4q0Qr9QEaqTFwgTNJEi99DucAHOYTjIRsvZg9CYyK4xPQ-SAHfWIU5skJkVtSpui63O_1KE2Wc0N9BxtBkHfchqwhVDrpNiBuAjXupurYUbgazCydKKz5o3OhQ"/>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Sara Ali</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(32 years)</span>
+<span class="px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] font-label-sm text-label-sm uppercase ml-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] filled" data-icon="info">info</span> Medium Risk
+                                </span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span> 10:45 AM</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="stethoscope">stethoscope</span> Routine check-up</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:items-end gap-3 mt-4 sm:mt-0 border-t sm:border-t-0 border-outline-variant pt-4 sm:pt-0">
+<div class="text-amber-600 font-label-md text-label-md flex items-center gap-1 bg-amber-50 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="hourglass_top">hourglass_top</span> Waiting 2 min
+                        </div>
+<div class="flex gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">View Patient</button>
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px] filled" data-icon="videocam">videocam</span> Start Consultation
+                            </button>
+</div>
+</div>
+</div>
+<!-- Patient Card 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-[#EEF3F7] flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<img alt="John Smith" class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-high" data-alt="A professional headshot of an older Caucasian man, clear lighting, neutral expression, modern clinical setting background blurred out." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAa_ee2Ll4L6u2E7xyQTMfeDep4E_nKNyqX1ffRJPbEoTjTxOPMBIIxoE_3EIxgltwERE57cAjyOvjPtvn0ImdaRwrYBvyhHpmrC67sH3WUytFchDm-c_pS21i3K2L7LAWpEcWcZaHwYqesvj9P54nD02AD04CgN_v2dcW3aZDVxQdcmVVNG_9CN3do8YxK73UK8Hjt8uEp4nZxm-5HAJn1zbUwzrzFzh_hCbt2KkFBWGVP6WH25go-cQ"/>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">John Smith</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(67 years)</span>
+<span class="px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm uppercase ml-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] filled" data-icon="check_circle">check_circle</span> Low Risk
+                                </span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span> 11:00 AM</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="stethoscope">stethoscope</span> Medication review</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:items-end gap-3 mt-4 sm:mt-0 border-t sm:border-t-0 border-outline-variant pt-4 sm:pt-0">
+<div class="text-green-600 font-label-md text-label-md flex items-center gap-1 bg-green-50 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="hourglass_top">hourglass_top</span> Just arrived
+                        </div>
+<div class="flex gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">View Patient</button>
+<button class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px] filled" data-icon="videocam">videocam</span> Start Consultation
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Active Consultations (1/3 width) -->
+<div class="flex flex-col gap-stack-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Active Consultations</h2>
+<div class="bg-surface-container-lowest rounded-2xl p-6 card-shadow border border-[#EEF3F7] h-full flex flex-col">
+<div class="flex-1 flex flex-col gap-6">
+<!-- Active Session 1 -->
+<div class="flex flex-col gap-3 p-4 rounded-xl bg-surface-container-low border border-surface-container-high relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="font-label-md text-label-md text-primary font-bold">LIVE</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="timer">timer</span> 14 min
+                                </span>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Dr. Ahmed Khan</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span> with Sara Ali
+                                    </p>
+</div>
+<button class="px-4 py-2 rounded-full border border-primary text-primary font-label-md text-label-md hover:bg-primary-container/10 transition-colors flex items-center gap-1 bg-white">
+<span class="material-symbols-outlined text-[18px]" data-icon="login">login</span> Join
+                                </button>
+</div>
+</div>
+<!-- Active Session 2 -->
+<div class="flex flex-col gap-3 p-4 rounded-xl bg-surface-container-low border border-surface-container-high relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="font-label-md text-label-md text-primary font-bold">LIVE</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="timer">timer</span> 8 min
+                                </span>
+</div>
+<div class="flex justify-between items-center mt-2">
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Dr. Sarah Malik</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span> with Michael Chen
+                                    </p>
+</div>
+<button class="px-4 py-2 rounded-full border border-primary text-primary font-label-md text-label-md hover:bg-primary-container/10 transition-colors flex items-center gap-1 bg-white">
+<span class="material-symbols-outlined text-[18px]" data-icon="login">login</span> Join
+                                </button>
+</div>
+</div>
+</div>
+<!-- Provider Availability Indicator -->
+<div class="mt-6 pt-4 border-t border-outline-variant">
+<div class="flex items-center justify-between mb-3">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Provider Availability</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">4 Online</span>
+</div>
+<div class="flex gap-2">
+<div class="relative">
+<img alt="Provider" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="Small avatar of a doctor, clear clinical background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaBVA3Bd3QR9EBppwoLB2ryM75cXi81p1jNdOmxzr6o35reG2jEMnxD4zToMmsL37e_nUYcr52dj3YSXcWeJw6I_7-y5TKuwJSvSD6OxjxOkbbcCZH6e587G051RC5dFL9PO9f_0T2uJhJR76TASsXrZbZAzGCIzVI0aenBjdwlHqcsT8UqaJnLPbGPIrHroR8tag3XDw-GSKFhyIeZV57xyf4ys4W3FAsTDoRVIyVOkiPfeP7NdJJxQ"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
+</div>
+<div class="relative">
+<img alt="Provider" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="Small avatar of a female doctor, clear clinical background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlqND3v5_a_iQf_7U0nbHcYIRNhXNzbDvrMhHSfy-TvP6_l5YZW0kQZft5ffJfVuEyBfDkhnfw0r5OaklV01-7FOaS13s_mjEgpD1-rgyntIwT7pqNcTUTwMzvz1n8-DdL9TWgHkqidza7-DVAy21ghptXTCv7qbjTeR9GHP2l4QJTd9tZArpNGneXycEl9_HwDY0qZw9WKLCT6YRzM4JadVpdXlXzCbCneB6_e0FPwTc5ZU0c-pifpA"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
+</div>
+<div class="relative">
+<img alt="Provider" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="Small avatar of a doctor with glasses, clear clinical background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCueTSRQsk0Zz05Fi-BpjIXApPdZCk4-RaUvVzuvQEbjvMca7WhVVzGfIbOJ2QBSFg-mN1wE2FbaBLdqVahzw-2fZgM8Mgo9lI8kYRyYtLf3yWu6nO-TTzo9AnfI-IiKClAmYOUb8PDk4wQWSfLSTLrrRmYUgxfSYc4K2TaMkmaUscQkSjUzXA9dWYUGfY6BBsU2HudwZCeb5WXJckV9AvOR4YxZGxKMkzFwiUfZmL7osEVz6_KJ0srGw"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
+</div>
+<div class="relative">
+<img alt="Provider" class="w-8 h-8 rounded-full border border-outline-variant opacity-50" data-alt="Small avatar of a doctor, clear clinical background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdSxDnhSF1LDZxl19lVXo-0wBRbicJWEU1hukiuZIITCPlgQxxjtlCtzPqulS-YbhKaD-mUz_mvXu433aFL8MK6Z8TeGK49Ti7t9nxL1AEBLd6N5bJEKr0qglQosQIOPDET7nWRrY2-m8n3PasmEb95pUbxTevtto8wyIr8fBey0H41ZCsSzN3Rtxdtv0yBiuOIdeR7OBSurp_HWqP_Z5EQqpK1uew4eHhkWmdYP3TtmLk4rqrTiKQJw"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white"></div>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm hover:bg-surface-container-highest transition-colors">
+                                +2
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Recent Consultations -->
+<section class="mt-stack-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Recent Consultations</h2>
+<div class="bg-surface-container-lowest rounded-2xl card-shadow border border-[#EEF3F7] overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-low/50">
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Patient</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Provider</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Duration</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Time</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface font-label-md text-label-md font-bold">EM</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">Elena Martinez</span>
+</div>
+</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">Dr. Ahmed Khan</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">22 min</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">09:45 AM</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm flex items-center gap-1 w-max">
+<span class="material-symbols-outlined text-[14px] filled" data-icon="check">check</span> Completed
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-primary-fixed-variant transition-colors font-label-md text-label-md">View Notes</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface font-label-md text-label-md font-bold">RJ</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">Robert Jones</span>
+</div>
+</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">Dr. Sarah Malik</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">15 min</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">09:15 AM</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm flex items-center gap-1 w-max">
+<span class="material-symbols-outlined text-[14px] filled" data-icon="check">check</span> Completed
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-primary-fixed-variant transition-colors font-label-md text-label-md">View Notes</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface font-label-md text-label-md font-bold">LW</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">Lisa Wong</span>
+</div>
+</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface">Dr. Ahmed Khan</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">30 min</td>
+<td class="px-6 py-4 font-body-sm text-body-sm text-on-surface-variant">08:30 AM</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm flex items-center gap-1 w-max">
+<span class="material-symbols-outlined text-[14px] filled" data-icon="check">check</span> Completed
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-primary-fixed-variant transition-colors font-label-md text-label-md">View Notes</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+</body></html>

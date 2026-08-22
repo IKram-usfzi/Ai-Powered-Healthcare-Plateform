@@ -1,0 +1,1074 @@
+# Topic 7 — Standard Open-Source Technology Stack
+
+This section tells us **which technologies are recommended for building the GlobalCare platform**.
+
+Don't try to memorize this as one huge list. 😄
+Understand **what job each technology does**.
+
+Think of the complete system like a building:
+
+```text
+                GLOBALCARE PLATFORM
+                       │
+        ┌──────────────┼──────────────┐
+        ↓              ↓              ↓
+     Frontend       Backend        Database
+      React         FastAPI       PostgreSQL
+        │              │              │
+        └──────────────┼──────────────┘
+                       ↓
+                AI / Analytics
+                       │
+        ┌──────────────┼──────────────┐
+        ↓              ↓              ↓
+    Scikit-learn     Pandas         NumPy
+        │
+        ↓
+   Monitoring / Operations
+        │
+ Docker + Prometheus + Grafana
+        │
+        ↓
+ Security + Authentication
+        │
+ Trivy + OPA + JWT
+```
+
+Let's understand every part.
+
+---
+
+# 1. Programming Language — Python
+
+The main programming language is:
+
+> **Python**
+
+Python can be used for:
+
+* Backend development
+* AI/ML
+* Data processing
+* Automation
+* APIs
+* Healthcare analytics
+
+So Python becomes one of the central technologies in the project.
+
+```text
+Python
+ ├── FastAPI
+ ├── Scikit-learn
+ ├── Pandas
+ ├── NumPy
+ └── Automation
+```
+
+### Simple idea:
+
+> **Python is the main programming language connecting our backend, AI, data processing, and automation components.**
+
+---
+
+# 2. Backend — FastAPI
+
+The backend is the **logic layer** of our application.
+
+We're using:
+
+> **FastAPI**
+
+Think of FastAPI as the middle layer between the frontend and the database.
+
+```text
+React
+  ↓
+FastAPI
+  ↓
+PostgreSQL
+```
+
+For example:
+
+```text
+GET /patients
+```
+
+FastAPI receives the request.
+
+It talks to PostgreSQL.
+
+Then returns the patient data to React.
+
+```text
+React
+ ↓
+GET /patients
+ ↓
+FastAPI
+ ↓
+PostgreSQL
+ ↓
+Patient Data
+ ↓
+FastAPI
+ ↓
+React
+```
+
+FastAPI will also be important for:
+
+* Authentication
+* Patient APIs
+* Appointment APIs
+* Monitoring APIs
+* AI APIs
+
+---
+
+# 3. Frontend — React
+
+React is used to build the **user interface**.
+
+This is what users actually see.
+
+For example:
+
+```text
+┌─────────────────────────────┐
+│      GLOBALCARE             │
+├─────────────────────────────┤
+│ Dashboard                   │
+│ Patients                    │
+│ Appointments                │
+│ Telemedicine                │
+│ Monitoring                  │
+│ AI Risk Assessment          │
+└─────────────────────────────┘
+```
+
+React communicates with FastAPI.
+
+```text
+User
+ ↓
+React
+ ↓
+FastAPI
+ ↓
+Database
+```
+
+So remember:
+
+> **React = frontend / user interface**
+
+> **FastAPI = backend / business logic and APIs**
+
+---
+
+# 4. Database — PostgreSQL
+
+PostgreSQL stores our structured healthcare information.
+
+For example:
+
+```text
+Patients
+Doctors
+Facilities
+Appointments
+Consultations
+Health Readings
+Alerts
+AI Predictions
+```
+
+Conceptually:
+
+```text
+FastAPI
+   ↓
+PostgreSQL
+   ├── patients
+   ├── providers
+   ├── appointments
+   ├── consultations
+   ├── health_readings
+   ├── alerts
+   └── predictions
+```
+
+PostgreSQL is particularly suitable because our data has many relationships.
+
+For example:
+
+```text
+Patient
+   ↓
+Appointment
+   ↓
+Doctor
+   ↓
+Consultation
+```
+
+---
+
+# 5. Cache — Redis
+
+Redis is an **in-memory data store**.
+
+It's much faster than repeatedly querying the database for certain types of temporary/frequently accessed information.
+
+For example:
+
+```text
+User Request
+     ↓
+Redis Cache
+     ↓
+Data available?
+   /       \
+ YES       NO
+ ↓          ↓
+Return    PostgreSQL
+             ↓
+           Redis
+             ↓
+           Return
+```
+
+We could use Redis for things such as:
+
+* Frequently accessed dashboard data
+* Temporary session/state information
+* Rate limiting
+* Short-lived cached results
+
+Important:
+
+> **Redis does not replace PostgreSQL.**
+
+Think:
+
+```text
+PostgreSQL = Primary persistent database
+
+Redis = Fast temporary/cache layer
+```
+
+---
+
+# 6. Healthcare Standards
+
+This section is slightly different.
+
+The project gives three healthcare-related technologies:
+
+### HAPI FHIR Server
+
+FHIR stands for:
+
+> **Fast Healthcare Interoperability Resources**
+
+FHIR is a healthcare interoperability standard.
+
+It defines ways of representing and exchanging healthcare information.
+
+For example:
+
+```text
+Patient
+Observation
+Appointment
+Practitioner
+Encounter
+```
+
+So FHIR helps different healthcare systems communicate using standardized healthcare resources.
+
+---
+
+# 7. OpenMRS
+
+**OpenMRS** is an open-source medical record platform.
+
+Think of it as an existing open-source healthcare information system.
+
+It can help us understand how healthcare records and workflows are represented in real-world open-source systems.
+
+---
+
+# 8. OpenEMR Community Edition
+
+OpenEMR is another open-source electronic medical record and practice-management platform.
+
+It provides concepts related to:
+
+* Patients
+* Providers
+* Appointments
+* Medical records
+* Healthcare workflows
+
+For your project, these technologies are part of the **healthcare technology ecosystem**.
+
+You don't necessarily need to rebuild everything they provide.
+
+---
+
+# 9. Machine Learning — Scikit-learn
+
+This connects directly to **Module 4**.
+
+We're using:
+
+> **Scikit-learn**
+
+It provides Machine Learning algorithms.
+
+For example:
+
+```text
+Dataset
+   ↓
+Preprocessing
+   ↓
+Train/Test Split
+   ↓
+Model Training
+   ↓
+Prediction
+   ↓
+Evaluation
+```
+
+Possible lightweight models include:
+
+```text
+Logistic Regression
+Decision Tree
+Random Forest
+```
+
+Scikit-learn is suitable for our laptop constraint.
+
+---
+
+# 10. Data Science — Pandas
+
+Pandas is used for **working with tabular data**.
+
+Imagine our dataset:
+
+```text
+Patient | Heart Rate | SpO₂ | Temp | Glucose
+------------------------------------------------
+P001    | 82         | 97   | 36.7 | 105
+P002    | 105        | 94   | 37.8 | 145
+```
+
+Pandas lets us:
+
+* Load CSV files
+* Clean data
+* Filter records
+* Transform columns
+* Analyze datasets
+
+Think:
+
+> **Pandas = working with structured datasets**
+
+---
+
+# 11. NumPy
+
+NumPy provides numerical computing capabilities.
+
+For example:
+
+```text
+[82, 105, 97, 110, 120]
+```
+
+NumPy provides efficient numerical operations on arrays and matrices.
+
+In our project:
+
+```text
+Pandas
+   ↓
+Data Preparation
+   ↓
+NumPy
+   ↓
+Numerical Processing
+   ↓
+Scikit-learn
+```
+
+---
+
+# 12. Plotly
+
+Plotly is used to create **interactive visualizations**.
+
+For example:
+
+```text
+Heart Rate Trend
+
+120 |             ●
+110 |          ●
+100 |       ●
+ 90 |   ●
+ 80 | ●
+    └────────────────
+      Day 1 → Day 5
+```
+
+A user could interact with the graph.
+
+This can be useful in dashboards.
+
+---
+
+# 13. Matplotlib
+
+Matplotlib is another Python visualization library.
+
+It is excellent for creating:
+
+* Charts
+* Graphs
+* Statistical plots
+* Analysis visualizations
+
+Difference to remember:
+
+```text
+Plotly
+→ Interactive visualizations
+
+Matplotlib
+→ General-purpose/static visualization
+```
+
+We can use either depending on the dashboard or analytics requirement.
+
+---
+
+# 14. Workflow Automation — Apache Airflow
+
+Airflow is marked **optional**.
+
+Airflow is used to manage workflows and scheduled jobs.
+
+For example:
+
+```text
+Every Day 00:00
+      ↓
+Import Dataset
+      ↓
+Clean Data
+      ↓
+Run Analysis
+      ↓
+Generate Report
+      ↓
+Update Dashboard
+```
+
+Airflow can automate this sequence.
+
+But remember your laptop constraint.
+
+> **We don't need Airflow unless it provides real value to our proof-of-concept.**
+
+---
+
+# 15. Containerisation — Docker
+
+Docker packages applications into containers.
+
+For example:
+
+```text
+Docker
+ ├── React Container
+ ├── FastAPI Container
+ ├── PostgreSQL Container
+ ├── Redis Container
+ └── Monitoring Containers
+```
+
+A container provides a consistent environment for an application.
+
+Instead of installing everything directly onto your laptop:
+
+```text
+Laptop
+ ├── Python
+ ├── PostgreSQL
+ ├── Redis
+ ├── Node
+ └── dependencies...
+```
+
+we can package components into containers.
+
+---
+
+# 16. Docker Compose
+
+We have multiple containers.
+
+How do we run them together?
+
+> **Docker Compose**
+
+For example:
+
+```text
+docker-compose.yml
+
+services:
+  frontend
+  backend
+  postgres
+  redis
+```
+
+Then:
+
+```text
+Docker Compose
+      ↓
+Starts all required services
+```
+
+This is particularly appropriate because your project explicitly requires a **Docker Compose deployment**.
+
+---
+
+# 17. Optional Lightweight Kubernetes
+
+Kubernetes is optional.
+
+The project suggests:
+
+### K3s
+
+A lightweight Kubernetes distribution.
+
+### Kind
+
+Kubernetes running using Docker containers.
+
+Think:
+
+```text
+Docker Compose
+     ↓
+Simple multi-container deployment
+```
+
+while:
+
+```text
+Kubernetes
+     ↓
+Container orchestration platform
+```
+
+Because our project has a laptop constraint, Kubernetes isn't mandatory.
+
+---
+
+# 18. Monitoring — Prometheus
+
+Prometheus is used for **metrics collection and monitoring**.
+
+For example:
+
+```text
+FastAPI
+   ↓
+Metrics
+   ↓
+Prometheus
+```
+
+Metrics could include:
+
+```text
+CPU Usage
+Memory Usage
+API Request Count
+API Response Time
+Error Count
+```
+
+Prometheus stores/collects time-series metrics.
+
+---
+
+# 19. Monitoring Visualization — Grafana
+
+Grafana displays metrics visually.
+
+Think:
+
+```text
+Application
+     ↓
+Prometheus
+     ↓
+Grafana
+     ↓
+Monitoring Dashboard
+```
+
+For example:
+
+```text
+CPU Usage       42%
+Memory Usage    61%
+API Requests    1,250
+Errors              4
+```
+
+So remember:
+
+> **Prometheus collects metrics.**
+
+> **Grafana visualizes metrics.**
+
+---
+
+# 20. Security — Trivy
+
+Trivy is a security scanning tool.
+
+It can scan things such as:
+
+```text
+Docker Images
+Filesystems
+Dependencies
+Configuration
+```
+
+For example:
+
+```text
+Docker Image
+     ↓
+Trivy Scan
+     ↓
+Vulnerabilities
+     ↓
+Fix / Update
+```
+
+This supports the **DevSecOps** aspect of your project.
+
+---
+
+# 21. Security — Open Policy Agent
+
+Open Policy Agent, or **OPA**, is a policy engine.
+
+It allows us to define rules.
+
+For example:
+
+```text
+Policy:
+Only authorized users
+can access patient information.
+```
+
+Conceptually:
+
+```text
+Request
+   ↓
+OPA Policy
+   ↓
+Allowed / Denied
+```
+
+This introduces **policy-based security** into the architecture.
+
+---
+
+# 22. Authentication — FastAPI JWT Authentication
+
+JWT means:
+
+> **JSON Web Token**
+
+It can be used to authenticate users.
+
+For example:
+
+```text
+User
+ ↓
+Login
+ ↓
+FastAPI
+ ↓
+Verify Credentials
+ ↓
+JWT Token
+ ↓
+User makes API request
+ ↓
+Token verified
+ ↓
+Access granted
+```
+
+This helps protect APIs.
+
+Different users could eventually have different roles:
+
+```text
+Patient
+Doctor
+Administrator
+Executive
+```
+
+And their access should be controlled accordingly.
+
+---
+
+# 23. Version Control — Git
+
+Git tracks changes to our source code.
+
+For example:
+
+```text
+Version 1
+   ↓
+Version 2
+   ↓
+Version 3
+```
+
+If something breaks:
+
+```text
+Current Code
+    ↓
+Problem
+    ↓
+Git History
+    ↓
+Previous Version
+```
+
+Git is essential for professional software development.
+
+---
+
+# 24. GitHub
+
+GitHub hosts our Git repositories and helps us collaborate and showcase the project.
+
+Think:
+
+```text
+Your Laptop
+    ↓
+Git
+    ↓
+GitHub
+    ↓
+Remote Repository
+```
+
+It also provides a professional portfolio for your capstone.
+
+---
+
+# 25. Documentation — Markdown
+
+Markdown is a simple text-formatting language.
+
+For example:
+
+```text
+# GlobalCare Platform
+
+## Architecture
+
+## Installation
+
+## API Documentation
+
+## Deployment
+```
+
+We can use Markdown to write:
+
+* README
+* Technical documentation
+* Setup instructions
+* Architecture explanations
+* User guides
+
+---
+
+# 26. MkDocs
+
+MkDocs can turn Markdown documentation into a **professional documentation website**.
+
+Think:
+
+```text
+Markdown Files
+      ↓
+     MkDocs
+      ↓
+Documentation Website
+```
+
+For example:
+
+```text
+GlobalCare Documentation
+
+├── Introduction
+├── Architecture
+├── Installation
+├── API
+├── Security
+├── AI
+├── Deployment
+└── Monitoring
+```
+
+This could make your project documentation look much more professional.
+
+---
+
+# 27. Architecture Modelling
+
+The project gives us three options/tools.
+
+### Draw.io
+
+Useful for visual architecture diagrams.
+
+For example:
+
+```text
+React
+ ↓
+FastAPI
+ ↓
+PostgreSQL
+```
+
+---
+
+### PlantUML
+
+Allows us to describe diagrams using text/code.
+
+Useful for:
+
+* UML diagrams
+* Sequence diagrams
+* Architecture diagrams
+
+---
+
+### Mermaid
+
+Also allows diagrams to be created from text.
+
+For example:
+
+```text
+Patient → React → FastAPI → PostgreSQL
+```
+
+You can use whichever is appropriate.
+
+---
+
+# 28. The Entire Technology Stack
+
+Now put everything together.
+
+```text
+                    GLOBALCARE
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+           React              FastAPI
+          Frontend             Backend
+                                │
+                    ┌───────────┼───────────┐
+                    ↓           ↓           ↓
+               PostgreSQL     Redis       AI/ML
+                              Cache      Scikit-learn
+                                            │
+                                      Pandas / NumPy
+                                            │
+                                      Plotly / Matplotlib
+```
+
+Then:
+
+```text
+                    APPLICATION
+                         │
+                       Docker
+                         │
+                   Docker Compose
+                         │
+             ┌───────────┴───────────┐
+             ↓                       ↓
+        Prometheus                Grafana
+        Monitoring              Visualization
+```
+
+Security:
+
+```text
+Application
+    │
+    ├── JWT Authentication
+    ├── Open Policy Agent
+    └── Trivy
+```
+
+Development:
+
+```text
+Git
+ ↓
+GitHub
+```
+
+Documentation:
+
+```text
+Markdown
+   ↓
+MkDocs
+```
+
+Architecture:
+
+```text
+Draw.io
+PlantUML
+Mermaid
+```
+
+---
+
+# 🧠 The Most Important Thing
+
+**Don't think of this as 30+ technologies you have to use.**
+
+Think of it as a toolbox.
+
+Your project has a **standard recommended stack**, but some components are optional.
+
+For example:
+
+| Area            | Technology     | Main Job                  |
+| --------------- | -------------- | ------------------------- |
+| Language        | Python         | Main programming language |
+| Frontend        | React          | User interface            |
+| Backend         | FastAPI        | APIs & business logic     |
+| Database        | PostgreSQL     | Persistent data           |
+| Cache           | Redis          | Fast temporary data       |
+| AI              | Scikit-learn   | ML risk assessment        |
+| Data            | Pandas         | Data processing           |
+| Data            | NumPy          | Numerical operations      |
+| Charts          | Plotly         | Interactive visualization |
+| Charts          | Matplotlib     | General visualization     |
+| Containers      | Docker         | Package applications      |
+| Deployment      | Docker Compose | Run multiple containers   |
+| Monitoring      | Prometheus     | Collect metrics           |
+| Monitoring      | Grafana        | Visualize metrics         |
+| Security        | Trivy          | Vulnerability scanning    |
+| Security        | OPA            | Policy enforcement        |
+| Auth            | JWT            | Authentication            |
+| Version Control | Git            | Track code changes        |
+| Repository      | GitHub         | Store/share code          |
+| Docs            | Markdown       | Write documentation       |
+| Docs            | MkDocs         | Documentation website     |
+| Architecture    | Draw.io        | Visual diagrams           |
+| Architecture    | PlantUML       | UML diagrams              |
+| Architecture    | Mermaid        | Text-based diagrams       |
+
+---
+
+# ⭐ How to Explain the Stack in Your Viva
+
+If the examiner asks:
+
+> **"Why did you select this technology stack?"**
+
+A professional answer would be:
+
+> **"I selected a lightweight open-source technology stack that aligns with the project's functional requirements and laptop resource constraints. Python provides a common foundation for backend development, data processing, and machine learning. FastAPI provides the REST API layer, React provides the user interface, and PostgreSQL provides persistent relational storage. Docker and Docker Compose provide reproducible deployment of the platform's services. Scikit-learn, Pandas, and NumPy support lightweight AI and healthcare analytics, while Prometheus and Grafana provide observability. Security is supported through JWT authentication, Trivy vulnerability scanning, and policy enforcement using OPA. Git, GitHub, and Markdown/MkDocs support professional development and documentation."**
+
+That's the **big-picture answer**.
+
+You don't need to say every technology unless the examiner asks.
+
+---
+
+## One more important connection
+
+Notice how this technology stack maps directly onto your **learning outcomes**:
+
+```text
+Learning Outcome                 Technology
+
+Digital Healthcare Platform  →  React + FastAPI + PostgreSQL
+
+Telemedicine                 →  React + FastAPI
+
+Remote Monitoring            →  FastAPI + PostgreSQL + Redis
+
+Healthcare Workflows         →  FastAPI + PostgreSQL
+
+AI Healthcare Analytics     →  Scikit-learn + Pandas + NumPy
+
+REST APIs                    →  FastAPI
+
+Executive Dashboard          →  React + Plotly
+
+Deployment                   →  Docker + Docker Compose
+
+Monitoring                   →  Prometheus + Grafana
+
+Security                     →  JWT + Trivy + OPA
+
+Documentation               →  Markdown + MkDocs
+
+Architecture                 →  Draw.io / PlantUML / Mermaid
+
+Version Control              →  Git + GitHub
+```
+
+So the stack isn't random.
+
+**Every technology has a purpose in achieving one or more of the project's learning outcomes.**
+

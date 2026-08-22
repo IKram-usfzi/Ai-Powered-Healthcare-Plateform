@@ -1,0 +1,69 @@
+# Architecture Decision Records (ADR Log)
+
+Each entry: Decision, Context, Status, Consequences. Status values: Proposed / Accepted / Superseded.
+
+## ADR-001 — Backend framework: FastAPI
+**Context:** Need an async-capable Python API framework with built-in OpenAPI docs to satisfy the API documentation deliverable.
+**Decision:** Adopt FastAPI for all REST APIs.
+**Status:** Accepted.
+**Consequences:** Free interactive docs and validation via Pydantic; Installation/Deployment/User guides still need to be written by hand.
+
+## ADR-002 — Primary datastore: PostgreSQL; caching layer: Redis (scoped role)
+**Context:** Domain is highly relational; some data (dashboard aggregates, session state, alert de-dup) benefits from a fast ephemeral store.
+**Decision:** PostgreSQL is the system of record; Redis is scoped specifically to dashboard KPI caching, monitoring alert de-duplication, and session/rate-limit state.
+**Status:** Accepted.
+**Consequences:** Redis's role must be visible in the Data Flow Diagrams and defensible in the viva.
+
+## ADR-003 — Healthcare standards: conceptual FHIR alignment, not a deployed FHIR server
+**Context:** HAPI FHIR/OpenMRS/OpenEMR are ecosystem references in the brief (§7), not mandatory runtime components; RAM budget is tight, especially on the AWS free-tier profile.
+**Decision:** Model core resources (Patient, Observation, Encounter, Practitioner, Appointment) as FHIR-inspired schemas inside FastAPI; document the mapping. Do not containerize HAPI FHIR/OpenMRS/OpenEMR.
+**Status:** Accepted.
+**Consequences:** Keeps the stack lightweight; reinforced by using Synthea (which outputs native FHIR R4) as the synthetic data source.
+
+## ADR-004 — Deployment: Docker Compose (mandatory), AWS Free Tier (stretch)
+**Context:** Exam brief requires Docker Compose deployment on a laptop; the student additionally wants an AWS deployment for portfolio purposes.
+**Decision:** Docker Compose remains the required, primary deployment path. AWS EC2 (t2/t3.micro) + RDS PostgreSQL is an additional, non-mandatory stretch deployment documented under "Future Enhancements." K3s/Kind stays optional.
+**Status:** Accepted.
+**Consequences:** Two deployment profiles must be documented and kept consistent: "local/full" and "AWS free-tier/trimmed."
+
+## ADR-005 — AI approach: lightweight Scikit-learn classifier on Synthea-derived synthetic data
+**Context:** No real PHI permitted; Module 4 requires risk categories, confidence scores, and recorded prediction history.
+**Decision:** Use Synthea (MITRE) as the primary synthetic data source; train a lightweight classifier (e.g., Logistic Regression or Random Forest) on derived vitals features; store predictions with confidence scores.
+**Status:** Accepted (source); model algorithm choice remains open pending Phase 5.
+**Consequences:** Model quality is bounded by the synthetic data's realism; output must be framed as decision support, never diagnosis.
+
+## ADR-006 — AuthN/AuthZ: JWT + role-based access via a narrowly-scoped OPA policy set
+**Context:** Four roles (Patient, Doctor, Administrator, Executive) require differentiated access to patient data.
+**Decision:** FastAPI issues JWTs on login; OPA evaluates a small, explicit set of Rego policies for patient-data access rather than a general policy platform.
+**Status:** Accepted.
+
+## ADR-007 — Observability: Prometheus + Grafana, profile-aware
+**Context:** Full monitoring stack is heavy relative to both the 8 GB laptop floor and the ~1 GB AWS free-tier instance.
+**Decision:** Run full Prometheus + Grafana on the local/full (16 GB) profile; trim to demo-only or omit on the AWS free-tier profile.
+**Status:** Accepted.
+
+## ADR-008 — Documentation & diagrams: Markdown/MkDocs + diagrams-as-code
+**Context:** 17 mandatory diagrams must stay consistent with an evolving design; binary diagram tools are hard to diff in Git.
+**Decision:** Prefer Mermaid/PlantUML for most diagrams; reserve Draw.io for presentation-specific layout needs. Publish docs via MkDocs.
+**Status:** Accepted.
+
+## ADR-009 — Security scanning: Trivy in the build/deploy process
+**Context:** DevSecOps expectation in the brief.
+**Decision:** Run Trivy against built Docker images before/at deployment; capture output as the GitHub "security scan report" deliverable.
+**Status:** Accepted.
+
+## ADR-010 — UI/UX sourced from a supplied template
+**Context:** Student will provide a UI/UX template rather than have one designed from scratch.
+**Decision:** React implementation follows the supplied template once received; no independent UI/UX design work in the interim.
+**Status:** Accepted — template received (25-screen "Clinical Precision" design system + "Clinical Precision Mobile" variant). Full breakdown in `UIUX.md`.
+
+## ADR-011 — Synthetic data source: Synthea (primary)
+**Context:** Public dataset required, fetched from the internet rather than custom-generated.
+**Decision:** Synthea (MITRE) as the primary source, given native FHIR R4 output and no PHI/consent concerns; a supplementary flat Kaggle vitals dataset remains an open option for Module 4 training specifically.
+**Status:** Proposed — final call on supplementary source open (see `impmemnentaion-plan.md` Phase 1).
+
+## ADR-012 — Frontend styling/charting stack confirmed from the supplied UI/UX template
+**Context:** The supplied template ("Clinical Precision" design system, 25 screens) is built with Tailwind CSS (via CDN, utility classes), Google Fonts (Manrope for headings/KPIs, Inter for body/labels), Material Symbols Outlined icons, and Chart.js (via CDN) for interactive charts (e.g., the Clinical Activity & RPM line chart on the Executive Overview screen). This is more specific than the original TRD, which only named Plotly/Matplotlib for visualization per the exam brief's Python-centric tech stack list.
+**Decision:** Adopt Tailwind CSS as the React styling approach and Chart.js as the client-side charting library for all interactive, in-browser dashboard visuals, to match the template exactly. Reserve Plotly/Matplotlib (brief §7) for Python-side outputs that don't need to be interactive React components — e.g., the AI evaluation report, exported/static analytics charts, and any Jupyter-style exploratory analysis during Module 4 development. Material Symbols Outlined is the icon set; Manrope + Inter are the two typefaces, loaded via Google Fonts.
+**Status:** Accepted.
+**Consequences:** Frontend dependency list grows slightly (Tailwind, Chart.js, Google Fonts, Material Symbols) beyond the original brief's Python-only stack table — this is additive, not a conflict, since Plotly/Matplotlib still satisfy the brief's checklist for report-generation contexts. `TRD.md` and `developement-rules.md` should list these explicitly once implementation starts.

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GlobalCare Patient Mobile App</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#191b23",
+                      "outline-variant": "#c2c6d6",
+                      "surface-container-lowest": "#ffffff",
+                      "primary": "#0058be",
+                      "tertiary": "#924700",
+                      "on-tertiary-container": "#fffbff",
+                      "background": "#f9f9ff",
+                      "on-primary-container": "#fefcff",
+                      "on-primary": "#ffffff",
+                      "primary-fixed": "#d8e2ff",
+                      "on-secondary-fixed": "#00174b",
+                      "on-error-container": "#93000a",
+                      "surface-container-high": "#e6e7f2",
+                      "on-surface": "#191b23",
+                      "surface-tint": "#005ac2",
+                      "inverse-on-surface": "#eff0fa",
+                      "tertiary-fixed": "#ffdcc6",
+                      "primary-container": "#2170e4",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed-dim": "#ffb786",
+                      "surface-container-low": "#f2f3fd",
+                      "on-tertiary-fixed-variant": "#723600",
+                      "secondary": "#0051d5",
+                      "on-error": "#ffffff",
+                      "tertiary-container": "#b75b00",
+                      "outline": "#727785",
+                      "success-container": "#dcfce7",
+                      "secondary-fixed": "#dbe1ff",
+                      "secondary-container": "#346cef",
+                      "on-tertiary": "#ffffff",
+                      "surface-dim": "#d8d9e3",
+                      "on-primary-fixed-variant": "#004395",
+                      "surface-container-highest": "#e1e2ec",
+                      "inverse-surface": "#2e3038",
+                      "inverse-primary": "#adc6ff",
+                      "on-primary-fixed": "#001a42",
+                      "on-surface-variant": "#424754",
+                      "on-secondary-fixed-variant": "#003ea7",
+                      "on-secondary-container": "#fefcff",
+                      "on-tertiary-fixed": "#311400",
+                      "surface": "#f9f9ff",
+                      "on-secondary": "#ffffff",
+                      "surface-container": "#ecedf7",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "primary-fixed-dim": "#adc6ff",
+                      "surface-bright": "#f9f9ff",
+                      "surface-variant": "#e1e2ec",
+                      "error-container": "#ffdad6",
+                      "success-on-container": "#166534"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "1.25rem",
+                      "stack-xs": "0.5rem",
+                      "stack-md": "1.5rem",
+                      "gutter-sm": "1rem",
+                      "touch-target": "44px",
+                      "stack-lg": "2.5rem",
+                      "stack-sm": "1rem"
+              },
+              "fontFamily": {
+                      "display-kpi": [
+                              "Manrope"
+                      ],
+                      "headline-lg": [
+                              "Manrope"
+                      ],
+                      "headline-sm": [
+                              "Manrope"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Manrope"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "display-kpi": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .ambient-shadow {
+            box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen bg-background font-body-md overflow-x-hidden pb-[90px]">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-40 bg-surface dark:bg-surface flex items-center justify-between px-margin-mobile h-16 max-w-screen-xl mx-auto border-b-0">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-outline-variant/30" data-alt="A small, circular, highly realistic portrait photograph of a Middle Eastern man in his 30s with short dark hair and a neat beard, smiling gently, taken in bright soft studio lighting against a clean white background, conveying a sense of health and wellbeing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0q0Gx9np5FxdAChEZekEYzq-8zTPiUs6CH3KpXdh1zLYPqSFyI0bmU9Ij5NFVAQqUmAIN1Q9Im1UToVk69uIe-VSajAvxJdQWkSHvciwrsxxfZdaCoq3KpJbEBE_AuHANOhnMJlujUETAQGlV8LtldFxak5e1yNN84fH5bt68P3I3-YM1VSFIK2mnkth8jakjU-w4GKoazTixkP2bgtIR4m41uzLfC6Pf9o_lJ2kQuHlORBlpZ6Bc-Q"/>
+<h1 class="font-headline-md text-headline-md text-on-surface">Good morning, Ahmed</h1>
+</div>
+<button aria-label="Notifications" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</header>
+<main class="flex-1 w-full max-w-screen-xl mx-auto px-margin-mobile py-stack-md flex flex-col gap-stack-md">
+<!-- Vitals Summary Row (Horizontal Scroll on Mobile) -->
+<section class="w-full overflow-x-auto hide-scrollbar -mx-margin-mobile px-margin-mobile pb-2">
+<div class="flex gap-gutter-sm min-w-max">
+<!-- Heart Rate -->
+<div class="bg-surface-container-lowest rounded-xl p-4 min-w-[120px] ambient-shadow border border-outline-variant/20 flex flex-col items-center justify-center gap-2">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<div class="text-center">
+<p class="font-display-kpi text-[24px] leading-none text-on-surface font-bold">82</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">BPM</p>
+</div>
+</div>
+<!-- SpO2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 min-w-[120px] ambient-shadow border border-outline-variant/20 flex flex-col items-center justify-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 0;">air</span>
+<div class="text-center">
+<p class="font-display-kpi text-[24px] leading-none text-on-surface font-bold">97%</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">SpO2</p>
+</div>
+</div>
+<!-- BP -->
+<div class="bg-surface-container-lowest rounded-xl p-4 min-w-[120px] ambient-shadow border border-outline-variant/20 flex flex-col items-center justify-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 0;">blood_pressure</span>
+<div class="text-center">
+<p class="font-display-kpi text-[24px] leading-none text-on-surface font-bold">125/80</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">BP</p>
+</div>
+</div>
+<!-- Temp -->
+<div class="bg-surface-container-lowest rounded-xl p-4 min-w-[120px] ambient-shadow border border-outline-variant/20 flex flex-col items-center justify-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 0;">device_thermostat</span>
+<div class="text-center">
+<p class="font-display-kpi text-[24px] leading-none text-on-surface font-bold">36.7°</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Temp (C)</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Your Health Today Chart -->
+<section class="bg-surface-container-lowest rounded-xl p-4 ambient-shadow border border-outline-variant/20">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4">Your Health Today</h2>
+<div class="w-full h-40 relative rounded-lg overflow-hidden bg-surface-container-low/50 flex items-end justify-between px-2 pt-8 pb-2">
+<!-- Abstract simple chart representation using pure CSS/HTML -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<defs>
+<lineargradient id="chartGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0058be" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#0058be" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,100 L0,70 Q25,50 50,60 T100,40 L100,100 Z" fill="url(#chartGrad)"></path>
+<path d="M0,70 Q25,50 50,60 T100,40" fill="none" stroke="#0058be" stroke-width="2"></path>
+<circle class="animate-pulse" cx="50" cy="60" fill="#0058be" r="3"></circle>
+<circle cx="100" cy="40" fill="#0058be" r="3"></circle>
+</svg>
+</div>
+</section>
+<!-- Next Appointment Card -->
+<section class="bg-primary-container text-on-primary-container rounded-xl p-4 ambient-shadow relative overflow-hidden">
+<!-- Decorative circle -->
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-2xl"></div>
+<div class="relative z-10 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-md text-label-md text-primary-fixed-dim uppercase tracking-wider mb-1">Next Appointment</p>
+<h3 class="font-headline-sm text-headline-sm font-semibold">Dr. Sarah Malik</h3>
+<p class="font-body-sm text-body-sm opacity-90">Tomorrow, 10:30 AM</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest/20 flex items-center justify-center backdrop-blur-sm">
+<span class="material-symbols-outlined text-on-primary-container">calendar_month</span>
+</div>
+</div>
+<button class="w-full bg-surface-container-lowest text-primary font-body-md font-medium py-3 rounded-lg hover:bg-surface transition-colors active:scale-95 shadow-sm">
+                    Join Consultation
+                </button>
+</div>
+</section>
+<!-- Services Grid -->
+<section>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-3 px-1">Services</h2>
+<div class="grid grid-cols-2 gap-gutter-sm">
+<!-- Appointments -->
+<button class="bg-surface-container-lowest rounded-xl p-4 ambient-shadow border border-outline-variant/20 flex flex-col items-start gap-3 hover:bg-surface-container-low transition-colors active:scale-95 text-left">
+<div class="w-10 h-10 rounded-full bg-primary-fixed/50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Appointments</span>
+</button>
+<!-- Telemedicine -->
+<button class="bg-surface-container-lowest rounded-xl p-4 ambient-shadow border border-outline-variant/20 flex flex-col items-start gap-3 hover:bg-surface-container-low transition-colors active:scale-95 text-left">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed/50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">videocam</span>
+</div>
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Telemedicine</span>
+</button>
+<!-- Health Records -->
+<button class="bg-surface-container-lowest rounded-xl p-4 ambient-shadow border border-outline-variant/20 flex flex-col items-start gap-3 hover:bg-surface-container-low transition-colors active:scale-95 text-left">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed/50 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">folder</span>
+</div>
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Health Records</span>
+</button>
+<!-- Medications -->
+<button class="bg-surface-container-lowest rounded-xl p-4 ambient-shadow border border-outline-variant/20 flex flex-col items-start gap-3 hover:bg-surface-container-low transition-colors active:scale-95 text-left">
+<div class="w-10 h-10 rounded-full bg-error-container/50 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">pill</span>
+</div>
+<span class="font-body-sm text-body-sm font-medium text-on-surface">Medications</span>
+</button>
+</div>
+<!-- Full width button for Remote Monitoring -->
+<button class="w-full mt-gutter-sm bg-surface-container-lowest rounded-xl p-4 ambient-shadow border border-outline-variant/20 flex items-center gap-4 hover:bg-surface-container-low transition-colors active:scale-95 text-left">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">monitor_heart</span>
+</div>
+<div class="flex-1">
+<span class="font-body-sm text-body-sm font-medium text-on-surface block">Remote Monitoring</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Connect your devices</span>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md shadow-[0px_-2px_12px_rgba(0,0,0,0.04)] md:hidden">
+<div class="flex justify-around items-center h-[72px] px-2 pb-safe w-full">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<!-- Appointments -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all active:scale-90 duration-200 px-2 py-1" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-sm text-label-sm mt-1">Appointments</span>
+</a>
+<!-- Health -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all active:scale-90 duration-200 px-2 py-1" href="#">
+<span class="material-symbols-outlined">monitor_heart</span>
+<span class="font-label-sm text-label-sm mt-1">Health</span>
+</a>
+<!-- Messages -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all active:scale-90 duration-200 px-2 py-1" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label-sm text-label-sm mt-1">Messages</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all active:scale-90 duration-200 px-2 py-1" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</div>
+</nav>
+<!-- Web Desktop Sidebar Nav (Hidden on Mobile, Visible on md+) -->
+<nav class="hidden md:flex flex-col w-64 fixed left-0 top-16 bottom-0 bg-surface-container-lowest border-r border-outline-variant/20 p-4 gap-2 z-30">
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-lg px-4 py-3 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-body-md font-medium text-body-md">Home</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg px-4 py-3 transition-all" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-body-md font-medium text-body-md">Appointments</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg px-4 py-3 transition-all" href="#">
+<span class="material-symbols-outlined">monitor_heart</span>
+<span class="font-body-md font-medium text-body-md">Health</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg px-4 py-3 transition-all" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-body-md font-medium text-body-md">Messages</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg px-4 py-3 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body-md font-medium text-body-md">Profile</span>
+</a>
+</nav>
+<!-- Desktop adjustment style -->
+<style>
+        @media (min-width: 768px) {
+            main {
+                padding-left: calc(16rem + 2rem) !important; /* 64 w-64 + margin */
+            }
+            body {
+                padding-bottom: 0 !important;
+            }
+        }
+    </style>
+</body></html>

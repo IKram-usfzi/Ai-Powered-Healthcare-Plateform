@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Users &amp; Roles - GlobalCare</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#d9e3fb",
+                    "primary-fixed-dim": "#adc6ff",
+                    "surface-dim": "#d0daf2",
+                    "tertiary-fixed-dim": "#c0c6db",
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#555c6e",
+                    "secondary-container": "#316bf3",
+                    "on-tertiary-fixed": "#141b2b",
+                    "tertiary-container": "#6e7487",
+                    "tertiary-fixed": "#dce2f7",
+                    "inverse-primary": "#adc6ff",
+                    "outline-variant": "#c2c6d6",
+                    "on-secondary-container": "#fefcff",
+                    "on-primary-fixed": "#001a42",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "on-primary-fixed-variant": "#004395",
+                    "outline": "#727785",
+                    "primary": "#0058be",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#fefcff",
+                    "on-secondary-fixed": "#00174b",
+                    "on-tertiary-fixed-variant": "#404758",
+                    "surface": "#f9f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#d8e2ff",
+                    "surface-tint": "#005ac2",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#ecf0ff",
+                    "on-background": "#111c2d",
+                    "on-tertiary-container": "#fefcff",
+                    "secondary-fixed": "#dbe1ff",
+                    "inverse-surface": "#273143",
+                    "surface-container": "#e8eeff",
+                    "on-surface-variant": "#424754",
+                    "on-surface": "#111c2d",
+                    "surface-container-high": "#dfe8ff",
+                    "surface-bright": "#f9f9ff",
+                    "background": "#f9f9ff",
+                    "primary-container": "#2170e4",
+                    "surface-container-low": "#f0f3ff",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "secondary": "#0051d5",
+                    "surface-container-highest": "#d9e3fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px",
+                    "card": "1.25rem" // 20px
+            },
+            "spacing": {
+                    "stack-lg": "48px",
+                    "stack-sm": "12px",
+                    "base": "8px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "container-max": "1440px",
+                    "margin-mobile": "16px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Manrope"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Manrope"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "display-kpi": [
+                            "Manrope"
+                    ],
+                    "headline-lg": [
+                            "Manrope"
+                    ],
+                    "headline-md": [
+                            "Manrope"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-kpi": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "11px",
+                            {
+                                    "lineHeight": "14px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+          }
+        },
+      }
+    </script>
+<style>
+        .shadow-level-1 {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        .shadow-level-2 {
+            box-shadow: 0px 12px 32px rgba(0, 0, 0, 0.08);
+        }
+        .card-hover {
+            transition: all 0.2s ease-in-out;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.06);
+        }
+        /* Custom scrollbar for table */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md antialiased overflow-x-hidden">
+<!-- Top Navigation Anchor (Shared Component) -->
+<nav class="bg-surface-container-lowest dark:bg-inverse-surface shadow-sm dark:shadow-none fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16">
+<div class="flex items-center gap-6">
+<div class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-primary tracking-tight">
+                GlobalCare
+            </div>
+<div class="hidden md:flex items-center space-x-1">
+<!-- Navigation Tabs (Users & Roles Active) -->
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-label-md font-label-md" href="#">Dashboard</a>
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-label-md font-label-md" href="#">Patients</a>
+<a class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md font-bold transition-all duration-200 ease-in-out" href="#">Users &amp; Roles</a>
+<a class="px-4 py-2 rounded-full text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-label-md font-label-md" href="#">Settings</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Search Bar: on_left equivalent space -->
+<div class="relative hidden lg:block mr-4">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="pl-10 pr-4 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container w-64" placeholder="Search across platform..." type="text"/>
+</div>
+<button aria-label="notifications" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button aria-label="help" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+<button aria-label="settings" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a healthcare IT administrator, neutral expression, modern clinical setting background, bright lighting, high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChWdsSWjCFjMDwX2CRyVY42grnUVvCAacjHogqW1CmFdcyJVTJ_wq6I1w_qNRFfabrs1fMTP8obFJy-b0Km9HEhtmSXOer-NYqzbeTujdjc1dfqrzS853y4r85KClLwFNO1urDPPkFEKkjC9wepdCh0vxWgFq35Xj09yucoKuZvlB01uu3iqlh-uB7lQEPUqFdkuwe1LpWgc2rOTgOLKkWnB8SkCKZA0VD6wlrqI7eXNifiFwltQwLKw"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto space-y-stack-lg">
+<!-- Page Header -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-stack-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-2">Users &amp; Roles</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage platform users and role-based access.</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2.5 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container-low transition-colors font-label-md text-label-md flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                    Manage Roles
+                </button>
+<button class="px-6 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors font-label-md text-label-md shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+                    Invite User
+                </button>
+</div>
+</header>
+<!-- Summary Bar (Cards) -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<!-- Total Users -->
+<div class="bg-surface-container-lowest rounded-card p-6 shadow-level-1 border border-surface-container-highest card-hover">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined">group</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Total Users</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-background">8,642</div>
+</div>
+<!-- Active Users -->
+<div class="bg-surface-container-lowest rounded-card p-6 shadow-level-1 border border-surface-container-highest card-hover">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined">how_to_reg</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Active Users</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-background">8,120</div>
+</div>
+<!-- Administrators -->
+<div class="bg-surface-container-lowest rounded-card p-6 shadow-level-1 border border-surface-container-highest card-hover">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Administrators</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-background">24</div>
+</div>
+<!-- Pending Invitations -->
+<div class="bg-surface-container-lowest rounded-card p-6 shadow-level-1 border border-surface-container-highest card-hover">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">schedule_send</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Pending Invites</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-background">18</div>
+</div>
+</section>
+<!-- Main Workspace Area -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Main Table Section (Takes up 2 columns on large screens) -->
+<section class="lg:col-span-2 bg-surface-container-lowest rounded-card shadow-level-1 border border-surface-container-highest overflow-hidden flex flex-col h-[600px]">
+<!-- Table Header & Controls -->
+<div class="p-6 border-b border-surface-container-highest flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-bright">
+<h2 class="font-headline-sm text-headline-sm text-on-background">Platform Users</h2>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="relative flex-grow sm:flex-grow-0">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="pl-9 pr-4 py-2 w-full sm:w-64 rounded-lg border border-outline-variant bg-surface-container-lowest text-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="Search users..." type="text"/>
+</div>
+<button class="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors" title="Filter">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Table Container (Scrollable) -->
+<div class="overflow-x-auto flex-grow">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-lowest sticky top-0 z-10 border-b border-surface-container-highest">
+<tr>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">User</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Role</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Department</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Last Login</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest font-body-sm text-body-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant border border-surface-container-highest">
+<img alt="Dr. Julianne Vance" class="w-full h-full object-cover" data-alt="Professional headshot of a female doctor in a white coat, subtle smile, bright clinical lighting, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb-h6ucUfTLvLSmSban5u29Lq8bfWmYW5uN2Zmpesv6Uyg45gWIXOdo4imuyWT8VSebNqpFhoAbCngEmT4AZQO3uYXGReRNc_s7GNPfPL7xAMl1Oo1V_8lKgVfNUnUyxoLZo8O4WZoMTpY86nvDQcc1yao5163yxGzs7L7KPlm1FJiTTxauW7A1wlKTRimSkhPPtnBindQv6MYInjE1D2a-hlGUPbTNUpBVlOO_2pC7iGjmxa4IcWpCA"/>
+</div>
+<div>
+<div class="font-medium text-on-background">Dr. Julianne Vance</div>
+<div class="text-on-surface-variant text-xs">j.vance@globalcare.edu</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface">Doctor</td>
+<td class="py-4 px-6 text-on-surface-variant">Surgery</td>
+<td class="py-4 px-6 text-on-surface-variant">10 mins ago</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold tracking-wide">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span> Active
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1 opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant border border-surface-container-highest">
+<div class="w-full h-full flex items-center justify-center bg-secondary-fixed text-on-secondary-fixed font-semibold text-sm">SJ</div>
+</div>
+<div>
+<div class="font-medium text-on-background">Sarah Jenkins</div>
+<div class="text-on-surface-variant text-xs">s.jenkins@mail.com</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface">Patient</td>
+<td class="py-4 px-6 text-on-surface-variant">Cardiology</td>
+<td class="py-4 px-6 text-on-surface-variant">2 days ago</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold tracking-wide">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span> Active
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1 opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant border border-surface-container-highest">
+<div class="w-full h-full flex items-center justify-center bg-tertiary-fixed text-on-tertiary-fixed font-semibold text-sm">AU</div>
+</div>
+<div>
+<div class="font-medium text-on-background">Admin User</div>
+<div class="text-on-surface-variant text-xs">admin@globalcare.edu</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface font-medium">Administrator</td>
+<td class="py-4 px-6 text-on-surface-variant">IT Operations</td>
+<td class="py-4 px-6 text-on-surface-variant">1 hour ago</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold tracking-wide">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span> Active
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1 opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant border border-surface-container-highest">
+<img alt="Nurse Mark Ross" class="w-full h-full object-cover" data-alt="Professional headshot of a male nurse in blue scrubs, friendly expression, modern clinical setting, bright lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN9NjkRZKK7zVA3PcOQIt6NQaj0tP8vThSlCSv0X6P8_KeTCtWnuwdLC76Is14fBpNBUNCc_hhsfY4HS9NCl37uyUO2auCvObkZ2hX2qWtjAzI1LU6flBicESKqp9IuZH8_CDcWefLAPfwOMwxLDFw9za2qATdVRIjoA-w-53vI4sxMPIWmTwTUyZicCfXHNWkgucIvqjN6subqQL7PA1lKABra7zLJbHdF72PL9SzjWVUHCJkC2p_HQ"/>
+</div>
+<div>
+<div class="font-medium text-on-background">Nurse Mark Ross</div>
+<div class="text-on-surface-variant text-xs">m.ross@globalcare.edu</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-on-surface">Nurse</td>
+<td class="py-4 px-6 text-on-surface-variant">Emergency</td>
+<td class="py-4 px-6 text-on-surface-variant">5 hours ago</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold tracking-wide">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span> Active
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1 opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination Placeholder -->
+<div class="p-4 border-t border-surface-container-highest bg-surface-bright flex justify-between items-center text-body-sm text-on-surface-variant">
+<span>Showing 1 to 4 of 8,642 entries</span>
+<div class="flex gap-2">
+<button class="p-1 rounded hover:bg-surface-container-low disabled:opacity-50"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+<button class="p-1 rounded hover:bg-surface-container-low"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</div>
+</div>
+</section>
+<!-- Role-Based Access Cards Section (Takes 1 column) -->
+<section class="flex flex-col gap-6">
+<div class="flex items-center justify-between mb-2">
+<h2 class="font-headline-sm text-headline-sm text-on-background">Role-Based Access</h2>
+<a class="text-primary hover:text-primary-container text-label-md font-label-md flex items-center gap-1 transition-colors" href="#">
+                        View All
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<!-- Doctor Role Card -->
+<div class="bg-surface-container-lowest rounded-card p-6 shadow-level-1 border border-surface-container-highest card-hover flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-1">Doctor</h3>
+<span class="text-body-sm text-on-surface-variant">1,248 Users</span>
+</div>
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-error-container text-on-error-container text-[11px] font-semibold tracking-wide">
+                            Clinical High
+                        </span>
+</div>
+<div class="flex-grow">
+<ul class="space-y-3 mt-4 text-body-sm text-on-surface">
+<li class="flex items-center justify-between">
+<span class="text-on-surface-variant">Patient Records</span>
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-on-surface-variant">Appointments</span>
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-on-surface-variant">Telemedicine</span>
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-on-surface-variant">AI Risk</span>
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-outline">Administration</span>
+<span class="material-symbols-outlined text-[18px] text-outline-variant">remove</span>
+</li>
+</ul>
+</div>
+<button class="mt-6 w-full py-2 rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container-low transition-colors font-label-md text-label-md">
+                        Edit Permissions
+                    </button>
+</div>
+<!-- Patient Role Card -->
+<div class="bg-surface-container-lowest rounded-card p-6 shadow-level-1 border border-surface-container-highest card-hover flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-1">Patient</h3>
+<span class="text-body-sm text-on-surface-variant">6,450 Users</span>
+</div>
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-variant text-on-surface-variant text-[11px] font-semibold tracking-wide">
+                            Restricted
+                        </span>
+</div>
+<div class="flex-grow">
+<ul class="space-y-3 mt-4 text-body-sm text-on-surface">
+<li class="flex items-center justify-between">
+<span class="text-on-surface-variant">Personal Records</span>
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-on-surface-variant">Appointments</span>
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-on-surface-variant">Telemedicine</span>
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-outline">AI Risk</span>
+<span class="material-symbols-outlined text-[18px] text-outline-variant">remove</span>
+</li>
+<li class="flex items-center justify-between">
+<span class="text-outline">Administration</span>
+<span class="material-symbols-outlined text-[18px] text-outline-variant">remove</span>
+</li>
+</ul>
+</div>
+<button class="mt-6 w-full py-2 rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container-low transition-colors font-label-md text-label-md">
+                        Edit Permissions
+                    </button>
+</div>
+</section>
+</div>
+</main>
+</body></html>

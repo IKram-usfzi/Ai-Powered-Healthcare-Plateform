@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Patient Directory - GlobalCare</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#dbe1ff",
+                        "on-surface-variant": "#424754",
+                        "inverse-primary": "#adc6ff",
+                        "surface-tint": "#005ac2",
+                        "background": "#f9f9ff",
+                        "surface-container-low": "#f0f3ff",
+                        "outline-variant": "#c2c6d6",
+                        "secondary": "#0051d5",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-surface": "#111c2d",
+                        "on-secondary-fixed": "#00174b",
+                        "tertiary": "#555c6e",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#e8eeff",
+                        "on-primary-fixed": "#001a42",
+                        "surface-variant": "#d9e3fb",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface": "#f9f9ff",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "surface-bright": "#f9f9ff",
+                        "surface-container-highest": "#d9e3fb",
+                        "tertiary-fixed": "#dce2f7",
+                        "surface-dim": "#d0daf2",
+                        "tertiary-container": "#6e7487",
+                        "inverse-on-surface": "#ecf0ff",
+                        "on-tertiary-container": "#fefcff",
+                        "secondary-container": "#316bf3",
+                        "primary-container": "#2170e4",
+                        "outline": "#727785",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#fefcff",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary-fixed-variant": "#004395",
+                        "on-tertiary-fixed": "#141b2b",
+                        "primary": "#0058be",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#273143",
+                        "surface-container-high": "#dfe8ff",
+                        "on-background": "#111c2d",
+                        "on-primary-container": "#fefcff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "base": "8px",
+                        "gutter": "24px",
+                        "stack-lg": "48px",
+                        "stack-md": "24px",
+                        "container-max": "1440px",
+                        "margin-mobile": "16px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "display-kpi": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-kpi": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F4F7FA; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #EEF3F7;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+            border-radius: 20px;
+        }
+        .status-high { background-color: #FEE2E2; color: #991B1B; }
+        .status-medium { background-color: #FEF3C7; color: #92400E; }
+        .status-low { background-color: #DCFCE7; color: #166534; }
+    </style>
+</head>
+<body class="text-on-surface antialiased flex flex-col min-h-screen">
+<!-- Top Navigation -->
+<nav class="sticky top-0 w-full z-50 flex items-center justify-between px-margin-desktop h-20 max-w-container-max mx-auto bg-surface-container-lowest shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border-b border-surface-container md:border-none">
+<div class="flex items-center gap-gutter">
+<span class="font-headline-md text-headline-md font-bold text-primary">GlobalCare</span>
+<div class="hidden md:flex items-center gap-2">
+<a class="text-on-surface-variant font-label-md text-label-md px-4 py-1.5 hover:text-primary transition-colors duration-200" href="#">Overview</a>
+<a class="bg-on-surface text-surface-container-lowest rounded-full px-4 py-1.5 font-label-md text-label-md scale-95 transition-transform duration-150" href="#">Patients</a>
+<a class="text-on-surface-variant font-label-md text-label-md px-4 py-1.5 hover:text-primary transition-colors duration-200" href="#">Appointments</a>
+<a class="text-on-surface-variant font-label-md text-label-md px-4 py-1.5 hover:text-primary transition-colors duration-200" href="#">Telemedicine</a>
+<a class="text-on-surface-variant font-label-md text-label-md px-4 py-1.5 hover:text-primary transition-colors duration-200" href="#">Monitoring</a>
+<a class="text-on-surface-variant font-label-md text-label-md px-4 py-1.5 hover:text-primary transition-colors duration-200" href="#">AI Risk</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="Dr. Julianne Smith" class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a female doctor, Dr. Julianne Smith, wearing a modern white coat against a clean, light clinical background. Bright, high-key lighting emphasizing a trustworthy and modern healthcare aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB34hp_7fkJ2IL75tQQXFIfIWCe-odsY5R81J9iv6zFCE5yUKQPsaGOj_Qsipc2IYwzgvqZxZBlMgsoLYxKc7Wu3pfiWyThY2jYcaYlrAYjyhX3cRCaJAAPn-q9NaeEP204Y-PDnz91q6FRWXOx3PYLOFCLOd-AeDxlHiSVocL2ZxiY_HWrb7LoOAudihLcvYH_Jkdtuq-1LMZfdHeVcpBEgtY0HoAllvgCNnj1oryBHzkhtbYresJlSQ"/>
+</div>
+</nav>
+<!-- Main Content Layout -->
+<div class="flex flex-1 w-full max-w-container-max mx-auto overflow-hidden">
+<!-- Canvas area -->
+<main class="flex-1 px-margin-desktop py-stack-lg overflow-y-auto">
+<!-- Page Header -->
+<div class="mb-stack-md flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Patients</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage and monitor patients across the GlobalCare network.</p>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-stack-lg">
+<div class="flex-1 w-full flex items-center gap-4 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+<div class="relative w-full max-w-sm shrink-0">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Search patients..." type="text"/>
+</div>
+<!-- Filters -->
+<div class="flex gap-2 shrink-0">
+<button class="px-4 py-1.5 bg-surface-container-lowest border border-outline-variant rounded-full font-label-sm text-label-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-1">Risk level <span class="material-symbols-outlined text-[16px]">expand_more</span></button>
+<button class="px-4 py-1.5 bg-surface-container-lowest border border-outline-variant rounded-full font-label-sm text-label-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-1">Care program <span class="material-symbols-outlined text-[16px]">expand_more</span></button>
+<button class="px-4 py-1.5 bg-surface-container-lowest border border-outline-variant rounded-full font-label-sm text-label-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-1">Provider <span class="material-symbols-outlined text-[16px]">expand_more</span></button>
+</div>
+</div>
+<button class="shrink-0 px-6 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span> Register Patient
+                </button>
+</div>
+<!-- KPI Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg">
+<div class="glass-card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-transform">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Total Patients</span>
+<span class="font-display-kpi text-display-kpi text-on-surface">8,240</span>
+</div>
+<div class="glass-card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-transform">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Active Monitoring</span>
+<span class="font-display-kpi text-display-kpi text-primary">1,240</span>
+</div>
+<div class="glass-card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-transform">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-2">High Risk</span>
+<span class="font-display-kpi text-display-kpi text-error">126</span>
+</div>
+<div class="glass-card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-transform">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Needs Attention</span>
+<span class="font-display-kpi text-display-kpi text-tertiary">43</span>
+</div>
+</div>
+<!-- Data Table Card -->
+<div class="glass-card p-8">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-container">
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Patient</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Patient ID</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Age</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Care Program</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Risk</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Last Vital Update</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Provider</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium">Status</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant font-medium"></th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface">
+<tr class="border-b border-surface-container hover:bg-surface-container-low transition-colors group cursor-pointer">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A clear, professional avatar photo of an older South Asian man, Ahmed Khan, looking slightly serious. Clean white clinical background, high-key lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXRrE-MBF3nq7cJ2Ky2HroZE1F3u8tEb7_csuPoAxgUasueaHttA-CI3I446GqyZjxWNbX90S2Awh7xBQiCLpS6enGRz7wG8JV6sJea4_F5QG26PbHdAobOy9mvKXDbCwGOgrSz7BrcPr4zNhgkdjNz4j0ZvJ0j5-tUlIru6UjdmWvx9T5SCndogxZ558qd-lnQLgbt8Icb4fCygnpIQs2TmUTzS7AFWQ7uY_LygA42KoTSEd9UGHs7w"/>
+<span class="font-semibold">Ahmed Khan</span>
+</div>
+</td>
+<td class="py-4 text-on-surface-variant">P001</td>
+<td class="py-4 text-on-surface-variant">54</td>
+<td class="py-4 text-on-surface-variant">Chronic Care</td>
+<td class="py-4"><span class="status-high px-3 py-1 rounded-full font-label-sm text-label-sm">High</span></td>
+<td class="py-4 text-on-surface-variant">2 min ago</td>
+<td class="py-4 text-on-surface-variant">Dr. Ahmed</td>
+<td class="py-4 text-on-surface-variant">Monitoring</td>
+<td class="py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="border-b border-surface-container hover:bg-surface-container-low transition-colors group cursor-pointer">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A clear, professional avatar photo of a young Middle Eastern woman, Sara Ali, with a subtle smile. Clean white clinical background, high-key lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7gJYJ-7_clNkwLKj1MDHQm3Z0mLHJFp_rBODPGzv0I_hOaFDVs9JL8bySRwCa9JbLB_3FYkZ1vXlCG0s52lKFTo_BgGXKj-h7OxaGWOMxFcO6ap8C8NMT98oC7vHcozKU4HdiUiOzgJGUB73Olb6hjkqYLwopdWq0g9BQU6apc7nWM1ZfUZvR5q8OsQfQigMu-k1Snhsx_SKsfq8SgFXmcQbl7GNxtU0HjlzJmJfS7ce7rg7SYKmOYw"/>
+<span class="font-semibold">Sara Ali</span>
+</div>
+</td>
+<td class="py-4 text-on-surface-variant">P002</td>
+<td class="py-4 text-on-surface-variant">32</td>
+<td class="py-4 text-on-surface-variant">Remote Care</td>
+<td class="py-4"><span class="status-low px-3 py-1 rounded-full font-label-sm text-label-sm">Low</span></td>
+<td class="py-4 text-on-surface-variant">8 min ago</td>
+<td class="py-4 text-on-surface-variant">Dr. Sarah</td>
+<td class="py-4 text-on-surface-variant">Stable</td>
+<td class="py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A clear, professional avatar photo of an elderly Caucasian man, John Smith, looking calm. Clean white clinical background, high-key lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7Em2qYA9grZBMh9pVhBspQpLPEqXghDlEBIdZeu-Wm0hoICMrEPTCXIG1XXgSyQPkyR0l7pvmP7KtxY5yoqBpnKNEEht4rfulMYQNhLorTMwHo2ybF_uNKyoy3yegaWx6jzXKoDK6LWKMNnOYtNv3JkwaCtB0Bs4qMHvr35hm7LuLG2YzvSKv-n4zPzU87V7vb3x07gy_nhoeahZsXHFeQSOOhO9OvrRWMYetcrYpOKqM7ElxBj_eUQ"/>
+<span class="font-semibold">John Smith</span>
+</div>
+</td>
+<td class="py-4 text-on-surface-variant">P003</td>
+<td class="py-4 text-on-surface-variant">67</td>
+<td class="py-4 text-on-surface-variant">Cardiac Care</td>
+<td class="py-4"><span class="status-medium px-3 py-1 rounded-full font-label-sm text-label-sm">Medium</span></td>
+<td class="py-4 text-on-surface-variant">5 min ago</td>
+<td class="py-4 text-on-surface-variant">Dr. Williams</td>
+<td class="py-4 text-on-surface-variant">Monitoring</td>
+<td class="py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="mt-8 flex justify-between items-center border-t border-surface-container pt-4">
+<span class="font-label-md text-label-md text-on-surface-variant">Showing 1 to 3 of 8,240 entries</span>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container disabled:opacity-50"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md">1</button>
+<button class="px-4 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container">2</button>
+<button class="px-4 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container">3</button>
+<span class="px-2 py-2 text-on-surface-variant">...</span>
+<button class="p-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+<!-- Optional Filter Drawer (Design only, togglable via state ideally) -->
+<aside class="hidden lg:block w-80 bg-surface-container-lowest border-l border-outline-variant h-[calc(100vh-80px)] sticky top-20 overflow-y-auto p-6 shadow-[-4px_0_20px_rgba(0,0,0,0.02)]">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Filters</h3>
+<button class="text-outline hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Patient Status</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2"><input checked="" class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/> <span class="font-body-sm text-body-sm">Active Monitoring</span></label>
+<label class="flex items-center gap-2"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/> <span class="font-body-sm text-body-sm">Discharged</span></label>
+</div>
+</div>
+<hr class="border-surface-container"/>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Risk Level</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2"><input checked="" class="rounded border-outline-variant text-error focus:ring-error" type="checkbox"/> <span class="font-body-sm text-body-sm">High Risk</span></label>
+<label class="flex items-center gap-2"><input class="rounded border-outline-variant text-tertiary focus:ring-tertiary" type="checkbox"/> <span class="font-body-sm text-body-sm">Medium Risk</span></label>
+<label class="flex items-center gap-2"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/> <span class="font-body-sm text-body-sm">Low Risk</span></label>
+</div>
+</div>
+<hr class="border-surface-container"/>
+<button class="w-full py-2 bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">Reset Filters</button>
+<button class="w-full py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm">Apply Filters</button>
+</div>
+</aside>
+</div>
+</body></html>

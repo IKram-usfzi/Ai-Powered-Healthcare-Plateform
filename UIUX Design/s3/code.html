@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GlobalCare Telemedicine &amp; Remote Monitoring Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#d8e2ff",
+                        "on-tertiary-fixed-variant": "#404758",
+                        "surface-container-low": "#f0f3ff",
+                        "on-secondary-container": "#fefcff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-tertiary-container": "#fefcff",
+                        "on-secondary-fixed": "#00174b",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#273143",
+                        "surface-bright": "#f9f9ff",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-primary-container": "#fefcff",
+                        "inverse-on-surface": "#ecf0ff",
+                        "surface-container-highest": "#d9e3fb",
+                        "secondary": "#0051d5",
+                        "surface": "#f9f9ff",
+                        "on-tertiary-fixed": "#141b2b",
+                        "on-background": "#111c2d",
+                        "on-surface-variant": "#424754",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "surface-container": "#e8eeff",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#dce2f7",
+                        "surface-container-high": "#dfe8ff",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#005ac2",
+                        "primary": "#0058be",
+                        "outline": "#727785",
+                        "inverse-primary": "#adc6ff",
+                        "outline-variant": "#c2c6d6",
+                        "tertiary-fixed-dim": "#c0c6db",
+                        "primary-container": "#2170e4",
+                        "tertiary": "#555c6e",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#6e7487",
+                        "surface-variant": "#d9e3fb",
+                        "secondary-container": "#316bf3",
+                        "background": "#f9f9ff",
+                        "surface-dim": "#d0daf2",
+                        "on-primary-fixed-variant": "#004395",
+                        "on-surface": "#111c2d",
+                        "on-primary-fixed": "#001a42"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "stack-md": "24px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "48px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "display-kpi": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Manrope"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-kpi": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F4F7FA; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased min-h-screen flex flex-col">
+<!-- TopNavBar component -->
+<nav class="bg-surface dark:bg-surface-container-low shadow-[0px_4px_20px_rgba(0,0,0,0.03)] bg-white shadow-sm dark:bg-surface-container-low docked full-width top-0 z-50 sticky">
+<div class="flex justify-between items-center w-full px-10 h-16 max-w-container-max mx-auto">
+<div class="text-headline-md font-headline-md font-bold text-on-surface dark:text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="monitor_heart">monitor_heart</span>
+                GlobalCare
+            </div>
+<div class="hidden md:flex items-center gap-8 font-label-md text-label-md">
+<a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Overview</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Patients</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Appointments</a>
+<a class="text-on-surface dark:text-on-secondary-container border-b-2 border-primary dark:border-primary-fixed pb-1 font-bold" href="#">Telemedicine</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Monitoring</a>
+<a class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Analytics</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container dark:hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container dark:hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Dr. Julian Vance, Chief of Surgery" class="w-full h-full object-cover" data-alt="A professional headshot of a mature male doctor in a modern clinical setting. High key lighting, clean white background, conveying trust and authority in a corporate healthcare environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDivsjqEA2MryXvI8KY_9TBQiTOc7z-DTBskCQLZKn2kIzFrlP4POEVK9_Gpx7KsVn_ZZ5QgVbXvL_n28r5NivH_5t-b8CnGsESKgbZYqJ2l2Om2epZM4eA-VQdyZwldDAqCWGH8BDP8gFuy3Ragk9zhZlwyWFG_9sp6zCPWe2V8laHyUafJ3otf2m3ku9B2i2kq1129Qc1kljctcy76t3HcTn_vdoHobtsvMqneJ7D5rPINIpRFjNeSQ"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 max-w-container-max mx-auto w-full px-4 md:px-margin-desktop py-stack-md grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Telemedicine Queue -->
+<section class="lg:col-span-4 flex flex-col gap-stack-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Telemedicine Queue</h2>
+<div class="glass-card rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7] flex flex-col gap-4 hover:-translate-y-[2px] transition-transform">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm">Sarah Jenkins</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Post-Op Review (Knee)</p>
+</div>
+<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> High Priority
+                    </span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">schedule</span> Wait time: 12 mins
+                </div>
+<button class="w-full bg-primary text-on-primary rounded-full py-2 font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">video_call</span> Start Consultation
+                </button>
+</div>
+<div class="glass-card rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7] flex flex-col gap-4 hover:-translate-y-[2px] transition-transform">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm">Michael Chen</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Routine Checkup</p>
+</div>
+<span class="bg-[#DCFCE7] text-[#166534] px-3 py-1 rounded-full font-label-sm text-label-sm">Standard</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">schedule</span> Wait time: 4 mins
+                </div>
+<button class="w-full bg-surface text-on-surface border border-[#EEF3F7] rounded-full py-2 font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">video_call</span> Start Consultation
+                </button>
+</div>
+<div class="glass-card rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7] flex flex-col gap-4 hover:-translate-y-[2px] transition-transform opacity-60">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm">Elena Rodriguez</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Medication Consult</p>
+</div>
+<span class="bg-[#F3F4F6] text-[#374151] px-3 py-1 rounded-full font-label-sm text-label-sm">Scheduled 10:30</span>
+</div>
+</div>
+</section>
+<!-- Right Column: Remote Monitoring Console -->
+<section class="lg:col-span-8 flex flex-col gap-stack-md">
+<div class="flex justify-between items-end">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Remote Monitoring Console</h2>
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[16px]">sync</span> Live Feed Active
+                </span>
+</div>
+<!-- Bento Grid Layout for Monitoring -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Patient 1 Active Alert -->
+<div class="glass-card rounded-xl p-8 shadow-[0px_12px_32px_rgba(0,0,0,0.08)] border border-[#EEF3F7] col-span-1 md:col-span-2 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-error opacity-10 rounded-bl-full blur-2xl"></div>
+<div class="flex flex-col md:flex-row justify-between gap-6 relative z-10">
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-error text-on-error rounded-full w-2 h-2 animate-pulse"></span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">James Wilson</h3>
+<span class="bg-error-container text-on-error-container px-2 py-1 rounded font-label-sm text-label-sm uppercase tracking-wider">AI Alert</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">ID: 884-219 | Post-MI Monitoring</p>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">Heart Rate</p>
+<p class="font-display-kpi text-display-kpi text-error flex items-baseline gap-1">112 <span class="font-label-sm text-label-sm text-on-surface-variant">BPM</span></p>
+<p class="font-label-sm text-label-sm text-error mt-1 flex items-center"><span class="material-symbols-outlined text-[12px]">trending_up</span> Elevated</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">SpO2</p>
+<p class="font-display-kpi text-display-kpi text-on-surface flex items-baseline gap-1">96 <span class="font-label-sm text-label-sm text-on-surface-variant">%</span></p>
+</div>
+</div>
+</div>
+<div class="flex flex-col justify-end gap-3 md:w-48">
+<button class="w-full bg-error text-on-error rounded-full py-2 font-label-md text-label-md font-semibold shadow-sm hover:opacity-90 transition-opacity">Intervene Now</button>
+<button class="w-full bg-surface text-on-surface border border-outline-variant rounded-full py-2 font-label-md text-label-md font-semibold hover:bg-surface-container transition-colors">View History</button>
+</div>
+</div>
+</div>
+<!-- Patient 2 Stable -->
+<div class="glass-card rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7] hover:-translate-y-[2px] transition-transform">
+<div class="flex justify-between items-center mb-4">
+<h4 class="font-headline-sm text-headline-sm font-semibold">Maria Garcia</h4>
+<span class="bg-[#DCFCE7] text-[#166534] px-2 py-1 rounded font-label-sm text-label-sm">Stable</span>
+</div>
+<div class="flex justify-between items-end border-b border-[#F1F5F9] pb-3 mb-3">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">HR</p>
+<p class="font-headline-md text-headline-md">72 <span class="text-sm font-normal text-on-surface-variant">bpm</span></p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">SpO2</p>
+<p class="font-headline-md text-headline-md">99 <span class="text-sm font-normal text-on-surface-variant">%</span></p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">BP</p>
+<p class="font-headline-md text-headline-md">118/75</p>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">CHF Management \u2022 Last updated 2m ago</p>
+</div>
+<!-- Patient 3 Stable -->
+<div class="glass-card rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-[#EEF3F7] hover:-translate-y-[2px] transition-transform">
+<div class="flex justify-between items-center mb-4">
+<h4 class="font-headline-sm text-headline-sm font-semibold">Robert Chen</h4>
+<span class="bg-[#DCFCE7] text-[#166534] px-2 py-1 rounded font-label-sm text-label-sm">Stable</span>
+</div>
+<div class="flex justify-between items-end border-b border-[#F1F5F9] pb-3 mb-3">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">HR</p>
+<p class="font-headline-md text-headline-md">68 <span class="text-sm font-normal text-on-surface-variant">bpm</span></p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">SpO2</p>
+<p class="font-headline-md text-headline-md">97 <span class="text-sm font-normal text-on-surface-variant">%</span></p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Glucose</p>
+<p class="font-headline-md text-headline-md">105 <span class="text-sm font-normal text-on-surface-variant">mg/dL</span></p>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Type 2 Diabetes \u2022 Last updated 5m ago</p>
+</div>
+</div>
+</section>
+</main>
+</body></html>
