@@ -34,6 +34,10 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-globalcare}:${POSTGRES_PASSWORD:-globalcare}@postgres:5432/${POSTGRES_DB:-globalcare}
       REDIS_URL: redis://redis:6379/0
+      # data/synthea/ lives at the repo root, outside the backend/ build context
+      # (can't be COPY'd into the image) - bind-mounted instead. See
+      # backend/scripts/fetch_synthea.py.
+      SYNTHEA_DATA_DIR: /data/synthea
     ports:
       - "8000:8000"
     depends_on:
@@ -43,6 +47,8 @@ services:
         condition: service_healthy
     volumes:
       - ../backend/app:/app/app
+      - ../backend/scripts:/app/scripts
+      - ../data:/data
 
   frontend:
     build:

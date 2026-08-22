@@ -17,6 +17,7 @@ Usage:
 
 import argparse
 import csv
+import os
 import random
 import re
 import sys
@@ -31,7 +32,12 @@ from app.db.base import Base, SessionLocal, engine  # noqa: E402
 from app.models import Facility, HealthReading, Patient, Provider, User  # noqa: E402
 from app.models.enums import UserRole  # noqa: E402
 
-RAW_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "synthea" / "raw" / "csv"
+# See fetch_synthea.py's module docstring for why this isn't a fixed relative path.
+DATA_DIR = Path(
+    os.environ.get("SYNTHEA_DATA_DIR")
+    or Path(__file__).resolve().parent.parent.parent / "data" / "synthea"
+)
+RAW_DIR = DATA_DIR / "raw" / "csv"
 
 VITAL_CODES = {
     "8480-6": "systolic_bp",

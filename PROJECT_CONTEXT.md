@@ -83,14 +83,13 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 - Full documentation set (12+ files: PRD, TRD, architecture, api-spec, backend-schema, deccission/ADR log, developement-rules, flow, impmemnentaion-plan, Security, Testing-startegy, UIUX, test-execution-log) and the 25-screen UI/UX template under `UIUX Design/`.
 - **Phase 0 — Foundation:** `backend/` (FastAPI skeleton), `frontend/` (React+Vite+Tailwind skeleton), `infra/docker-compose.yml`, root `README.md`, `mkdocs.yml`. Verified: FastAPI health endpoint runs; `mkdocs build --strict` clean; frontend+backend later confirmed running together (see below).
 - **Phase 1 — Data & Domain Modeling:** 9 SQLAlchemy models matching `backend-schema.md`, Alembic migration, `fetch_synthea.py`/`seed_synthea.py`. Verified: migration up/down clean on SQLite; seed script loads 200 patients/50 facilities/50 providers/953 health_readings with real Synthea vitals + physiologically-plausible simulated SpO2/temperature.
-- **Phase 2 — Module 1 (Patient & Provider Management), this session:** JWT auth (`app/core/security.py`, `app/api/deps.py`) + all `api-spec.md` §2-3 endpoints (`/auth/*`, `/patients`, `/providers`, `/facilities`, `/reports/registration`), with role-based access control including the doctor-scoped "assigned patients only" rule and patient self-access. **Verified two ways:** a full manual curl walkthrough (all happy paths + 3 role-denial checks correct) and 24 automated pytest tests, all passing (`backend/tests/`). Ruff+Black clean. Full details: `docs/test-execution-log.md`.
-- Sandbox capability discovery: Node.js and pip can both be obtained without sudo (portable binaries) — see §17 item 7. Frontend was actually run and confirmed talking to the live backend (not just "written but unverified" as earlier sessions had it).
-- ADR-016 through ADR-019 (blood pressure split, Synthea-only confirmed, `assigned_provider_id` added to close an api-spec/schema gap, all timestamps made timezone-aware) — each found and fixed during real implementation/verification, not speculative.
+- **Phase 2 — Module 1 (Patient & Provider Management):** JWT auth (`app/core/security.py`, `app/api/deps.py`) + all `api-spec.md` §2-3 endpoints (`/auth/*`, `/patients`, `/providers`, `/facilities`, `/reports/registration`), with role-based access control including the doctor-scoped "assigned patients only" rule and patient self-access. Ruff+Black clean.
+- **Real Docker Compose + PostgreSQL verification (2026-08-22)** — see §17 item 7 for the critical context (the user's "own machine" turned out to be this same sandbox). `docker compose up -d` (postgres+redis+backend+frontend) all healthy; `alembic upgrade head` applied against real Postgres; `seed_dev_users.py` + `seed_synthea.py` loaded real data; a real login returned a valid JWT. **Independently confirmed by Claude directly** (not just relying on the user's paste-backs) via `sg docker -c "docker ..."`: fetched the live `/openapi.json` (all 10 endpoints present) and queried the real Postgres database directly (200 patients, 50 providers, 50 facilities, 953 health_readings, 52 users — exact expected counts). This closes the "SQLite-verified, Postgres-pending" caveat that had applied to every phase. Two real bugs were caught and fixed by this real-infra run — see next bullet.
+- ADR-016 through ADR-019 (blood pressure split, Synthea-only confirmed, `assigned_provider_id` added to close an api-spec/schema gap, all timestamps made timezone-aware) — found during implementation/verification. Two more real bugs found by the *Docker* run specifically (not caught by SQLite testing): (a) `backend/Dockerfile` never learned to copy `alembic.ini`/`alembic/`/`scripts/` when those were added in Phase 1-2 — fixed, plus a related fix so the Synthea data path resolves correctly via a `SYNTHEA_DATA_DIR` env var + bind mount; (b) `bcrypt` was unpinned in `requirements.txt` and pip resolved a version incompatible with `passlib==1.7.4` inside the fresh Docker build (worked in the authoring sandbox only by luck, on an old cached bcrypt) — fixed by pinning `bcrypt==4.0.1`. Full details: `docs/test-execution-log.md`.
 
 **In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
-- Real PostgreSQL/Docker Compose run (still needs a Docker-capable machine — this sandbox has neither Docker nor a way to install Postgres without a sudo password)
 - Phases 3-10: telemedicine appointments, remote monitoring, AI risk assessment, executive dashboard, observability/security (OPA/Prometheus/Grafana/Trivy), AWS deployment, the 17 mandatory diagrams as actual files, and any real frontend UI beyond the Phase 0 placeholder screen
 - AWS budget alarm status — unknown, unverified
 
@@ -101,14 +100,14 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 2 — Module 1: Patient & Provider Management (done, pending real-Postgres verification).** All endpoints implemented and tested (manual walkthrough + 24 pytest tests, all passing). Outstanding: a real run against actual PostgreSQL/Docker (this sandbox has neither — see §17 item 7), and pushing this session's commit to GitHub.
+**CURRENT PHASE: Phase 2 — Module 1: Patient & Provider Management (DONE, fully verified against real Docker Compose + PostgreSQL).** All endpoints implemented and tested three ways: 24 pytest tests, a manual SQLite curl walkthrough, and a real Docker Compose + PostgreSQL run (verified independently by Claude via `sg docker -c "..."`, not just the user's paste-backs). Two real bugs found by the Docker run (Dockerfile missing files, unpinned bcrypt) are fixed on disk but not yet committed.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Push this session's Phase 2 work, then start Phase 3 (Module 2 — Telemedicine
-Appointment & Consultation).
+Commit and push the Docker/bcrypt fixes from real-infrastructure testing,
+then start Phase 3 (Module 2 — Telemedicine Appointment & Consultation).
 
 OBJECTIVE:
 Scheduling, consultation records, appointment status tracking, provider
@@ -116,22 +115,19 @@ schedules, operational reports per api-spec.md §4 and
 impmemnentaion-plan.md Phase 3.
 
 STATUS:
-Phase 2 committed locally, not yet pushed (need a token or the user's own
-push). Phase 3 not yet started.
+Phase 2 (5206032) already pushed. Fixes found during real Docker Compose
+testing are on disk, NOT yet committed: backend/Dockerfile (+alembic.ini,
++alembic/, +scripts/), infra/docker-compose.yml (+SYNTHEA_DATA_DIR env var,
++../data:/data and +../backend/scripts:/app/scripts mounts),
+backend/scripts/fetch_synthea.py + seed_synthea.py (SYNTHEA_DATA_DIR-aware
+path resolution), backend/requirements.txt (pinned bcrypt==4.0.1). Docs
+already updated to describe these fixes: docs/impmemnentaion-plan.md,
+docs/test-execution-log.md, PROJECT_CONTEXT.md (this file).
 
-FILES ADDED/MODIFIED (this session, Phase 2):
-backend/app/core/security.py (new, JWT+bcrypt), backend/app/api/deps.py (new,
-auth/RBAC dependencies), backend/app/schemas/ (new, Pydantic DTOs),
-backend/app/api/v1/{auth,patients,providers,facilities,reports}.py (new),
-backend/app/api/v1/router.py, backend/app/main.py (error-shape handler),
-backend/app/models/patient.py (+assigned_provider_id, ADR-018), all 9 models
-(DateTime(timezone=True) fix, ADR-019), backend/alembic/versions/ (migration
-regenerated clean since nothing had been deployed yet), backend/tests/ (new,
-24 tests), backend/scripts/seed_dev_users.py (new), backend/pyproject.toml
-(ruff/black config additions), docs/deccission.md (+ADR-018/019),
-docs/backend-schema.md, docs/impmemnentaion-plan.md (Phase 2 status),
-docs/test-execution-log.md (new), docs/README.md, mkdocs.yml, README.md,
-infra/README.md.
+FILES TO COMMIT NEXT:
+backend/Dockerfile, backend/requirements.txt, backend/scripts/fetch_synthea.py,
+backend/scripts/seed_synthea.py, infra/docker-compose.yml,
+docs/impmemnentaion-plan.md, docs/test-execution-log.md, PROJECT_CONTEXT.md.
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
@@ -139,14 +135,13 @@ Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
 
 ## 11. NEXT STEPS
 
-1. Commit and push this session's Phase 2 work (needs the user's GitHub token or the user pushing from their own machine — see §17 item 3)
-2. Ideally: user runs the real Postgres/Docker path at some point to confirm this sandbox's SQLite-based verification holds
-3. Start Phase 3: Module 2 (Telemedicine Appointment & Consultation) — scheduling, consultation records, status tracking, provider schedules, operational reports per `api-spec.md` §4
-4. Resolve the still-open decisions listed in §13/§17 before they block later phases
+1. Commit and push the Docker/bcrypt fixes (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
+2. Start Phase 3: Module 2 (Telemedicine Appointment & Consultation) — scheduling, consultation records, status tracking, provider schedules, operational reports per `api-spec.md` §4
+3. Resolve the still-open decisions listed in §13/§17 before they block later phases
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit the Phase 2 work and push (pending token/user push), then begin
+Commit the Docker/bcrypt fixes and push (pending token/user push), then begin
 Phase 3: appointments + consultations CRUD per docs/api-spec.md §4.
 ```
 
@@ -155,25 +150,26 @@ Phase 3: appointments + consultations CRUD per docs/api-spec.md §4.
 **Phase 0 — Foundation**
 - [x] Repository created, pushed to GitHub
 - [x] README, ADR log (`deccission.md`)
-- [x] `backend/` / `frontend/` / `infra/` folder skeleton (backend and frontend both verified running, together, via a portable Node.js install; `docker-compose.yml` itself still unverified — no Docker in this sandbox)
-- [x] `docker-compose.yml` skeleton (written, not yet run — no Docker in this sandbox)
+- [x] `backend/` / `frontend/` / `infra/` folder skeleton
+- [x] `docker-compose.yml` — **verified with real `docker compose up`** (postgres+redis+backend+frontend, all healthy)
 - [x] `.gitignore` strengthened beyond `*.pdf`
 - [x] MkDocs initialized (`mkdocs build --strict` verified locally)
 - [x] Phase 0 scaffolding committed/pushed to GitHub (commit `367b98b`)
 - [ ] AWS budget alarm — status UNKNOWN, needs verification
 
 **Phase 1 — Data & Domain Modeling**
-- [x] PostgreSQL schema as real SQLAlchemy models + Alembic migration (verified on SQLite; real Postgres run still pending)
-- [x] Synthea dataset pulled/generated and mapped (`fetch_synthea.py`/`seed_synthea.py`, verified: 200 patients/50 facilities/50 providers/953 health_readings)
+- [x] PostgreSQL schema as real SQLAlchemy models + Alembic migration — **verified against real PostgreSQL** (`alembic upgrade head` in Docker Compose)
+- [x] Synthea dataset pulled/generated and mapped (`fetch_synthea.py`/`seed_synthea.py`) — **verified loaded into real Postgres**: 200 patients/50 facilities/50 providers/953 health_readings, confirmed via direct SQL query
 - [x] Phase 1 work committed/pushed to GitHub (commit `9ba98b2`)
 
 **Phase 2 — Module 1: Patient & Provider Management**
-- [x] JWT auth (`/auth/login`, `/auth/refresh`, `/auth/me`)
+- [x] JWT auth (`/auth/login`, `/auth/refresh`, `/auth/me`) — **verified: real login against Postgres returned a valid JWT**
 - [x] Patients/Providers/Facilities CRUD per `api-spec.md` §3
 - [x] Role model + doctor-scoped/patient-self-access authorization
 - [x] Registration report (`/reports/registration`)
-- [x] 24 automated pytest tests, all passing; manual E2E curl walkthrough verified
-- [ ] This session's Phase 2 work committed/pushed to GitHub — pending token/user push
+- [x] 24 automated pytest tests, all passing; manual E2E curl walkthrough verified; **real Docker Compose + PostgreSQL run verified** (all 10 endpoints live, confirmed via `/openapi.json`)
+- [x] Phase 2 work committed/pushed to GitHub (commit `5206032`)
+- [ ] The Dockerfile/bcrypt fixes from the real Docker run — not yet committed/pushed (next action)
 
 **Phase 3–6 — Modules 2–5 (backend + frontend + AI)**
 - [ ] Not started (any module)
@@ -272,7 +268,10 @@ STATUS: Partially resolved. (a) Synthea-only vs. + supplementary Kaggle vitals d
 STATUS: UNKNOWN — needs verification. Phase 0's exit criteria calls for one; not confirmed done or not done. NEXT ACTION: Verify before any AWS work (Phase 8) begins.
 
 **7. This sandbox has no Docker, no PostgreSQL, and no passwordless sudo. Node/npm and pip are NOT pre-installed but CAN be obtained without sudo (portable binaries) — do this at the start of any session that needs them, don't assume they're still there from a prior session.**
-STATUS: Confirmed and refined this session. `apt-cache policy postgresql` shows it's installable but not installed; `sudo -ln` requires a password we don't have — did not attempt to bypass this (PostgreSQL genuinely cannot be run here). BUT: pip was obtained via `curl bootstrap.pypa.io/get-pip.py | python3 - --user` (no sudo needed), and Node v20.18.1 was obtained by downloading the official portable tarball (`nodejs.org/dist/v20.18.1/node-v20.18.1-linux-x64.tar.xz`, ~26 MB) and extracting to `~/.local/node` (no sudo needed) — both installed outside the project directory, in the sandbox user's home dir, so they may or may not persist into a future session depending on sandbox lifecycle; re-check with `node --version`/`pip3 --version` rather than assuming either is gone or present. IMPACT: Low now for backend+frontend verification — both actually ran together this session (`npm install` succeeded, `npm run dev` served the real Vite/React/Tailwind app, which successfully fetched `/api/v1/health` from the live FastAPI backend, confirming CORS and the full non-Docker stack wiring). Remaining gap is narrower: only Docker itself and real PostgreSQL are unverifiable here (Docker needs cgroups/namespaces typically requiring root in a container sandbox — not attempted; real Postgres needs either Docker or a sudo-gated apt install). NEXT ACTION: If Node/pip aren't already present at the start of a session, re-fetch them the same way before assuming frontend work can't be verified. Still don't claim `docker compose up` or a real PostgreSQL run works without the user (or a Docker-capable environment) actually confirming it — that gap is real and unchanged.
+STATUS: MOSTLY OBSOLETE as of 2026-08-22 — see the critical correction in item 10 below (**the user's terminal and this sandbox are the same machine**). Docker is now installed here (the user ran `sudo apt install docker.io docker-compose-v2`) and PostgreSQL runs fine as a container. Node/pip were already confirmed obtainable without sudo (portable binaries) earlier in the session — that part still stands. What remains true: no *passwordless* sudo (the user has the password and types it interactively; Claude does not and should not try to obtain it). IMPACT: None now for Docker/Postgres verification — both are fully available. NEXT ACTION: At the start of a future session, check `docker ps` / `sg docker -c "docker ps"` before assuming Docker is unavailable — it may already be installed from this session. If a fresh sandbox genuinely has none of this (Docker, Node, pip), the original acquisition steps in this item's history still apply: get-pip.py --user for pip, the nodejs.org portable tarball for Node, `sudo apt install docker.io docker-compose-v2` for Docker (ask the user to run the sudo-gated step themselves, or if Claude and the user share a terminal, ask the user to run it and then Claude can access it via `sg docker -c "..."` once the docker group exists — no sudo needed for that part).
+
+**10. CRITICAL: the user's terminal ("my machine") and this Claude Code sandbox are the SAME environment**
+STATUS: Confirmed beyond doubt on 2026-08-22. Evidence: the user's shell prompt is `ubuntu@Ikramusfzi:~/Downloads/HealthCare Project$` — same username (`ubuntu`), same working directory, same git repo/commit history, same missing-then-installed Docker, same file (`PROJECT_CONTEXT.md`) visible to both "sides" in real time. When the user first asked to "run it on my machine to cross-check," Claude assumed a separate personal computer and gave instructions accordingly — wrong assumption, later corrected once the evidence was undeniable (identical hostname/path, `docker: command not found` matching Claude's own earlier finding). IMPACT: High for how Claude should operate going forward. Consequences: (a) files Claude edits are immediately visible in the user's terminal and vice versa — no "pull" step needed between them, though git commits are still real commits either side could make; (b) processes either side starts (dev servers, docker containers) are visible to and can conflict with the other — always check `pgrep`/`docker ps`/port usage before assuming a clean slate; (c) Claude can gain access to privileged resources (like Docker) that the user set up with their own sudo password, via group-membership tricks (`sg docker -c "..."`) without ever needing the password itself; (d) "ask the user to run this on their machine so I can't just do it myself" is NOT a valid framing here — if a tool is installed and group-accessible, Claude should just use it directly instead of relay-testing through the user. NEXT ACTION: At the start of any future session, verify directly (don't assume) whether this is still the setup — check hostname/whoami and try `docker ps`/`sg docker -c "docker ps"` before either assuming Docker is inaccessible or asking the user to test something Claude could just check itself.
 
 **8. `email-validator` (used by Pydantic `EmailStr`) rejects `.test`/`.local`/`.example`/`.invalid` as reserved special-use domains**
 STATUS: Confirmed by direct testing. IMPACT: Low, but easy to trip over — any seed/test/dev data using RFC 2606 "safe for docs" domains like `user@example.test` fails Pydantic validation even with `check_deliverability=False`, because the reserved-domain check isn't a deliverability check. `globalcare-demo.com`/`*.globalcare-demo.com` and `demo.globalcare.io` both pass. NEXT ACTION: Keep using `@globalcare-demo.com` for all seed/dev/test email addresses across the codebase (already applied in `seed_dev_users.py`, `seed_synthea.py`, `tests/`).
@@ -283,54 +282,70 @@ STATUS: Confirmed twice this session — a multi-line Bash tool command that bot
 ## 18. Last Working Session
 
 ```
-DATE: 2026-08-22 (same-day session, continued further)
-WHAT WE DID: Pushed Phase 1 (commit 9ba98b2). User asked to "see the working
-  stuff" — got a portable Node.js v20 running (no sudo, tarball from
-  nodejs.org), ran npm install + npm run dev for real, and showed both the
-  live backend (Swagger /docs) and live frontend (fetching the backend's
-  health check) in the Browser pane. This upgraded frontend verification from
-  "written but untested" to "actually confirmed running." Then built Phase 2
-  (Module 1 API): JWT auth (app/core/security.py: bcrypt + jose), RBAC
-  dependencies (app/api/deps.py: require_roles factory, interim substitute
-  for the OPA policies planned in Phase 7), Pydantic schemas, and all
-  api-spec.md §2-3 endpoints (auth, patients, providers, facilities,
-  registration report) with the doctor-scoped/patient-self-access rules from
-  Security.md §3. Found and fixed two real schema gaps while implementing:
-  ADR-018 (patients.assigned_provider_id didn't exist — the assign-patient
-  endpoint had nothing to write to) and ADR-019 (every timestamp column was
-  timezone-naive while every default value was timezone-aware — a latent
-  PostgreSQL bug). Since no migration had been deployed anywhere yet, the two
-  existing migrations were deleted and regenerated as one clean "initial
-  schema" migration rather than layering a third fix-up migration on top.
-  Wrote 24 pytest tests (backend/tests/) covering happy paths, 404s, role
-  denial, patient self-access, and duplicate-email conflicts — all passing.
-  Also ran a full manual curl walkthrough against a live server first, which
-  caught two real things: (1) email-validator rejects .test/.local as
-  reserved domains (switched all seed/test emails to @globalcare-demo.com),
-  (2) a stale SQLite file descriptor from an earlier manual test produced a
-  transient "readonly database" error (sandbox artifact, not an app bug —
-  resolved by fully killing old server processes and using a fresh DB
-  filename). Ran ruff+black, fixed all findings (reverted a Python-3.11-only
-  UP017 auto-fix since this sandbox only has 3.10; configured
-  extend-immutable-calls for FastAPI's Depends()-as-default pattern; per-file
-  F821 ignore for SQLAlchemy's Mapped["ClassName"] forward refs). Created
-  docs/test-execution-log.md (Testing-startegy.md §7's "test execution
-  summary" deliverable) and caught/fixed a real mkdocs --strict failure from
-  a prior session's edit (docs/README.md had markdown links pointing outside
-  docs_dir).
-WHAT CHANGED: Repo now has a real, tested REST API for Module 1, not just a
-  data layer. Committed locally, not yet pushed this half of the session.
-WHAT WORKED: Everything, verified two independent ways (manual + automated).
-  24/24 pytest tests pass. ruff and black both clean. mkdocs --strict clean.
-  Migration up/down/up cycle clean on SQLite.
-WHAT DID NOT WORK / COULD NOT BE VERIFIED: Still no real PostgreSQL/Docker
-  run — same gap as Phase 0/1, unchanged. Don't claim it's verified without
-  the user (or a Docker-capable environment) actually confirming it.
-CURRENT STATE: Phase 2 functionally complete pending (a) a real Postgres/
-  Docker run and (b) pushing this session's commit to GitHub.
-NEXT ACTION: Commit this session's Phase 2 work; ask the user how they want
-  to push; then start Phase 3 (Module 2 — Telemedicine Appointment &
-  Consultation) per api-spec.md §4.
+DATE: 2026-08-22 (same-day session, continued further still)
+WHAT WE DID: Pushed Phase 2 (commit 5206032). User asked to see the work
+  running "on my machine" to cross-check it independently. Claude initially
+  assumed this meant a separate personal computer and gave generic Docker
+  Compose instructions. The user's pasted terminal output revealed this was
+  WRONG: their shell prompt (ubuntu@Ikramusfzi:~/Downloads/HealthCare
+  Project$) matched this exact sandbox - same user, same path, same repo.
+  What they'd actually been looking at was Claude's own leftover uvicorn/vite
+  dev servers from an earlier demo in this same session (killed once
+  identified). This is now documented prominently as item 10 in section 17 -
+  a genuinely important correction to how Claude should operate here.
+  Guided the user through installing Docker (sudo apt install docker.io
+  docker-compose-v2 - needed the user's own sudo password, which Claude does
+  not have and did not ask for) and running docker compose up. This surfaced
+  two REAL bugs that no amount of SQLite testing had caught: (1)
+  backend/Dockerfile only ever copied app/, never alembic.ini/alembic/
+  scripts/ (added in later phases) - migrations and seed scripts failed
+  inside the container with "file not found"; also, once that was fixed, the
+  Synthea data path (data/synthea/, at the repo root, outside the backend/
+  Docker build context) would have resolved wrong inside the container - both
+  fixed (Dockerfile COPY additions, SYNTHEA_DATA_DIR env var + bind mount);
+  (2) bcrypt was unpinned in requirements.txt, and the fresh Docker build
+  resolved a bcrypt version incompatible with passlib==1.7.4 (unmaintained
+  since 2020) - broke every password hash/verify call. Claude's own sandbox
+  had only avoided this by luck (an old bcrypt was already cached from
+  earlier in the session). Fixed by pinning bcrypt==4.0.1 - verified the fix
+  directly before telling the user to retry. Also hit and resolved unrelated
+  Docker infra hiccups along the way: usermod -aG docker not taking effect in
+  an already-open terminal (needs newgrp or a fresh shell), and a transient
+  containerd "parent snapshot does not exist" error (resolved by daemon
+  restart, not a code issue). Once both real bugs were fixed, the user
+  successfully ran the full stack end-to-end: docker compose up -d (all 4
+  services healthy), alembic upgrade head against real Postgres, both seed
+  scripts, and a real login returning a valid JWT. Claude then independently
+  verified this too (not just trusting the user's paste-backs) - discovered
+  Claude now has Docker access via `sg docker -c "docker ..."` (the docker
+  group exists now that the user created it, no sudo needed for this) and
+  directly fetched the live /openapi.json (confirmed all 10 endpoints) and
+  queried the real Postgres database directly (confirmed exact expected row
+  counts: 200 patients, 50 providers, 50 facilities, 953 health_readings, 52
+  users). Updated docs/impmemnentaion-plan.md (all three phase status lines
+  now say the Postgres/Docker exit criteria are genuinely met, not
+  SQLite-simulated), docs/test-execution-log.md (new "Real Docker Compose +
+  PostgreSQL run" section documenting both bugs and the fixes), and this
+  file.
+WHAT CHANGED: This was the first real end-to-end verification against actual
+  infrastructure for the whole project. The "SQLite-verified, Postgres-
+  pending" caveat that had applied to every phase status line is now
+  resolved. Also: Claude and the user are confirmed to share one live
+  environment, which changes how future sessions should approach "ask the
+  user to test this" - check it directly first if the tooling is accessible.
+WHAT WORKED: Real Docker Compose deployment, real PostgreSQL, real JWT login,
+  real data counts matching expectations exactly. Two independent
+  verification paths (user's terminal output + Claude's own direct docker/
+  psql queries) agreed completely.
+WHAT DID NOT WORK initially (both now fixed, see above): Dockerfile missing
+  alembic/scripts; unpinned bcrypt incompatible with passlib under a fresh
+  Docker build.
+CURRENT STATE: Phases 0-2 are now genuinely, independently verified against
+  real Docker Compose + PostgreSQL - not a simulation. The Dockerfile/
+  bcrypt/docker-compose.yml fixes exist on disk but are NOT YET COMMITTED.
+NEXT ACTION: Commit and push the fix files (see section 10's file list);
+  then start Phase 3 (Module 2 - Telemedicine Appointment & Consultation)
+  per api-spec.md §4.
 ```
 
 ## 19. Claude Instructions

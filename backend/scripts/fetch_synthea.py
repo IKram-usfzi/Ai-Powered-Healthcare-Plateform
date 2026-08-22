@@ -7,8 +7,15 @@ sandbox — see PROJECT_CONTEXT.md).
 
 Usage:
     python scripts/fetch_synthea.py
+
+The dataset lives at <repo-root>/data/synthea, which is outside the backend/
+Docker build context (so it can't be baked into the image). Locally this is
+found by walking up from this file's path; inside the container it's a bind
+mount at /data (see infra/docker-compose.yml) — set SYNTHEA_DATA_DIR to
+override either way.
 """
 
+import os
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -18,7 +25,10 @@ DOWNLOAD_URL = (
     "downloads/synthea_sample_data_csv_apr2020.zip"
 )
 
-DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "synthea"
+DATA_DIR = Path(
+    os.environ.get("SYNTHEA_DATA_DIR")
+    or Path(__file__).resolve().parent.parent.parent / "data" / "synthea"
+)
 RAW_DIR = DATA_DIR / "raw"
 ZIP_PATH = RAW_DIR / "synthea_sample_data_csv_apr2020.zip"
 

@@ -6,8 +6,14 @@ Local/full deployment profile (`docs/TRD.md` §2, `docs/architecture.md` §2).
 
 ```bash
 cd infra
-docker compose up --build
+docker compose up -d --build
 ```
+
+If `docker` isn't installed yet: `sudo apt install -y docker.io docker-compose-v2`, then
+`sudo usermod -aG docker $USER && newgrp docker` (or open a new terminal) so you don't need
+`sudo` for every `docker` command afterward. If a command in an *already-open* terminal still
+says "permission denied... docker.sock", that terminal predates the group change — prefix with
+`sudo` there, or open a new terminal.
 
 - Backend (FastAPI): http://localhost:8000/docs
 - Frontend (React/Vite): http://localhost:5173
@@ -22,15 +28,20 @@ load them via `env_file`.
 
 ## Database setup (Phase 1) + dev login (Phase 2)
 
-Once `postgres` is up (via `docker compose up`), apply the schema and load sample data:
+Once the stack is up, run these **inside the backend container** (not on the host — the host
+doesn't have the Python deps installed, and `DATABASE_URL` resolves the `postgres` hostname
+that only exists on the Docker network):
 
 ```bash
-cd backend
-alembic upgrade head                        # creates all 9 tables (docs/backend-schema.md)
-python scripts/seed_dev_users.py             # admin@globalcare-demo.com / executive@... , password ChangeMe123!
-python scripts/fetch_synthea.py              # downloads the Synthea CSV sample (~9 MB)
-python scripts/seed_synthea.py --patients 200 --max-readings 5
+docker compose exec backend alembic upgrade head       # creates all 9 tables (docs/backend-schema.md)
+docker compose exec backend python scripts/seed_dev_users.py   # admin@globalcare-demo.com / executive@... , password ChangeMe123!
+docker compose exec backend python scripts/fetch_synthea.py    # downloads the Synthea CSV sample (~9 MB) into ../data (bind-mounted)
+docker compose exec backend python scripts/seed_synthea.py --patients 200 --max-readings 5
 ```
+
+Verified end-to-end against real PostgreSQL (2026-08-22, `docs/test-execution-log.md`): exactly
+50 facilities/50 providers/200 patients/953 health_readings loaded, and `POST /auth/login`
+returns a valid JWT.
 
 `seed_dev_users.py` credentials are dev/demo only — never use them in a real deployment. See
 `docs/backend-schema.md` §6 for the Synthea → schema field mapping, and `docs/api-spec.md` for

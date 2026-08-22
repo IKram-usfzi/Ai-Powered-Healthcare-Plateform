@@ -3,9 +3,11 @@
 **Related:** `Testing-startegy.md` §7, `impmemnentaion-plan.md`
 **Purpose:** Running log of test runs (pass/fail counts, notable failures and fixes) as implementation proceeds — the "test execution summary" deliverable for the live demonstration (brief §10, Stage 2).
 
-Every run listed here was executed in the authoring sandbox (Python 3.10, no Docker/PostgreSQL —
-see `PROJECT_CONTEXT.md`), against SQLite as a logical stand-in. A real PostgreSQL/Docker Compose
-run is still needed on a Docker-capable machine before this can be called fully verified.
+Most runs below were executed in the authoring sandbox (Python 3.10, no Docker/PostgreSQL —
+see `PROJECT_CONTEXT.md`), against SQLite as a logical stand-in. **Phases 0-2 have since been
+verified against real Docker Compose + PostgreSQL** on the student's own machine (§ below) —
+that's the authoritative run; the SQLite entries stay here as the record of what was checked
+before real infrastructure was available.
 
 ## Phase 0 — Foundation
 
@@ -62,8 +64,42 @@ run is still needed on a Docker-capable machine before this can be called fully 
 
 **Lint/format:** `ruff check .` — clean. `black --check .` — clean.
 
+## Real Docker Compose + PostgreSQL run (student's machine, 2026-08-22)
+
+First run against actual infrastructure rather than SQLite. Two real bugs surfaced immediately
+and were fixed on the spot:
+
+1. **`backend/Dockerfile` only copied `app/`** — `alembic.ini`, `alembic/`, and `scripts/` had
+   been added in Phases 1-2 but the Dockerfile was never updated, so `docker compose exec backend
+   alembic ...` and the seed scripts failed with "file not found" inside the container. Fixed:
+   Dockerfile now copies all three. Also fixed a related latent bug this surfaced: the Synthea
+   data directory lives at `<repo-root>/data/`, outside the `backend/` Docker build context, so
+   the scripts' relative-path logic would have resolved to the wrong location even after the
+   Dockerfile fix — added a `SYNTHEA_DATA_DIR` env var (bind-mounted `../data:/data` in
+   `docker-compose.yml`) so the scripts find the right path in both local and containerized runs.
+2. **`passlib==1.7.4` (unmaintained since 2020) incompatible with `bcrypt>=4.1`** — `bcrypt`
+   wasn't pinned in `requirements.txt`, so `pip install` picked a version too new for passlib's
+   backend-detection code (`AttributeError: module 'bcrypt' has no attribute '__about__'`),
+   breaking every password hash/verify call. Worked in the authoring sandbox purely by luck (an
+   older `bcrypt` had been installed there at a different time) — a textbook case for why
+   `developement-rules.md` §7 requires pinned dependencies. Fixed: pinned `bcrypt==4.0.1`.
+
+After both fixes, rebuilt and re-ran clean:
+
+| Step | Result |
+|---|---|
+| `docker compose up -d` (postgres, redis, backend, frontend) | ✅ all 4 healthy/started |
+| `alembic upgrade head` against real PostgreSQL | ✅ (idempotent on re-run — schema already applied) |
+| `seed_dev_users.py` (uses the now-fixed bcrypt) | ✅ both dev users created |
+| `seed_synthea.py --patients 200 --max-readings 5` | ✅ 50 facilities, 50 providers, 200 patients, 953 health_readings — identical counts to the SQLite dry-run |
+| Frontend (`localhost:5173`) fetching live backend health | ✅ "Backend API status: ok" |
+| `POST /auth/login` against real Postgres-backed data | ✅ valid access + refresh JWT returned |
+
+This closes the "SQLite-verified, Postgres-pending" caveat that had applied to every phase status
+above — Phases 0-2 are now verified against the actual mandatory deployment path (Docker Compose),
+not just simulated.
+
 ## Not yet run
 
-- Full `docker compose up` / real PostgreSQL (needs a Docker-capable machine)
 - Frontend component tests (React Testing Library) — no frontend UI logic exists yet beyond the Phase 0 placeholder screen
-- Trivy scan — no Docker images built yet in a Docker-capable environment
+- Trivy scan — planned for Phase 7

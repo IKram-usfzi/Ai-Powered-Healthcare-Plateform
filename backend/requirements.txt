@@ -12,6 +12,10 @@ redis==5.2.0
 
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+# passlib 1.7.4 (unmaintained since 2020) reads bcrypt.__about__.__version__ for
+# backend detection; bcrypt>=4.1 removed that attribute, breaking every hash/verify
+# call. Pin to the last compatible 4.0.x release until passlib is replaced/updated.
+bcrypt==4.0.1
 python-multipart==0.0.19
 
 # --- dev / lint / test (see docs/developement-rules.md §3, §7 and docs/Testing-startegy.md) ---
