@@ -11,6 +11,7 @@ Repo structure, Git/GitHub setup, base Docker Compose skeleton (empty services),
 ## Phase 1 — Data & Domain Modeling
 Finalize PostgreSQL schema per `backend-schema.md`; produce Database ERD; obtain/generate the Synthea dataset and map it to the schema; decide on the supplementary Kaggle vitals dataset question from `deccission.md` (ADR-011).
 **Exit criteria:** Schema migrated into a running PostgreSQL container; sample Synthea-derived data loaded.
+**Status:** Schema finalized (`backend-schema.md` §6, ADR-016), SQLAlchemy models + Alembic migration written and verified against SQLite (no Postgres in the authoring sandbox — needs a real run). Synthea CSV sample obtained and mapped via `backend/scripts/{fetch,seed}_synthea.py`, verified loading 200 patients/50 providers/50 facilities/953 health_readings. ADR-011 resolved as ADR-017 (Synthea only, no supplementary Kaggle dataset). ERD already existed as a Mermaid diagram in `backend-schema.md` §1 — no separate diagram file needed yet (Phase 9 exports it).
 
 ## Phase 2 — Module 1: Patient & Provider Management
 Registration/profile CRUD APIs per `api-spec.md` §3, JWT auth foundation, role model (Patient/Doctor/Admin/Executive), registration reports.

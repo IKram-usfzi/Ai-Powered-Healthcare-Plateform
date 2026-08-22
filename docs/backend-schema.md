@@ -32,7 +32,7 @@ erDiagram
 
 **consultations** — record of a completed appointment. Key fields: id, appointment_id, summary, recommendations, created_at.
 
-**health_readings** — simulated vitals from remote monitoring. Key fields: id, patient_id, heart_rate, blood_pressure, spo2, temperature, glucose, recorded_at.
+**health_readings** — simulated vitals from remote monitoring. Key fields: id, patient_id, heart_rate, systolic_bp, diastolic_bp (ADR-016 — split from a single `blood_pressure` field), spo2, temperature, glucose, recorded_at.
 
 **alerts** — abnormal-reading notifications. Key fields: id, patient_id, reading_id, severity, status (`open`/`acknowledged`/`resolved`), created_at.
 
@@ -55,3 +55,23 @@ erDiagram
 ## 5. Migration Strategy (planned)
 
 Alembic (confirmed, `deccission.md` ADR-013) versions schema changes; no manual/ad-hoc schema edits against a running environment. Every schema change is expected to be paired with an ADR entry in `deccission.md` if it reflects a design decision (not just a fix).
+
+## 6. Implementation status (Phase 1)
+
+All 9 entities above are implemented as SQLAlchemy 2.0 models under `backend/app/models/`, with an
+initial Alembic migration at `backend/alembic/versions/`. Verified: `alembic upgrade head` /
+`downgrade base` against SQLite (no PostgreSQL available in the authoring sandbox — needs a real
+run via `docker compose up`, see `infra/`).
+
+**Synthea mapping** (`backend/scripts/fetch_synthea.py`, `backend/scripts/seed_synthea.py`):
+
+| Schema table | Synthea CSV source |
+|---|---|
+| `facilities` | `organizations.csv` (only orgs referenced by seeded providers) |
+| `providers` | `providers.csv` (+ a placeholder `users` row per provider — real auth in Phase 2) |
+| `patients` | `patients.csv` (living patients only; `user_id` left `NULL` — no patient login yet) |
+| `health_readings` | `observations.csv`, grouped by (patient, encounter); `heart_rate`/`systolic_bp`/`diastolic_bp`/`glucose` are real Synthea LOINC-coded values (8867-4, 8480-6, 8462-4, 2339-0); `spo2`/`temperature` are simulated within a normal physiological range where the encounter doesn't carry them (LOINC 2708-6/8310-5 appear in only ~5% of encounters) — see ADR-017 |
+
+Verified end-to-end against SQLite: 200 sampled patients → 50 facilities, 50 providers, 953
+`health_readings` rows, with plausible vitals ranges (HR 60–100+, systolic 99–197 reflecting real
+hypertensive cases in the sample, temperature/SpO2 within simulated normal bounds).

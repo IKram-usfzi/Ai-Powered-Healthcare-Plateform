@@ -85,3 +85,15 @@ Each entry: Decision, Context, Status, Consequences. Status values: Proposed / A
 **Decision:** Use Vite as the React build tool/dev server; install Tailwind CSS as an npm dependency with PostCSS (not the CDN script) for the production React app. The CDN approach in the template files remains fine for the standalone preview screens under `UIUX Design/`, which are reference material, not the shipped app.
 **Status:** Accepted.
 **Consequences:** Standard, fast dev-server experience (Vite HMR); Tailwind's utility classes and design tokens (Manrope/Inter/Material Symbols, per ADR-012) are preserved identically between the template previews and the real app.
+
+## ADR-016 — `health_readings.blood_pressure` split into `systolic_bp` / `diastolic_bp`
+**Context:** `backend-schema.md` originally listed a single `blood_pressure` field. Finalizing the schema for Phase 1 (SQLAlchemy models + Alembic migration) surfaced that a combined field (e.g. `"120/80"` as a string) is awkward for the abnormal-reading threshold checks (Module 3) and the AI risk model's numeric feature set (Module 4) — both need systolic/diastolic as independent numbers.
+**Decision:** Store `systolic_bp: int` and `diastolic_bp: int` as two columns instead of one combined `blood_pressure` field.
+**Status:** Accepted.
+**Consequences:** `backend-schema.md` §2/§6 updated to match; any future API payload for vitals ingestion (`POST /monitoring/readings`, Phase 4) uses `systolic_bp`/`diastolic_bp` as two request fields, not one combined string.
+
+## ADR-017 — Synthea supplementary dataset question (ADR-011) resolved: Synthea only
+**Context:** ADR-011 left open whether a supplementary Kaggle vitals dataset was needed alongside Synthea for Module 4 training. Phase 1 requires a decision before the dataset is pulled.
+**Decision:** Synthea alone is sufficient — its CSV export's `observations.csv` carries LOINC-coded vitals (heart rate, systolic/diastolic blood pressure, SpO2, body temperature, blood glucose) that map directly onto `health_readings`, and its `conditions.csv`/`patients.csv` provide enough signal for a lightweight risk classifier (Phase 5). No supplementary Kaggle dataset is pulled in.
+**Status:** Accepted.
+**Consequences:** One data source to document/cite in the AI evaluation report; simpler data-provenance story for the viva. Revisit only if Phase 5 model evaluation shows the feature set is too thin.

@@ -19,6 +19,19 @@ scaffold. Before real credentials/secrets exist (Phase 2+), copy `../backend/.en
 to `../backend/.env` and `../frontend/.env.example` to `../frontend/.env` and adjust values;
 `docker-compose.yml` can then be updated to load them via `env_file`.
 
+## Database setup (Phase 1)
+
+Once `postgres` is up (via `docker compose up`), apply the schema and load sample data:
+
+```bash
+cd backend
+alembic upgrade head                        # creates all 9 tables (docs/backend-schema.md)
+python scripts/fetch_synthea.py              # downloads the Synthea CSV sample (~9 MB)
+python scripts/seed_synthea.py --patients 200 --max-readings 5
+```
+
+See `docs/backend-schema.md` §6 for the Synthea → schema field mapping.
+
 ## Services
 
 | Service | Image/build | Purpose |
