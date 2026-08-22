@@ -99,6 +99,40 @@ This closes the "SQLite-verified, Postgres-pending" caveat that had applied to e
 above — Phases 0-2 are now verified against the actual mandatory deployment path (Docker Compose),
 not just simulated.
 
+## Phase 3 — Module 2 (Telemedicine Appointment & Consultation)
+
+**Automated suite** (`cd backend && pytest -q`), 2026-08-22: **34 passed, 0 failed** (10 new tests
+in `test_appointments.py`, plus the 24 from Phase 2 unaffected).
+
+- Patient books for self / admin books on behalf of a patient / doctor cannot book (role denial)
+- Appointment list scoping per role (admin sees all, doctor sees only their own, patient sees only their own)
+- Appointment status update: doctor can only update their own appointments (403 otherwise), 404 on unknown id
+- Consultation lifecycle: wrong doctor denied (403), correct doctor succeeds (201) and the appointment auto-completes, duplicate consultation rejected (409), patient role denied entirely (403)
+- Consultation history: patient sees only their own (403 on another patient's), doctor scoped to their own appointments, admin sees all
+- Provider schedule: doctor sees only their own (403 on another provider's), admin sees any, 404 on unknown provider
+- Appointment report: role denial for doctor (403), counts match real inserted data
+
+**Real Docker Compose + PostgreSQL run**, 2026-08-22 — backend container restarted to pick up the
+new code (bind-mounted `app/`, no rebuild needed), then a full live walkthrough via curl:
+
+| Step | Result |
+|---|---|
+| `GET /openapi.json` — confirms all 5 new endpoints live | ✅ matches `api-spec.md` §4 exactly |
+| Admin creates facility/provider/patient, books appointment | ✅ 201 each |
+| Doctor login | ✅ 200 |
+| `GET /providers/{id}/schedule` (doctor, own) | ✅ 200, shows the booked appointment |
+| `PATCH /appointments/{id}/status` → `in_progress` (doctor) | ✅ 200 |
+| `POST /consultations` (doctor) | ✅ 201, appointment auto-completed (verified via re-fetch) |
+| `GET /consultations/{patientId}` | ✅ 200, correct summary/recommendations, correctly scoped (not mixed with other patients') |
+| `GET /reports/appointments` | ✅ 200, counts matched real inserted data exactly |
+| `GET /reports/appointments` as doctor (role denial) | ✅ 403 |
+
+No new bugs found by this run — everything worked on the first try. Ran twice total (once per
+verification pass); the second run's doctor email collided with the first (409, expected/correct
+uniqueness enforcement), harmless test-script artifact, not a code issue.
+
+**Lint/format:** `ruff check .` — clean. `black --check .` — clean.
+
 ## Not yet run
 
 - Frontend component tests (React Testing Library) — no frontend UI logic exists yet beyond the Phase 0 placeholder screen

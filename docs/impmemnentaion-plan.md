@@ -1,7 +1,7 @@
 # Implementation Plan (Phased Roadmap)
 
 **Related:** `developement-rules.md`, `Testing-startegy.md`
-**Status:** Phases 0-2 done and verified against real Docker Compose + PostgreSQL (student's machine, 2026-08-22) — see status lines below.
+**Status:** Phases 0-3 done and verified against real Docker Compose + PostgreSQL (2026-08-22) — see status lines below.
 
 ## Phase 0 — Foundation
 Repo structure, Git/GitHub setup, base Docker Compose skeleton (empty services), README skeleton, MkDocs init, `deccission.md` started, AWS account/budget-alarm setup.
@@ -21,6 +21,7 @@ Registration/profile CRUD APIs per `api-spec.md` §3, JWT auth foundation, role 
 ## Phase 3 — Module 2: Telemedicine Appointment & Consultation
 Scheduling, consultation records, appointment status tracking, provider schedules, operational reports (`api-spec.md` §4).
 **Exit criteria:** End-to-end schedule → consult → history flow demonstrable.
+**Status:** Met. All `api-spec.md` §4 endpoints implemented: `POST/GET /appointments`, `PATCH /appointments/{id}/status`, `POST /consultations`, `GET /consultations/{patientId}`, `GET /providers/{id}/schedule`, `GET /reports/appointments`. Patients book appointments for themselves; Administrators can book on behalf of any patient. Recording a consultation auto-transitions the appointment to `completed` (PRD §6 Module 2: "record consultation summaries; track appointment status"). Role scoping follows the Phase 2 pattern: a doctor only sees/acts on their own appointments and schedule; consultation history is additionally restricted to the doctor's own appointments with that patient (an extension of `Security.md` §3's assigned-patient rule to the appointment relationship, not just the standing `assigned_provider_id`). Verified two ways: (1) 10 new automated pytest tests (`backend/tests/test_appointments.py`, full suite now 34 passed); (2) a live end-to-end run against the real Docker Compose + PostgreSQL deployment — book → doctor login → view schedule → update status → record consultation (appointment auto-completed) → consultation history → appointment report → role-denial check, all correct, response bodies inspected directly (not just status codes). Ruff+Black clean.
 
 ## Phase 4 — Module 3: Remote Patient Monitoring
 Vitals ingestion endpoints, abnormal-reading detection rules, clinical alerting, Redis wired in for de-duplication (`api-spec.md` §5, `flow.md` §3).

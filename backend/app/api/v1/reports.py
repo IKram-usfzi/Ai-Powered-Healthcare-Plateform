@@ -5,12 +5,14 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_roles
+from app.models.appointment import Appointment
+from app.models.consultation import Consultation
 from app.models.enums import UserRole
 from app.models.facility import Facility
 from app.models.patient import Patient
 from app.models.provider import Provider
 from app.models.user import User
-from app.schemas.report import RegistrationReport
+from app.schemas.report import AppointmentReport, RegistrationReport
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -39,4 +41,29 @@ def registration_report(
         )
         or 0,
         providers_by_specialty={specialty: count for specialty, count in specialty_rows},
+    )
+
+
+@router.get("/appointments", response_model=AppointmentReport)
+def appointment_report(
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(UserRole.ADMINISTRATOR, UserRole.EXECUTIVE)),
+) -> AppointmentReport:
+    now = datetime.now(timezone.utc)
+    next_7_days = now + timedelta(days=7)
+
+    status_rows = db.execute(
+        select(Appointment.status, func.count(Appointment.id)).group_by(Appointment.status)
+    ).all()
+
+    return AppointmentReport(
+        total_appointments=db.scalar(select(func.count(Appointment.id))) or 0,
+        appointments_by_status={status.value: count for status, count in status_rows},
+        appointments_next_7_days=db.scalar(
+            select(func.count(Appointment.id)).where(
+                Appointment.scheduled_at >= now, Appointment.scheduled_at < next_7_days
+            )
+        )
+        or 0,
+        total_consultations=db.scalar(select(func.count(Consultation.id))) or 0,
     )

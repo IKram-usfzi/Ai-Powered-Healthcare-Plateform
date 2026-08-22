@@ -6,10 +6,12 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_roles
 from app.core.security import hash_password
+from app.models.appointment import Appointment
 from app.models.enums import UserRole
 from app.models.patient import Patient
 from app.models.provider import Provider
 from app.models.user import User
+from app.schemas.appointment import AppointmentRead
 from app.schemas.patient import PatientRead
 from app.schemas.provider import AssignPatientRequest, ProviderCreate, ProviderRead
 
@@ -74,3 +76,22 @@ def assign_patient(
     db.commit()
     db.refresh(patient)
     return patient
+
+
+@router.get("/{provider_id}/schedule", response_model=list[AppointmentRead])
+def get_provider_schedule(
+    provider_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.DOCTOR, UserRole.ADMINISTRATOR)),
+) -> list[Appointment]:
+    if current_user.role == UserRole.DOCTOR:
+        if current_user.provider is None or current_user.provider.id != provider_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to view this provider's schedule",
+            )
+    if db.get(Provider, provider_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Provider not found")
+
+    stmt = select(Appointment).where(Appointment.provider_id == provider_id)
+    return list(db.scalars(stmt))

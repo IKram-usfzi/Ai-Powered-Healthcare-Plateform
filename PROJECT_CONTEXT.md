@@ -70,7 +70,7 @@ Detailed architecture (incl. AWS stretch topology, 17-diagram inventory): `docs/
 | Module | Purpose | Status |
 |---|---|---|
 | Patient & Provider Management | Registration, profiles, facility/provider assignment | BACKEND API DONE (Phase 2) — frontend UI not started (Phase 6) |
-| Telemedicine Appointments | Scheduling, consultations, status tracking | NOT STARTED |
+| Telemedicine Appointments | Scheduling, consultations, status tracking | BACKEND API DONE (Phase 3) — frontend UI not started (Phase 6) |
 | Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | NOT STARTED |
 | AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | NOT STARTED |
 | Executive Operations Dashboard | 3-view KPI/ops dashboard (design fully specced) | NOT STARTED (design complete) |
@@ -86,11 +86,12 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 - **Phase 2 — Module 1 (Patient & Provider Management):** JWT auth (`app/core/security.py`, `app/api/deps.py`) + all `api-spec.md` §2-3 endpoints (`/auth/*`, `/patients`, `/providers`, `/facilities`, `/reports/registration`), with role-based access control including the doctor-scoped "assigned patients only" rule and patient self-access. Ruff+Black clean.
 - **Real Docker Compose + PostgreSQL verification (2026-08-22)** — see §17 item 7 for the critical context (the user's "own machine" turned out to be this same sandbox). `docker compose up -d` (postgres+redis+backend+frontend) all healthy; `alembic upgrade head` applied against real Postgres; `seed_dev_users.py` + `seed_synthea.py` loaded real data; a real login returned a valid JWT. **Independently confirmed by Claude directly** (not just relying on the user's paste-backs) via `sg docker -c "docker ..."`: fetched the live `/openapi.json` (all 10 endpoints present) and queried the real Postgres database directly (200 patients, 50 providers, 50 facilities, 953 health_readings, 52 users — exact expected counts). This closes the "SQLite-verified, Postgres-pending" caveat that had applied to every phase. Two real bugs were caught and fixed by this real-infra run — see next bullet.
 - ADR-016 through ADR-019 (blood pressure split, Synthea-only confirmed, `assigned_provider_id` added to close an api-spec/schema gap, all timestamps made timezone-aware) — found during implementation/verification. Two more real bugs found by the *Docker* run specifically (not caught by SQLite testing): (a) `backend/Dockerfile` never learned to copy `alembic.ini`/`alembic/`/`scripts/` when those were added in Phase 1-2 — fixed, plus a related fix so the Synthea data path resolves correctly via a `SYNTHEA_DATA_DIR` env var + bind mount; (b) `bcrypt` was unpinned in `requirements.txt` and pip resolved a version incompatible with `passlib==1.7.4` inside the fresh Docker build (worked in the authoring sandbox only by luck, on an old cached bcrypt) — fixed by pinning `bcrypt==4.0.1`. Full details: `docs/test-execution-log.md`.
+- **Phase 3 — Module 2 (Telemedicine Appointment & Consultation):** all `api-spec.md` §4 endpoints (`/appointments` POST/GET, `/appointments/{id}/status` PATCH, `/consultations` POST, `/consultations/{patientId}` GET, `/providers/{id}/schedule` GET, `/reports/appointments` GET). Recording a consultation auto-completes its appointment. Verified two ways: 10 new pytest tests (suite now 34/34 passing) and a live Docker Compose + PostgreSQL walkthrough (restarted the backend container to pick up the bind-mounted code, no rebuild needed) — book → doctor login → view schedule → update status → record consultation → history → report → role-denial check, all correct, response bodies inspected directly. No new bugs found this time — everything worked on the first try. Full details: `docs/test-execution-log.md`.
 
 **In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
-- Phases 3-10: telemedicine appointments, remote monitoring, AI risk assessment, executive dashboard, observability/security (OPA/Prometheus/Grafana/Trivy), AWS deployment, the 17 mandatory diagrams as actual files, and any real frontend UI beyond the Phase 0 placeholder screen
+- Phases 4-10: remote monitoring, AI risk assessment, executive dashboard, observability/security (OPA/Prometheus/Grafana/Trivy), AWS deployment, the 17 mandatory diagrams as actual files, and any real frontend UI beyond the Phase 0 placeholder screen
 - AWS budget alarm status — unknown, unverified
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
@@ -100,34 +101,32 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 2 — Module 1: Patient & Provider Management (DONE, fully verified against real Docker Compose + PostgreSQL).** All endpoints implemented and tested three ways: 24 pytest tests, a manual SQLite curl walkthrough, and a real Docker Compose + PostgreSQL run (verified independently by Claude via `sg docker -c "..."`, not just the user's paste-backs). Two real bugs found by the Docker run (Dockerfile missing files, unpinned bcrypt) are fixed on disk but not yet committed.
+**CURRENT PHASE: Phase 3 — Module 2: Telemedicine Appointment & Consultation (DONE, fully verified against real Docker Compose + PostgreSQL).** All endpoints implemented and tested two ways: 10 new pytest tests (suite now 34/34) and a live Docker Compose + PostgreSQL walkthrough verified directly by Claude. No new bugs found this round.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Commit and push the Docker/bcrypt fixes from real-infrastructure testing,
-then start Phase 3 (Module 2 — Telemedicine Appointment & Consultation).
+Commit and push Phase 3, then start Phase 4 (Module 3 — Remote Patient
+Monitoring).
 
 OBJECTIVE:
-Scheduling, consultation records, appointment status tracking, provider
-schedules, operational reports per api-spec.md §4 and
-impmemnentaion-plan.md Phase 3.
+Vitals ingestion endpoints, abnormal-reading detection rules, clinical
+alerting, Redis wired in for de-duplication, per api-spec.md §5 and
+impmemnentaion-plan.md Phase 4. Redis is not wired into the FastAPI app at
+all yet (docker-compose.yml runs the redis container, but nothing in
+backend/app/ connects to it) - this is the first phase that actually needs it.
 
 STATUS:
-Phase 2 (5206032) already pushed. Fixes found during real Docker Compose
-testing are on disk, NOT yet committed: backend/Dockerfile (+alembic.ini,
-+alembic/, +scripts/), infra/docker-compose.yml (+SYNTHEA_DATA_DIR env var,
-+../data:/data and +../backend/scripts:/app/scripts mounts),
-backend/scripts/fetch_synthea.py + seed_synthea.py (SYNTHEA_DATA_DIR-aware
-path resolution), backend/requirements.txt (pinned bcrypt==4.0.1). Docs
-already updated to describe these fixes: docs/impmemnentaion-plan.md,
-docs/test-execution-log.md, PROJECT_CONTEXT.md (this file).
+Phase 2 (5206032) and the Docker/bcrypt fixes (a503a75) are pushed. Phase 3
+work is complete and verified but NOT YET COMMITTED as of this note.
 
-FILES TO COMMIT NEXT:
-backend/Dockerfile, backend/requirements.txt, backend/scripts/fetch_synthea.py,
-backend/scripts/seed_synthea.py, infra/docker-compose.yml,
-docs/impmemnentaion-plan.md, docs/test-execution-log.md, PROJECT_CONTEXT.md.
+FILES TO COMMIT NEXT (Phase 3):
+backend/app/schemas/appointment.py, consultation.py, report.py (+AppointmentReport),
+backend/app/api/v1/appointments.py (new), providers.py (+schedule endpoint),
+reports.py (+appointments endpoint), router.py, backend/tests/test_appointments.py
+(new, 10 tests), docs/impmemnentaion-plan.md (Phase 3 status),
+docs/test-execution-log.md (+Phase 3 section), PROJECT_CONTEXT.md (this file).
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
@@ -135,14 +134,14 @@ Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
 
 ## 11. NEXT STEPS
 
-1. Commit and push the Docker/bcrypt fixes (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
-2. Start Phase 3: Module 2 (Telemedicine Appointment & Consultation) — scheduling, consultation records, status tracking, provider schedules, operational reports per `api-spec.md` §4
+1. Commit and push Phase 3 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
+2. Start Phase 4: Module 3 (Remote Patient Monitoring) — vitals ingestion, abnormal-reading detection, alerting, first real use of Redis, per `api-spec.md` §5
 3. Resolve the still-open decisions listed in §13/§17 before they block later phases
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit the Docker/bcrypt fixes and push (pending token/user push), then begin
-Phase 3: appointments + consultations CRUD per docs/api-spec.md §4.
+Commit Phase 3 and push (pending token/user push), then begin Phase 4:
+monitoring readings + alerts + Redis de-dup per docs/api-spec.md §5.
 ```
 
 ## 12. Project Roadmap
@@ -169,9 +168,17 @@ Phase 3: appointments + consultations CRUD per docs/api-spec.md §4.
 - [x] Registration report (`/reports/registration`)
 - [x] 24 automated pytest tests, all passing; manual E2E curl walkthrough verified; **real Docker Compose + PostgreSQL run verified** (all 10 endpoints live, confirmed via `/openapi.json`)
 - [x] Phase 2 work committed/pushed to GitHub (commit `5206032`)
-- [ ] The Dockerfile/bcrypt fixes from the real Docker run — not yet committed/pushed (next action)
+- [x] Dockerfile/bcrypt fixes from the real Docker run committed/pushed (commit `a503a75`)
 
-**Phase 3–6 — Modules 2–5 (backend + frontend + AI)**
+**Phase 3 — Module 2: Telemedicine Appointment & Consultation**
+- [x] Appointments CRUD + status updates per `api-spec.md` §4
+- [x] Consultations (record + history), auto-completes the appointment
+- [x] Provider schedule endpoint
+- [x] Appointment/operational report (`/reports/appointments`)
+- [x] 10 new pytest tests (suite now 34/34); real Docker Compose + PostgreSQL walkthrough verified
+- [ ] Phase 3 work committed/pushed to GitHub — pending token/user push
+
+**Phase 4–6 — Modules 3–5 (backend + frontend + AI)**
 - [ ] Not started (any module)
 
 **Phase 7 — Observability & Security**
@@ -346,6 +353,54 @@ CURRENT STATE: Phases 0-2 are now genuinely, independently verified against
 NEXT ACTION: Commit and push the fix files (see section 10's file list);
   then start Phase 3 (Module 2 - Telemedicine Appointment & Consultation)
   per api-spec.md §4.
+```
+
+```
+DATE: 2026-08-22 (same day, continued yet further)
+WHAT WE DID: Committed and pushed the Docker/bcrypt fixes (a503a75). User
+  confirmed via a Swagger screenshot that Phase 2's endpoints match
+  api-spec.md exactly, then asked to continue per this file's roadmap. Built
+  Phase 3 (Module 2 - Telemedicine Appointment & Consultation): schemas
+  (appointment.py, consultation.py, +AppointmentReport in report.py), and
+  app/api/v1/appointments.py covering POST/GET /appointments, PATCH
+  /appointments/{id}/status, POST /consultations, GET
+  /consultations/{patientId} - plus GET /providers/{id}/schedule added to
+  the existing providers router and GET /reports/appointments added to the
+  existing reports router. Business rule: recording a consultation
+  auto-transitions the appointment to completed (PRD Module 2 language).
+  Role scoping mirrors Phase 2's pattern (doctor sees/acts on only their own
+  appointments/schedule; consultation history additionally scoped to the
+  doctor's own appointments with that patient). Wrote 10 pytest tests
+  (test_appointments.py) - all passed on the first run. Ran ruff+black
+  (found and fixed one leftover dead-code block from drafting the
+  consultation-history endpoint - a stray if/pass with no effect, cleaned
+  up before it became a real bug). Since Docker is now available and the
+  backend container bind-mounts app/, restarted the container (no rebuild
+  needed) and ran a full live curl walkthrough against real PostgreSQL
+  directly - confirmed all 5 new endpoints in /openapi.json, then a
+  complete book -> doctor login -> schedule -> status update -> consultation
+  (auto-complete verified) -> history -> report -> role-denial sequence, all
+  correct, response bodies inspected directly (not just status codes). Hit
+  the same terminal-output-truncation artifact from earlier in the session
+  when running multi-step curl scripts (see section 17 item 9's pkill note -
+  this is a related but distinct rendering quirk, not a real failure) -
+  worked around it the same way, by checking the backend container's actual
+  request log and re-querying response bodies directly rather than trusting
+  the script's own captured stdout.
+WHAT CHANGED: Module 2 (Telemedicine) backend is fully built and verified,
+  same rigor as Module 1. Two of five PRD modules now have working APIs.
+WHAT WORKED: Everything, on the first implementation attempt - no schema
+  gaps or bugs found this phase (unlike Phase 2's ADR-018/019 and the
+  Docker/bcrypt bugs). Full pytest suite (34 tests) and full live Postgres
+  walkthrough both clean.
+WHAT DID NOT WORK: Nothing outstanding. The terminal-capture-truncation
+  quirk noted above is a display artifact of this tool, not a real problem.
+CURRENT STATE: Phase 3 complete and verified, NOT YET COMMITTED.
+NEXT ACTION: Commit and push Phase 3 (see section 10's file list); then
+  start Phase 4 (Module 3 - Remote Patient Monitoring), which is the first
+  phase that actually needs Redis (currently running in Docker Compose but
+  unused by the FastAPI app) - vitals ingestion, abnormal-reading detection,
+  alert de-duplication, per api-spec.md §5.
 ```
 
 ## 19. Claude Instructions
