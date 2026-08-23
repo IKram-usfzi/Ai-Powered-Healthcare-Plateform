@@ -1,0 +1,13 @@
+# Copy this file to terraform.tfvars (gitignored) and fill in real values.
+# Never commit terraform.tfvars — it holds the DB password and your email.
+
+aws_region   = "us-east-1"
+project_name = "globalcare"
+
+ssh_key_name     = "your-ec2-key-pair-name" # must already exist in this AWS account/region
+ssh_allowed_cidr = "203.0.113.4/32"         # your own IP only — never 0.0.0.0/0
+
+db_password = "change-me-to-a-real-secret"
+
+budget_limit_usd   = "10"
+budget_alert_email = "you@example.com"

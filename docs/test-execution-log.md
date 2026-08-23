@@ -366,8 +366,27 @@ Documented transparently in `docs/security-scan-report.md` rather than chased to
 with this project's practice of reporting real limitations (`docs/ai-evaluation-report.md`'s thin
 `high`-risk class).
 
+## Phase 8 — AWS Deployment (Terraform IaC, not applied)
+
+**`terraform fmt -check -diff`** (`infra/terraform/`, via the containerized `hashicorp/terraform:1.9`
+image, no local install), 2026-08-23: found one misaligned file (`vpc.tf`), fixed with `terraform
+fmt`; clean on re-check.
+
+**`terraform init -backend=false` + `terraform validate`**, 2026-08-23: init downloaded the AWS
+provider (`hashicorp/aws` 5.100.0) and generated `.terraform.lock.hcl`; validate reported **Success —
+the configuration is valid.** No AWS credentials were provided or used — `validate` only checks
+syntax, type-correctness, and resource/variable references, not against a real AWS account. This is
+deliberately as far as verification goes for this phase — see `deccission.md` ADR-027 for why no
+`terraform plan`/`apply` was run against a real account.
+
+**Not run (by design):** `terraform plan`/`apply` against a real AWS account, and therefore the
+Phase 8 exit criteria itself ("reachable over the internet," "billing verified") — this phase
+delivers infrastructure-as-code for future use, not a live deployment (ADR-027).
+
 ## Not yet run
 
 - Frontend component tests (React Testing Library) — no test runner configured yet; verification
   for Phases 6-7 relied on the pytest backend suite plus live browser automation / direct HTTP
   verification against real Docker Compose services
+- Phase 8's Terraform against a real AWS account (`terraform plan`/`apply`) — deferred until an
+  actual AWS deployment is wanted; see `infra/terraform/README.md`

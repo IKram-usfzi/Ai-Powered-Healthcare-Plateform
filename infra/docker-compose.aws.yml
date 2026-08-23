@@ -1,0 +1,33 @@
+# AWS profile override (Phase 8, infra/terraform/) — layers on top of
+# docker-compose.yml: `docker compose -f docker-compose.yml -f
+# docker-compose.aws.yml up -d`. Not used for the mandatory local Docker
+# Compose deployment (ADR-004) — this file only matters if/when
+# infra/terraform/ is actually applied. Rendered into place with a real
+# .env by infra/terraform/user_data.sh.tpl; see infra/terraform/README.md.
+#
+# Changes vs. the local profile:
+# - RDS replaces the local `postgres` container (architecture.md §5).
+# - Prometheus/Grafana are trimmed to opt-in only (TRD.md §8: "~1 GB RAM on
+#   a t2/t3.micro instance" can't comfortably run the full local stack).
+# - `postgres`/`prometheus`/`grafana` are moved to a "local-only" Compose
+#   profile so a plain `up -d` skips them; add `--profile local-only` to
+#   start them anyway (e.g. to inspect Prometheus data during a demo).
+
+services:
+  backend:
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${RDS_ENDPOINT}:5432/${POSTGRES_DB}
+    depends_on:
+      redis:
+        condition: service_healthy
+      opa:
+        condition: service_started
+
+  postgres:
+    profiles: ["local-only"]
+
+  prometheus:
+    profiles: ["local-only"]
+
+  grafana:
+    profiles: ["local-only"]
