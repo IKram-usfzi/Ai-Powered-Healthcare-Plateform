@@ -1,60 +1,25 @@
-# Infra — Docker Compose
+# Infra
 
-Local/full deployment profile (`docs/TRD.md` §2, `docs/architecture.md` §2).
+`docker-compose.yml` is the mandatory local deployment profile (`docs/TRD.md` §8, `deccission.md` ADR-004) — 7 services: `postgres`, `redis`, `opa`, `backend`, `frontend`, `prometheus`, `grafana`. `docker-compose.aws.yml` is a companion override for the optional AWS profile (`terraform/`, not deployed — ADR-027).
 
-## Quick start
+Full setup, verification, and troubleshooting steps: [`../docs/installation-guide.md`](../docs/installation-guide.md).
+Deployment profile comparison (local vs. AWS): [`../docs/deployment-guide.md`](../docs/deployment-guide.md).
+AWS Terraform module: [`terraform/README.md`](./terraform/README.md).
 
-```bash
-cd infra
-docker compose up -d --build
-```
-
-If `docker` isn't installed yet: `sudo apt install -y docker.io docker-compose-v2`, then
-`sudo usermod -aG docker $USER && newgrp docker` (or open a new terminal) so you don't need
-`sudo` for every `docker` command afterward. If a command in an *already-open* terminal still
-says "permission denied... docker.sock", that terminal predates the group change — prefix with
-`sudo` there, or open a new terminal.
-
-- Backend (FastAPI): http://localhost:8000/docs
-- Frontend (React/Vite): http://localhost:5173
-- PostgreSQL: localhost:5432
-- Redis: localhost:6379
-
-Works out of the box with built-in defaults, including a default `JWT_SECRET_KEY` (see
-`backend/app/core/config.py`). **Before any real/shared deployment**, copy
-`../backend/.env.example` to `../backend/.env` (at minimum, set a real `JWT_SECRET_KEY`) and
-`../frontend/.env.example` to `../frontend/.env`; `docker-compose.yml` can then be updated to
-load them via `env_file`.
-
-## Database setup (Phase 1) + dev login (Phase 2)
-
-Once the stack is up, run these **inside the backend container** (not on the host — the host
-doesn't have the Python deps installed, and `DATABASE_URL` resolves the `postgres` hostname
-that only exists on the Docker network):
+## Quick reference
 
 ```bash
-docker compose exec backend alembic upgrade head       # creates all 9 tables (docs/backend-schema.md)
-docker compose exec backend python scripts/seed_dev_users.py   # admin@globalcare-demo.com / executive@... , password ChangeMe123!
-docker compose exec backend python scripts/fetch_synthea.py    # downloads the Synthea CSV sample (~9 MB) into ../data (bind-mounted)
-docker compose exec backend python scripts/seed_synthea.py --patients 200 --max-readings 5
+docker compose -f docker-compose.yml up -d --build      # from the repo root
+docker compose -f docker-compose.yml ps                 # check health
+docker compose -f docker-compose.yml logs <service>      # debug a specific container
 ```
 
-Verified end-to-end against real PostgreSQL (2026-08-22, `docs/test-execution-log.md`): exactly
-50 facilities/50 providers/200 patients/953 health_readings loaded, and `POST /auth/login`
-returns a valid JWT.
-
-`seed_dev_users.py` credentials are dev/demo only — never use them in a real deployment. See
-`docs/backend-schema.md` §6 for the Synthea → schema field mapping, and `docs/api-spec.md` for
-the full REST API contract (`/auth/*`, `/patients`, `/providers`, `/facilities`,
-`/reports/registration` are implemented as of Phase 2).
-
-## Services
-
-| Service | Image/build | Purpose |
+| Service | Port | Purpose |
 |---|---|---|
-| `postgres` | `postgres:16-alpine` | System of record (`docs/backend-schema.md`) |
-| `redis` | `redis:7-alpine` | Dashboard cache, alert de-dup, session/rate-limit (`deccission.md` ADR-002) |
-| `backend` | `../backend/Dockerfile` | FastAPI app |
-| `frontend` | `../frontend/Dockerfile` | React/Vite dev server |
-
-Prometheus/Grafana/OPA services are added in Phase 7 (`docs/impmemnentaion-plan.md`).
+| `postgres` | 5432 | System of record (`docs/backend-schema.md`) |
+| `redis` | 6379 | Dashboard cache, alert de-dup, session/rate-limit (ADR-002) |
+| `opa` | 8181 | RBAC policy decisions (`opa/policies/`, ADR-006/ADR-024) |
+| `backend` | 8000 | FastAPI app — all 5 modules' APIs + `/metrics` |
+| `frontend` | 5173 | React/Vite dev server — JWT login + 3-view dashboard |
+| `prometheus` | 9090 | Scrapes `backend:8000/metrics` |
+| `grafana` | 3001 | `admin`/`admin` — provisioned "GlobalCare API" dashboard |

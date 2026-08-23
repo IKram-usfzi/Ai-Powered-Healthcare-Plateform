@@ -9,6 +9,43 @@ verified against real Docker Compose + PostgreSQL** on the student's own machine
 that's the authoritative run; the SQLite entries stay here as the record of what was checked
 before real infrastructure was available.
 
+## At a glance (current state, 2026-08-23)
+
+**77/77 automated backend tests passing** (`cd backend && pytest -q`), **11/11 Rego policy unit
+tests passing** (`opa test infra/opa/policies`), ruff+black clean, `npm run lint` clean,
+`mkdocs build --strict` clean (zero warnings). Every phase below was also verified against real
+Docker Compose infrastructure (real PostgreSQL, Redis, OPA, Prometheus, Grafana — not test
+doubles), not just the automated suite.
+
+| Module / Phase | Tests | Real-infra verification |
+|---|---|---|
+| Phase 2 — Patient/Provider Mgmt | 24 (`test_auth.py`, `test_patients.py`, `test_providers.py`, `test_reports.py`) | ✅ real Postgres, JWT login, all 10 endpoints |
+| Phase 3 — Telemedicine | 10 (`test_appointments.py`) | ✅ full book→consult→history walkthrough |
+| Phase 4 — Remote Monitoring | 12 (`test_vitals.py`, monitoring subset) | ✅ real Redis — 3 abnormal readings → exactly 1 alert |
+| Phase 5 — AI Risk Assessment | 12 (`test_risk_features_and_labels.py`, `test_ai.py`) | ✅ real trained model, real metrics in `ai-evaluation-report.md` |
+| Phase 6 — Executive Dashboard | 7 (`test_dashboard.py`) | ✅ browser automation, 204 real patients, both admin/executive roles |
+| Phase 7 — Observability/Security | 5 (`test_opa_client.py`) | ✅ real OPA server allow/deny decisions, live Prometheus/Grafana data |
+| Phase 8 — AWS (IaC only) | — | `terraform validate` clean; deliberately not deployed (ADR-027) |
+| Phase 9 — Diagrams/Docs | — | `mkdocs build --strict` clean; 18/18 diagrams validated via `mermaid-cli` |
+| **Total** | **77** | 7/7 implementation phases verified against real infrastructure |
+
+Test counts above sum to 70, not 77 — the remaining 7 (`test_health.py`: 1) are cross-cutting/
+infrastructure checks not tied to a single module phase.
+
+**One real bug found during Phase 10 final verification, not caught by the automated suite:**
+after this sandbox's project directory was wiped and recovered (`PROJECT_CONTEXT.md` §17 item
+12), the `opa` container had started once before `infra/opa/policies/` existed on disk — Docker
+bound it to a stale empty directory reference that didn't update even after the real policy files
+were restored, so `GET /v1/policies` returned `[]` and every single API request failed closed with
+`403` (`deccission.md` ADR-024's fail-closed behavior working exactly as designed, just against an
+infra problem rather than an auth one). Fixed with `docker compose up -d --force-recreate --no-deps
+opa`; confirmed `/v1/policies` now returns both files and a full 5-module smoke test (registration
+report, appointment report, alerts, AI model metadata, dashboard overview) all returned real data
+successfully afterward. Documented as a troubleshooting entry in `installation-guide.md` since it's
+a real failure mode worth recognizing quickly during a live demo, even though the specific trigger
+(a container starting before its bind-mount source exists) is unlikely to recur for a fresh `git
+clone` + `docker compose up`.
+
 ## Phase 0 — Foundation
 
 | Check | Result |

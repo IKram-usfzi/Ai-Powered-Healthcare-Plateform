@@ -49,6 +49,9 @@ nav:
   - Development Rules: developement-rules.md
   - Implementation Plan: impmemnentaion-plan.md
   - Decisions (ADR log): deccission.md
+  - Presentation Outline: presentation-outline.md
+  - Demo Script: demo-script.md
+  - Viva Prep: viva-prep.md
 
 markdown_extensions:
   - tables

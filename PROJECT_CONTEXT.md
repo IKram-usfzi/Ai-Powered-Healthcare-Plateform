@@ -7,7 +7,7 @@
 - **Project name:** GlobalCare — Enterprise Remote Healthcare Management Platform (GitHub repo: `Ai-Powered-Healthcare-Plateform`)
 - **Project type:** Academic capstone (Diploma in AIOPS, EduQual Level 6, al-Nafi International College) — built as a real proof-of-concept enterprise web platform, not a toy exercise
 - **Project purpose:** Design, document, and build a proof-of-concept healthcare platform for a fictional client, "GlobalCare Telehealth Network," to pass a 3-stage exam (presentation, live demo + GitHub review, viva voce)
-- **Current development stage:** Phases 0-9 done (2026-08-23). All five PRD modules have working, tested backend REST APIs plus a full frontend for the Executive Dashboard — 77 passing pytest tests, 11/11 Rego policy unit tests, and live end-to-end verification against real infrastructure for every implementation phase. Phase 8 delivered Terraform IaC for AWS (not deployed, by design). Phase 9 delivered all 17 mandatory diagrams as real Mermaid diagrams-as-code (`docs/diagrams/`) plus Installation/Deployment/User/Admin guides — `mkdocs build --strict` passes with zero warnings. Only Phase 10 (demo/viva rehearsal) remains.
+- **Current development stage:** All 10 phases done (2026-08-23). All five PRD modules have working, tested backend REST APIs plus a full frontend for the Executive Dashboard — 77 passing pytest tests, 11/11 Rego policy unit tests, and live end-to-end verification against real infrastructure for every implementation phase. Phase 8 delivered Terraform IaC for AWS (not deployed, by design). Phase 9 delivered all 17 mandatory diagrams plus Installation/Deployment/User/Admin guides. Phase 10 (final) ran a full GitHub repo review (found and fixed a badly stale root README + a real OPA-container bind-mount bug), consolidated the test execution summary, and wrote the presentation outline, live demo script, and viva prep (including all 5 named scenario-based redesign questions). The project is exam-ready pending the user's own rehearsal.
 - **Main objective:** A Docker-Compose-deployable platform (5 functional modules) + a complete documentation set + 17 required architecture diagrams, defensible live in front of an examiner.
 
 ## 2. Project Summary
@@ -96,11 +96,13 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 
 - **Phase 9 — Documentation & Diagrams:** all 17 mandatory diagrams (`docs/diagrams/01-*.md`–`17-*.md`) written as real Mermaid diagrams-as-code, each grounded in the actual implementation — diagram 8 (Enterprise Network) reflects the real Phase 8 Terraform resource names/CIDRs, diagram 16 (ERD) has full attribute-level detail matching the real SQLAlchemy models (not just the design-level entity list in `backend-schema.md`), diagram 15 (Healthcare Operations Workflow) reflects the real Phase 6 3-view dashboard. `architecture.md` §6 links to every diagram. Four new guides: `installation-guide.md`, `deployment-guide.md` (both profiles), `user-guide.md`, `admin-guide.md`. Found and fixed a real build failure: `diagrams/` originally lived at the repo root (sibling of `docs/`), which broke `mkdocs build --strict` (MkDocs validates relative links against `docs_dir` even when the target is outside it) — moved to `docs/diagrams/` and added to `mkdocs.yml` nav (ADR-028); rebuild is 100% clean. Verified two ways: `mkdocs build --strict` (zero warnings); independent Mermaid syntax validation via containerized `mermaid-cli` rendering all 18 diagram blocks (17 diagrams, one with 2 sub-diagrams) to real SVG, 18/18 succeeded — done this way because the session's own Browser-pane tool has a sandbox-specific quirk (a pre-populated `window.mermaid` global for its own Artifact rendering) that made in-browser verification of the built site inconclusive; `mermaid-cli` is the definitive, environment-independent check. Full details: `docs/test-execution-log.md`.
 
-**In Progress:** Nothing actively mid-implementation.
+- **Phase 10 — Integration Testing, Demo Rehearsal, Viva Prep (final phase):** end-to-end test pass (77/77 pytest, 11/11 Rego, ruff+black+`npm run lint`+`mkdocs build --strict` all clean) plus a live 5-module smoke test against real Docker Compose. Test execution summary consolidated: `test-execution-log.md` gained an "At a glance" rollup table. GitHub repo review pass: secret-pattern scan across all tracked files (clean), `.gitignore` coverage confirmed, commit history reviewed (clean, phase-labeled) — and the real finding: root `README.md` and `infra/README.md` were badly stale (still said "Phase 2 done," referenced a nonexistent `/diagrams` path), both rewritten to reflect actual current state and point at the canonical guides instead of duplicating them. A second real bug found: after the session's environment-wipe incident (§17 item 12), the `opa` container had bound to a stale empty directory reference, so `GET /v1/policies` returned `[]` and every API request failed closed with 403 — fixed with a container recreate, documented as an `installation-guide.md` troubleshooting entry. Rehearsal materials written: `presentation-outline.md`, `demo-script.md` (with an "if something breaks" section), `viva-prep.md` (general Q&A + all 5 named scenario-based redesign questions, each answered with "what changes / what stays / why").
+
+**In Progress:** Nothing actively mid-implementation. All 10 phases complete.
 
 **Not Started:**
-- Phase 8's actual AWS deployment (`terraform apply` against a real account) — deferred by design, see above
-- Phase 10 (formal testing/demo prep) — the only remaining phase
+- Phase 8's actual AWS deployment (`terraform apply` against a real account) — deferred by design, remains available whenever wanted
+- The user's own rehearsal of the presentation/demo/viva — the materials exist, the rehearsal itself is inherently something only the user can do
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
 
@@ -109,55 +111,53 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 9 — Documentation & Diagrams (DONE — all 17 diagrams real and verified, 4 new guides, `mkdocs build --strict` clean).** All mandatory exam-brief deliverables (Phases 0-7, plus 9) are functionally complete. Phase 8 (optional AWS stretch) delivered ready-to-apply Terraform but was deliberately not deployed. Only Phase 10 (Integration Testing, Demo Rehearsal, Viva Prep) remains on the roadmap.
+**ALL 10 PHASES DONE.** Every mandatory exam-brief deliverable (5 modules, dashboard, Docker Compose deployment, security/observability tooling, 17 diagrams, full documentation set including all 4 guide types and now the 3 rehearsal documents) is complete and verified. Phase 8 (optional AWS stretch) delivered ready-to-apply Terraform but was deliberately not deployed. What remains is entirely the user's own: rehearsing the presentation/demo/viva using the materials in `presentation-outline.md`/`demo-script.md`/`viva-prep.md`.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Commit and push Phase 9 (diagrams + guides), then move to Phase 10
-(Integration Testing, Demo Rehearsal, Viva Prep) — the last phase on the
-roadmap.
+Commit and push Phase 10 — the final phase. Once pushed, the project is
+fully complete per docs/impmemnentaion-plan.md; nothing further is
+planned unless the user asks for something new (e.g. actually deploying
+Phase 8's AWS Terraform, or building dedicated management UIs beyond the
+mandatory dashboard).
 
 OBJECTIVE:
-Phase 10: end-to-end test pass, test execution summary, GitHub repo
-review pass, rehearse the 15-20 min presentation, 5-10 min live demo, and
-prepare for the 30-40 min viva (including scenario-based redesign
-questions: national telemedicine networks, rural healthcare, disaster
-response, elderly care, international programmes).
+None remaining — Phase 10 was the last item on the 10-phase roadmap.
 
 STATUS:
-Phase 8 (ea24994) is pushed. Phase 9 work (17 diagrams + 4 guides) is
-complete and verified (mkdocs build --strict clean, mermaid-cli confirms
-all 18 diagram blocks render) but NOT YET COMMITTED as of this note.
+Phase 9 (4d9e762) is pushed. Phase 10 work (test pass, repo review,
+rehearsal materials) is complete and verified but NOT YET COMMITTED as of
+this note.
 
-FILES TO COMMIT NEXT (Phase 9):
-docs/diagrams/ (new: README.md + 01-*.md through 17-*.md, moved from
-repo-root diagrams/ — see ADR-028), docs/architecture.md (§6 links
-updated to point at docs/diagrams/), docs/installation-guide.md (new),
-docs/deployment-guide.md (new), docs/user-guide.md (new),
-docs/admin-guide.md (new), docs/README.md (+file index entries, fixed
-stale UIUX.md note), mkdocs.yml (+Diagrams nav section, +4 guide nav
-entries), docs/deccission.md (+ADR-028), docs/impmemnentaion-plan.md
-(Phase 9 status), docs/test-execution-log.md (+Phase 9 section),
+FILES TO COMMIT NEXT (Phase 10):
+README.md (rewritten — was badly stale, said "Phase 2 done"),
+infra/README.md (rewritten — simplified to point at the canonical guides
+instead of duplicating stale content), docs/installation-guide.md
+(+troubleshooting entry for the OPA bind-mount bug),
+docs/test-execution-log.md (+"At a glance" rollup + Phase 10 findings),
+docs/presentation-outline.md (new), docs/demo-script.md (new),
+docs/viva-prep.md (new), docs/README.md (+3 new doc entries), mkdocs.yml
+(+3 new nav entries), docs/impmemnentaion-plan.md (Phase 10 status),
 PROJECT_CONTEXT.md (this file).
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
+All 10 phases complete on GitHub.
 ```
 
 ## 11. NEXT STEPS
 
-1. Commit and push Phase 9 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
-2. Start Phase 10: Integration Testing, Demo Rehearsal, Viva Prep — the final phase on the roadmap
-3. Phase 8's live AWS deployment (`terraform apply`) remains deferred — only pursue if/when the user actually wants a live AWS demo; see `infra/terraform/README.md`
-4. Consider dedicated management UIs (patient list, appointment booking, etc.) as future/stretch work — not required by the exam brief, which only mandates the dashboard for the frontend (§4 module 5)
+1. Commit and push Phase 10 (needs the user's GitHub token or the user pushing themselves — see §17 item 3) — this closes out the entire 10-phase roadmap
+2. Nothing further is planned by default. Optional future work, only if the user asks: actually deploying Phase 8's AWS Terraform (`terraform apply`, see `infra/terraform/README.md`); dedicated management UIs (patient list, appointment booking, etc.) beyond the mandatory dashboard; a CI pipeline running the test suite + Trivy scan automatically
+3. The user should rehearse using `presentation-outline.md`, `demo-script.md`, and `viva-prep.md` — this is the one remaining task that only they can do
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit Phase 9 and push (pending token/user push), then begin Phase 10:
-end-to-end test pass + demo/viva rehearsal prep, per
-docs/impmemnentaion-plan.md.
+Commit Phase 10 and push (pending token/user push). This is the final
+commit of the 10-phase roadmap — nothing further to build unless the
+user requests new scope.
 ```
 
 ## 12. Project Roadmap
@@ -243,10 +243,15 @@ docs/impmemnentaion-plan.md.
 - [x] 17 mandatory diagrams as real Mermaid diagrams-as-code (`docs/diagrams/`)
 - [x] Installation/Deployment/User/Admin guides
 - [x] MkDocs site builds cleanly (`mkdocs build --strict` — zero warnings)
-- [ ] Phase 9 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 9 work committed/pushed to GitHub (commit `4d9e762`)
 
-**Phase 10 — Testing & Demo Prep**
-- [ ] Not started
+**Phase 10 — Integration Testing, Demo Rehearsal, Viva Prep (final phase)**
+- [x] End-to-end test pass: 77/77 pytest, 11/11 Rego, ruff+black+lint+mkdocs all clean, live 5-module smoke test against real Docker Compose
+- [x] Test execution summary consolidated ("At a glance" rollup in `test-execution-log.md`)
+- [x] GitHub repo review pass — found and fixed a stale root README + a real OPA bind-mount bug
+- [x] Presentation outline, live demo script, viva prep (incl. all 5 named scenario-based redesign questions) written
+- [ ] Phase 10 work committed/pushed to GitHub — pending token/user push
+- [ ] User's own rehearsal — inherently outside what Claude can do
 
 ## 13. Important Decisions
 
@@ -950,6 +955,99 @@ CURRENT STATE: Phase 9 complete and verified (mkdocs build --strict clean,
 NEXT ACTION: Commit and push Phase 9 (see section 10's file list); then
   start Phase 10 (Integration Testing, Demo Rehearsal, Viva Prep) - the
   final phase on the roadmap, per docs/impmemnentaion-plan.md.
+```
+
+```
+DATE: 2026-08-23 (same day, continued - final phase)
+WHAT WE DID: Committed and pushed Phase 9 (4d9e762). Built Phase 10
+  (Integration Testing, Demo Rehearsal, Viva Prep) - the last phase on
+  the 10-phase roadmap. Ran a final end-to-end test pass: 77/77 pytest,
+  ruff+black+npm-lint+mkdocs-strict all clean, all 7 Docker Compose
+  services confirmed Up/healthy. Then ran a live 5-module smoke test
+  (login, then one representative endpoint per module: registration
+  report, appointment report, alerts, AI model metadata, dashboard
+  overview) and hit a REAL bug: every single request returned 403,
+  including the admin's own registration report that worked fine
+  yesterday. Diagnosed methodically rather than assuming - checked OPA's
+  /v1/policies endpoint directly and found it returned an empty array,
+  meaning the opa container had ZERO Rego policies loaded despite the
+  real .rego files genuinely existing on the host. Recognized this as the
+  same "phantom bind-mount directory" pattern already discovered earlier
+  this session with frontend/eslint.config.js and infra/prometheus/
+  prometheus.yml (documented in section 17 item 12): the opa container
+  most likely started at some point during this session's environment-
+  wipe recovery before infra/opa/policies/ existed as a real directory on
+  the host, so Docker silently bound it to a stale empty directory
+  reference that never updated even after the real policy files were
+  restored via git. Fixed with `docker compose up -d --force-recreate
+  --no-deps opa`, verified /v1/policies now returns both files, then
+  re-ran the full 5-module smoke test - everything returned real data
+  correctly. This was a significant catch: OPA fails closed by design
+  (ADR-024), so this bug was silently making the ENTIRE platform
+  unusable while looking, from the outside, like nothing was obviously
+  broken (no crashed containers, no error logs, just 403s that could
+  easily be misread as an auth/credentials problem during a live demo).
+  Documented as a troubleshooting entry in installation-guide.md and as
+  a finding in test-execution-log.md's new "At a glance" summary section
+  (added to roll up the phase-by-phase test counts into one scannable
+  table, satisfying the "test execution summary" brief deliverable more
+  directly). Then did a proper GitHub repo review pass: scanned every
+  tracked file for secret patterns (clean), confirmed .gitignore
+  coverage and zero stray build/cache artifacts committed, reviewed the
+  commit history (clean, chronological, phase-labeled - genuinely good),
+  and confirmed the AI evaluation report / security scan report / test
+  execution log are all committed at HEAD (brief §11 deliverables). The
+  real finding of this pass: the root README.md was badly stale - still
+  said "Status: Phase 2 done", described /frontend as "Phase 0 skeleton",
+  referenced a /diagrams path that no longer exists (moved to
+  docs/diagrams/ in Phase 9), and infra/README.md duplicated/contradicted
+  content now superseded by installation-guide.md and deployment-
+  guide.md. An examiner or reviewer landing on the repo root would have
+  gotten a completely wrong impression of project completeness. Rewrote
+  both: README.md now accurately reflects all-10-phases-done and points
+  into the proper guides instead of duplicating quick-start content;
+  infra/README.md simplified to a short pointer + service reference table
+  instead of a stale duplicate walkthrough. Finally wrote the three
+  rehearsal documents impmemnentaion-plan.md's Phase 10 description
+  names: presentation-outline.md (15-20 min talk track built around "what's
+  real, not simulated" as the differentiator, plus honest treatment of
+  what's deliberately out of scope), demo-script.md (5-10 min live
+  walkthrough with exact URLs/credentials, timed section-by-section, plus
+  an "if something breaks" section referencing the OPA bug just found),
+  and viva-prep.md (general Q&A grounded in specific ADR numbers rather
+  than generic answers, plus all 5 named scenario-based redesign
+  questions - national telemedicine networks, rural healthcare, disaster
+  response, elderly care, international programmes - each answered with
+  "what changes / what stays / why" anchored in real extension points of
+  the actual architecture, not hand-waving). Added all 3 new docs plus
+  the rewritten guides to mkdocs.yml nav and docs/README.md's index, and
+  re-ran mkdocs build --strict to confirm still zero warnings.
+WHAT CHANGED: All 10 phases of the roadmap are now complete. The project
+  is genuinely exam-ready: every module works and is verified against
+  real infrastructure, the documentation set is complete and accurate
+  (including catching and fixing a stale root README that would have
+  embarrassed a live GitHub review), and rehearsal materials exist for
+  all three exam stages. What remains is entirely the user's own -
+  actually rehearsing with the prepared materials.
+WHAT WORKED: Running an actual live smoke test rather than trusting "the
+  automated suite passes" caught a real, demo-critical bug (the OPA
+  bind-mount issue) that 77 passing pytest tests never would have caught,
+  since pytest uses FakeOPA, not a real OPA server. This validates the
+  session's whole-session discipline of always verifying against real
+  Docker Compose infrastructure, not just the test suite, one more time.
+WHAT DID NOT WORK initially (found and fixed, not really a "bug" in the
+  delivered code so much as a leftover consequence of the earlier
+  environment-wipe incident): the opa container's stale bind-mount
+  reference; the root/infra READMEs having drifted badly out of sync
+  with actual project state after 8+ phases of rapid iteration without
+  anyone revisiting them specifically.
+CURRENT STATE: Phase 10 complete and verified, NOT YET COMMITTED. This is
+  the final commit of the entire 10-phase roadmap.
+NEXT ACTION: Commit and push Phase 10 (see section 10's file list). Once
+  pushed, the project is complete per docs/impmemnentaion-plan.md - no
+  further planned work unless the user requests new scope (e.g. an
+  actual AWS deployment via the existing Terraform, or dedicated
+  management UIs beyond the mandatory dashboard).
 ```
 
 ## 19. Claude Instructions

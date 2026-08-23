@@ -60,6 +60,9 @@ Full rationale in [`TRD.md`](./TRD.md) and [`deccission.md`](./deccission.md).
 | [`deployment-guide.md`](./deployment-guide.md) | Local (mandatory) and AWS (stretch, IaC-only) deployment profiles |
 | [`user-guide.md`](./user-guide.md) | How to use the platform as each of the four roles |
 | [`admin-guide.md`](./admin-guide.md) | Administrator-specific operations: registration, reports, seed scripts |
+| [`presentation-outline.md`](./presentation-outline.md) | 15-20 min exam presentation talk track |
+| [`demo-script.md`](./demo-script.md) | 5-10 min live demo, step by step |
+| [`viva-prep.md`](./viva-prep.md) | Anticipated Q&A + the 5 scenario-based redesign questions |
 | [`UIUX.md`](./UIUX.md) | UI/UX design system + full dashboard spec — the supplied "Clinical Precision" template, implemented since Phase 6 |
 
 ## 4. Laptop / resource requirements
