@@ -13,7 +13,7 @@ curl -s http://localhost:8181/v1/policies        # must NOT be [] — see instal
                                                   # troubleshooting if it is
 ```
 
-Have three browser tabs ready: `http://localhost:5173` (app), `http://localhost:8000/docs` (Swagger), `http://localhost:3001` (Grafana). Know the demo credentials cold: `admin@globalcare-demo.com` / `executive@globalcare-demo.com`, both `ChangeMe123!`.
+Have three browser tabs ready: `http://localhost:5173` (app), `http://localhost:8000/docs` (Swagger), `http://localhost:3001` (Grafana). Know the demo credentials cold — all four roles, password `ChangeMe123!` for each: `admin@globalcare-demo.com`, `executive@globalcare-demo.com`, `doctor@globalcare-demo.com`, `patient@globalcare-demo.com` (assigned to the demo doctor — `UIUX.md` §6, ADR-029).
 
 ## 1. Login and role-based routing (1 min)
 
@@ -38,11 +38,13 @@ Have three browser tabs ready: `http://localhost:5173` (app), `http://localhost:
 - Navigate to `/dashboard/operations` (or click the "Operations" pill).
 - Point at "Busiest Providers Today" (real per-provider appointment counts) and the alerts panel. **Say:** "Where the supplied template assumed data we don't track — bed occupancy, no-shows — we substituted the closest real equivalent instead of inventing a number."
 
-## 5. AI Risk Assessment via API (1–2 min)
+## 5. The module screens, as a Doctor (2 min)
 
-- Switch to Swagger (`:8000/docs`).
-- `POST /api/v1/ai/risk-assessment` with a real patient ID from the seeded data (any assigned patient) as a doctor-role token, or narrate the response shape from a pre-run example if getting a doctor token live is too slow.
-- **Say:** "This is a real trained RandomForestClassifier — 957 real readings, measured accuracy shown in `docs/ai-evaluation-report.md` — and the recommendation text always states this requires clinical judgement, never a diagnosis."
+- Log out, log in as `doctor@globalcare-demo.com`. **Say:** "This role has no dashboard access at all — it lands on Patients instead." (`defaultRouteForRole`, `ProtectedRoute` — same enforcement pattern as step 3, different role.)
+- **Patients** (`/patients`): click the assigned patient's row to expand — real vitals, consultations, and AI predictions inline, no separate page load.
+- **Telemedicine** (`/telemedicine`): if there's a pending appointment, click **Record Consultation**, fill summary/recommendations, save — the appointment moves from "Awaiting" to "Completed" live.
+- **Analytics** (`/analytics`): select the patient, click **Run New Assessment**. **Say:** "This is a real trained RandomForestClassifier — 957 real readings, measured accuracy shown in `docs/ai-evaluation-report.md` — and the recommendation always states this requires clinical judgement, never a diagnosis." A new prediction appears in the list immediately.
+- **Say:** "These five screens didn't exist when the mandatory roadmap finished — the brief only required the dashboard. Built afterward, on the same APIs, when testing turned up that the nav links were just placeholders." (Worth naming directly — it's evidence of iterating past the minimum, not a gap.)
 
 ## 6. Observability, live (1 min)
 

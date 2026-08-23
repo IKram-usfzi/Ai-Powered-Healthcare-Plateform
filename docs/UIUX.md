@@ -123,20 +123,16 @@ Recommended routing: `/dashboard` (Unified, default), `/dashboard/executive`, `/
 
 ---
 
-## 4. Other Module Screens — Catalogued for Later Phases
+## 4. Other Module Screens
 
-Full detail for these will be written when their implementation phase (see `impmemnentaion-plan.md`) begins, following the same format as §3 above.
-
-| Phase | Screens |
-|---|---|
-| Phase 2 (Module 1) | s1 Patients, s6 Patient Directory, s7 Patient 360° Profile, s18 Healthcare Provider Management |
-| Phase 3 (Module 2) | s3 Telemedicine & Remote Monitoring Hub, s8 Appointments, s9 Telemedicine Waiting Room, s10 Telemedicine, s11 Active Telemedicine Consultation |
-| Phase 4 (Module 3) | s3 (shared), s12 Remote Patient Monitoring, s13 Alerts & Triage |
-| Phase 5 (Module 4) | s4 Analytics & AI Risk Assessment, s14 AI Health Risk Assessment, s15 AI Risk Assessment Detail |
-| Phase 7 (Security/Observability) | s19 System Monitoring, s20 Security & Audit Center, s21 Users & Roles |
-| Cross-cutting | s23 Settings, s24 Login |
-| Out of scope (flagged) | s22 Documents (not a mandatory module), s25 Patient Mobile App (mobile is not required by the brief) |
-| Analytics | s16 Healthcare Insights (supplements the Dashboard's trend-analytics requirement) |
+| Phase | Screens | Status |
+|---|---|---|
+| Post-completion (§6 below) | s1/s6 Patients (list + inline detail, merged rather than a separate s7 profile page), s8 Appointments, s12 Remote Patient Monitoring (alerts + reading history, merged rather than a separate s13 Alerts & Triage page), s4/s14 Analytics & AI Risk Assessment | **Built** — see §6 |
+| Not built (deliberately simplified away) | s7 Patient 360° Profile (folded into the Patients list's inline expand instead of a separate page), s9 Telemedicine Waiting Room / s11 Active Telemedicine Consultation (no real-time video-call backend exists — the Telemedicine screen focuses on the real, working part: the consultation queue and recording form), s15 AI Risk Assessment Detail (folded into Analytics' prediction list), s18 Healthcare Provider Management (no dedicated screen; providers are managed via the API/admin-guide.md) | Not built |
+| Phase 7 (Security/Observability) | s19 System Monitoring, s20 Security & Audit Center, s21 Users & Roles | Not built — Prometheus/Grafana (Phase 7) cover the observability need directly; no in-app screen was required |
+| Cross-cutting | s23 Settings, s24 Login (built) | Login built; Settings not built |
+| Out of scope (flagged) | s22 Documents (not a mandatory module), s25 Patient Mobile App (mobile is not required by the brief) | Out of scope |
+| Analytics | s16 Healthcare Insights (supplements the Dashboard's trend-analytics requirement) | Not built — `GET /dashboard/trends` on the Executive Overview covers this |
 
 ---
 
@@ -147,3 +143,14 @@ Full detail for these will be written when their implementation phase (see `impm
 3. **s22 Documents / s25 Mobile App: RESOLVED — confirmed out of scope**, per this document's own original recommendation (neither maps to one of the 5 mandatory modules). No implementation time spent on either.
 
 **Additional Phase 6 note — honest data only:** several of the template's mock KPIs have no backing data model in this project (e.g. "Bed Occupancy," per-provider real-time presence/workload-%, appointment wait-time tracking — none of these are tracked anywhere in `backend-schema.md`). Rather than fabricate numbers for these, Phase 6 substitutes real, computable equivalents (e.g. Active Providers count instead of Bed Occupancy) and keeps the template's exact visual language (cards, colors, typography, layout) while every number shown is a real query result — consistent with every other phase's "no fabricated data" standard. See `impmemnentaion-plan.md` Phase 6 status for the specific substitutions.
+
+## 6. Post-completion enhancement — Patients/Appointments/Telemedicine/Monitoring/Analytics screens
+
+After the 10-phase roadmap was already complete, the user tested the deployed app and flagged that the top nav's Patients/Appointments/Telemedicine/Monitoring/Analytics links were inert placeholder text (`onClick={(e) => e.preventDefault()}`, matching the original Phase 6 scope decision that only the Dashboard was mandated for the frontend). Given the choice between leaving them inert, visually disabling them, removing them, or building real screens, the user chose to build real screens — genuinely expanding frontend scope beyond the exam brief's minimum.
+
+Each new screen is built directly on that module's real, already-tested backend API (no new endpoints were added) — see `user-guide.md` and `admin-guide.md` for what each role can do on each screen. Two real bugs were found and fixed while building and testing this:
+
+- **A latent redirect-loop bug**, dormant since Phase 6: `ProtectedRoute`'s denial path and `Login.jsx`'s post-login redirect both hard-coded `/dashboard` as the fallback, but Doctor and Patient roles have no dashboard access — logging in as either would have looped forever. Never surfaced before because no Doctor/Patient demo login existed until this work needed one. Fixed with a shared `frontend/src/auth/defaultRoute.js` helper mapping each role to a route it can actually reach (Doctor → `/patients`, Patient → `/appointments`).
+- **A real UX gap**: a Patient booking an appointment has no way to browse the provider directory (`GET /providers` is Administrator/Executive only, per `api-spec.md` §3) — the booking form's provider dropdown was empty for that role. Fixed by falling back to a plain provider-ID input for roles without directory access, rather than fabricating a provider list the API doesn't actually grant them.
+
+`backend/scripts/seed_dev_users.py` was extended to also create a Doctor (`doctor@globalcare-demo.com`) and Patient (`patient@globalcare-demo.com`, assigned to that doctor) demo login — previously only Administrator/Executive had seeded credentials, meaning half the platform's role-scoped actions had no way to be demoed at all.

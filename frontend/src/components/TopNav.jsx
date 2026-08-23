@@ -1,13 +1,35 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
-// Placeholder nav items for screens outside Phase 6's scope (docs/UIUX.md §4) -
-// inert, matching the supplied template's own href="#" placeholders.
-const PLACEHOLDER_LINKS = ["Patients", "Appointments", "Telemedicine", "Monitoring", "Analytics"];
+// docs/UIUX.md §4 module screens, promoted from inert placeholders to real
+// routes. `roles` mirrors each route's own ProtectedRoute gate in App.jsx -
+// kept in sync here so the nav never shows a link a role would just get
+// bounced back from.
+const MODULE_LINKS = [
+  { label: "Patients", to: "/patients", key: "patients", roles: ["administrator", "doctor"] },
+  {
+    label: "Appointments",
+    to: "/appointments",
+    key: "appointments",
+    roles: ["administrator", "doctor", "patient"],
+  },
+  {
+    label: "Telemedicine",
+    to: "/telemedicine",
+    key: "telemedicine",
+    roles: ["administrator", "doctor", "patient"],
+  },
+  { label: "Monitoring", to: "/monitoring", key: "monitoring", roles: ["administrator", "doctor"] },
+  { label: "Analytics", to: "/analytics", key: "analytics", roles: ["administrator", "doctor"] },
+];
 
 export default function TopNav({ active }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const visibleLinks = MODULE_LINKS.filter((link) => link.roles.includes(user?.role));
+  const canSeeOverview = user?.role === "administrator" || user?.role === "executive";
+  const canSeeExecutive = user?.role === "executive";
+  const canSeeOperations = user?.role === "administrator" || user?.role === "executive";
 
   function handleLogout() {
     logout();
@@ -29,42 +51,43 @@ export default function TopNav({ active }) {
             GlobalCare
           </div>
           <nav className="hidden md:flex items-center gap-1 overflow-x-auto">
-            <Link to="/dashboard" className={pill(active === "overview")}>
-              Overview
-            </Link>
-            {PLACEHOLDER_LINKS.map((label) => (
-              <a
-                key={label}
-                href="#"
-                onClick={(e) => e.preventDefault()}
-                className={pill(false)}
-              >
+            {canSeeOverview && (
+              <Link to="/dashboard" className={pill(active === "overview")}>
+                Overview
+              </Link>
+            )}
+            {visibleLinks.map(({ label, to, key }) => (
+              <Link key={key} to={to} className={pill(active === key)}>
                 {label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Link
-            to="/dashboard/executive"
-            className={`hidden sm:inline-block px-4 py-2 rounded-full font-label-md text-label-md transition-colors ${
-              active === "executive"
-                ? "bg-primary text-on-primary shadow-sm"
-                : "bg-surface-container text-on-surface hover:bg-surface-container-high"
-            }`}
-          >
-            Executive
-          </Link>
-          <Link
-            to="/dashboard/operations"
-            className={`hidden sm:inline-block px-4 py-2 rounded-full font-label-md text-label-md transition-colors ${
-              active === "operations"
-                ? "bg-primary text-on-primary shadow-sm"
-                : "bg-surface-container text-on-surface hover:bg-surface-container-high"
-            }`}
-          >
-            Operations
-          </Link>
+          {canSeeExecutive && (
+            <Link
+              to="/dashboard/executive"
+              className={`hidden sm:inline-block px-4 py-2 rounded-full font-label-md text-label-md transition-colors ${
+                active === "executive"
+                  ? "bg-primary text-on-primary shadow-sm"
+                  : "bg-surface-container text-on-surface hover:bg-surface-container-high"
+              }`}
+            >
+              Executive
+            </Link>
+          )}
+          {canSeeOperations && (
+            <Link
+              to="/dashboard/operations"
+              className={`hidden sm:inline-block px-4 py-2 rounded-full font-label-md text-label-md transition-colors ${
+                active === "operations"
+                  ? "bg-primary text-on-primary shadow-sm"
+                  : "bg-surface-container text-on-surface hover:bg-surface-container-high"
+              }`}
+            >
+              Operations
+            </Link>
+          )}
           <div className="flex items-center gap-2 border-l border-outline-variant pl-3 ml-1">
             <div className="text-right hidden lg:block">
               <p className="font-label-sm text-label-sm text-on-surface font-semibold truncate max-w-[160px]">

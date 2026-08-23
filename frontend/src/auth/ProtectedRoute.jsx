@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import { defaultRouteForRole } from "./defaultRoute";
 
 export default function ProtectedRoute({ roles }) {
   const { user, token, loading } = useAuth();
@@ -12,7 +13,12 @@ export default function ProtectedRoute({ roles }) {
     );
   }
   if (!token || !user) return <Navigate to="/login" replace />;
-  if (roles && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  // Redirect to this role's own default route, not a hardcoded "/dashboard" -
+  // some roles (doctor, patient) don't have dashboard access at all, so that
+  // would loop right back through this same check.
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to={defaultRouteForRole(user.role)} replace />;
+  }
 
   return <Outlet />;
 }

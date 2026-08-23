@@ -34,4 +34,25 @@ export const api = {
   providerActivity: (token) => request("/dashboard/provider-activity", { token }),
   executiveReport: (token) => request("/reports/executive", { token }),
   listAlerts: (token) => request("/monitoring/alerts", { token }),
+  acknowledgeAlert: (token, alertId) =>
+    request(`/monitoring/alerts/${alertId}/acknowledge`, { method: "PATCH", token }),
+  listPatients: (token) => request("/patients", { token }),
+  getPatient: (token, patientId) => request(`/patients/${patientId}`, { token }),
+  listProviders: (token) => request("/providers", { token }),
+  listAppointments: (token) => request("/appointments", { token }),
+  createAppointment: (token, body) => request("/appointments", { method: "POST", body, token }),
+  updateAppointmentStatus: (token, appointmentId, appointmentStatus) =>
+    request(`/appointments/${appointmentId}/status`, {
+      method: "PATCH",
+      body: { status: appointmentStatus },
+      token,
+    }),
+  createConsultation: (token, body) => request("/consultations", { method: "POST", body, token }),
+  consultationHistory: (token, patientId) => request(`/consultations/${patientId}`, { token }),
+  readingHistory: (token, patientId) => request(`/monitoring/readings/${patientId}`, { token }),
+  submitReading: (token, body) => request("/monitoring/readings", { method: "POST", body, token }),
+  predictionHistory: (token, patientId) => request(`/ai/predictions/${patientId}`, { token }),
+  runRiskAssessment: (token, patientId) =>
+    request("/ai/risk-assessment", { method: "POST", body: { patient_id: patientId }, token }),
+  modelMetadata: (token) => request("/ai/model/metadata", { token }),
 };

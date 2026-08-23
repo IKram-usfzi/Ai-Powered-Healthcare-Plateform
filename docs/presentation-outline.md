@@ -46,7 +46,7 @@ Pick 1–2 concrete examples — these demonstrate genuine engineering practice 
 ## 7. Scope & honesty about limits (2 min)
 
 - Docker Compose is mandatory and done; AWS (Phase 8) is real Terraform, validated, deliberately **not deployed** — explain why (cost, scope discipline) rather than let it look unfinished.
-- No dedicated patient-list/booking UI beyond the dashboard — the exam brief only mandates the dashboard for the frontend; other modules are API-complete and demonstrated via Swagger/curl.
+- The brief only mandates the Dashboard for the frontend — the Patients/Appointments/Telemedicine/Monitoring/Analytics screens (`UIUX.md` §6, ADR-029) were built afterward as a deliberate scope expansion, not required. Worth naming as evidence of going beyond the minimum, not as a gap to explain away.
 - AI output is explicitly decision-support only, never framed as diagnosis (`PRD.md` §7) — a deliberate constraint, not a gap.
 
 ## 8. Close (1 min)

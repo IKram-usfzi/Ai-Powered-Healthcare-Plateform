@@ -31,7 +31,10 @@ ADR-027, deliberate scope decision this session: Docker Compose is the mandatory
 77 automated pytest tests + 11 Rego policy tests, but the more important claim: every implementation phase (2 through 7) was also verified against real Docker Compose infrastructure — real PostgreSQL, real Redis, real OPA — not just mocks. `test-execution-log.md`'s "At a glance" table has the phase-by-phase breakdown.
 
 **"What would you do differently with more time?"**
-Good honest answers: dedicated management UIs beyond the dashboard (patient list, appointment booking screens) — the brief only mandates the dashboard for frontend, so this was correctly out of scope, not forgotten; wiring the row-level OPA policy into the API layer if row-level authorization complexity grows; a CI pipeline running the test suite + Trivy scan on every push (currently run manually per-phase).
+Good honest answers: a dedicated vitals-submission screen for Patients (currently API-only) and a Patient-facing provider directory (would remove the provider-ID-input fallback on the booking form, ADR-029); wiring the row-level OPA policy into the API layer if row-level authorization complexity grows; a CI pipeline running the test suite + Trivy scan on every push (currently run manually per-phase).
+
+**"The brief only requires a dashboard for the frontend — why build the other five screens?"**
+ADR-029. After the mandatory roadmap was complete, testing the live app surfaced that the top nav's Patients/Appointments/Telemedicine/Monitoring/Analytics links were inert placeholders — a deliberate Phase 6 scope decision. Rather than leave them, built real screens directly on the existing, already-tested APIs (zero new backend endpoints), which also surfaced and fixed two real bugs a Dashboard-only frontend would never have hit: a dormant Doctor/Patient login redirect-loop, and an unusable provider picker on the Patient booking form.
 
 ## Part B — Scenario-based redesign questions
 

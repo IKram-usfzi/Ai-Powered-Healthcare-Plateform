@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { defaultRouteForRole } from "../auth/defaultRoute";
 
 export default function Login() {
   const { login } = useAuth();
@@ -16,7 +17,7 @@ export default function Login() {
     setSubmitting(true);
     try {
       const me = await login(email, password);
-      navigate(me.role === "executive" ? "/dashboard/executive" : "/dashboard");
+      navigate(defaultRouteForRole(me.role));
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {

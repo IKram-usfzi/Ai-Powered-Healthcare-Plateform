@@ -7,7 +7,7 @@
 - **Project name:** GlobalCare — Enterprise Remote Healthcare Management Platform (GitHub repo: `Ai-Powered-Healthcare-Plateform`)
 - **Project type:** Academic capstone (Diploma in AIOPS, EduQual Level 6, al-Nafi International College) — built as a real proof-of-concept enterprise web platform, not a toy exercise
 - **Project purpose:** Design, document, and build a proof-of-concept healthcare platform for a fictional client, "GlobalCare Telehealth Network," to pass a 3-stage exam (presentation, live demo + GitHub review, viva voce)
-- **Current development stage:** All 10 phases done (2026-08-23). All five PRD modules have working, tested backend REST APIs plus a full frontend for the Executive Dashboard — 77 passing pytest tests, 11/11 Rego policy unit tests, and live end-to-end verification against real infrastructure for every implementation phase. Phase 8 delivered Terraform IaC for AWS (not deployed, by design). Phase 9 delivered all 17 mandatory diagrams plus Installation/Deployment/User/Admin guides. Phase 10 (final) ran a full GitHub repo review (found and fixed a badly stale root README + a real OPA-container bind-mount bug), consolidated the test execution summary, and wrote the presentation outline, live demo script, and viva prep (including all 5 named scenario-based redesign questions). The project is exam-ready pending the user's own rehearsal.
+- **Current development stage:** All 10 phases done (2026-08-23), plus a post-completion scope expansion (ADR-029, same day). All five PRD modules have working, tested backend REST APIs — 77 passing pytest tests, 11/11 Rego policy unit tests, and live end-to-end verification against real infrastructure for every implementation phase. Phase 8 delivered Terraform IaC for AWS (not deployed, by design). Phase 9 delivered all 17 mandatory diagrams plus Installation/Deployment/User/Admin guides. Phase 10 (final roadmap phase) ran a full GitHub repo review (found and fixed a badly stale root README + a real OPA-container bind-mount bug), consolidated the test execution summary, and wrote the presentation outline, live demo script, and viva prep. **After** the roadmap was complete, the user tested the live app and asked for the inert Patients/Appointments/Telemedicine/Monitoring/Analytics nav links to become real screens — all five now built on the existing APIs, with real Doctor/Patient demo logins added and two real bugs found and fixed (a dormant redirect-loop, a patient-booking UX gap). The project is exam-ready pending the user's own rehearsal.
 - **Main objective:** A Docker-Compose-deployable platform (5 functional modules) + a complete documentation set + 17 required architecture diagrams, defensible live in front of an examiner.
 
 ## 2. Project Summary
@@ -69,13 +69,13 @@ Detailed architecture (incl. AWS stretch topology, 17-diagram inventory): `docs/
 
 | Module | Purpose | Status |
 |---|---|---|
-| Patient & Provider Management | Registration, profiles, facility/provider assignment | BACKEND API DONE (Phase 2) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
-| Telemedicine Appointments | Scheduling, consultations, status tracking | BACKEND API DONE (Phase 3) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
-| Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | BACKEND API DONE (Phase 4) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
-| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | BACKEND API DONE (Phase 5) — surfaced via the Phase 6 dashboards, no dedicated CRUD UI yet |
+| Patient & Provider Management | Registration, profiles, facility/provider assignment | DONE — backend (Phase 2) + real frontend (`/patients`, post-completion — ADR-029) |
+| Telemedicine Appointments | Scheduling, consultations, status tracking | DONE — backend (Phase 3) + real frontend (`/appointments`, `/telemedicine`, post-completion — ADR-029) |
+| Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | DONE — backend (Phase 4) + real frontend (`/monitoring`, post-completion — ADR-029) |
+| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | DONE — backend (Phase 5) + real frontend (`/analytics`, post-completion — ADR-029) |
 | Executive Operations Dashboard | 3-view KPI/ops dashboard (Unified/Executive/Operations) | DONE (Phase 6) — backend aggregation + full React frontend, verified against real data |
 
-All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`, and all five have working, verified backend APIs as of Phase 6. The Executive Dashboard is the only module with a full dedicated frontend so far — the other four modules' data is visible through the dashboards (patients, appointments, alerts, predictions all appear as real aggregated figures) but don't yet have their own dedicated management screens (e.g. no patient-list/registration-form UI); that remains future/stretch work beyond the mandatory Phase 6 scope.
+All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`, and all five now have working, verified backend APIs *and* dedicated frontend screens — the Dashboard from the mandatory Phase 6 roadmap, and the other four added afterward (ADR-029) once the user flagged that the top nav's module links were inert placeholders. Each new screen sits directly on that module's existing, already-tested API — no new backend endpoints were added for this. See `docs/UIUX.md` §6 and `docs/user-guide.md` for what each role can actually do on each screen.
 
 ## 8. Current Implementation Status
 
@@ -98,11 +98,14 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 
 - **Phase 10 — Integration Testing, Demo Rehearsal, Viva Prep (final phase):** end-to-end test pass (77/77 pytest, 11/11 Rego, ruff+black+`npm run lint`+`mkdocs build --strict` all clean) plus a live 5-module smoke test against real Docker Compose. Test execution summary consolidated: `test-execution-log.md` gained an "At a glance" rollup table. GitHub repo review pass: secret-pattern scan across all tracked files (clean), `.gitignore` coverage confirmed, commit history reviewed (clean, phase-labeled) — and the real finding: root `README.md` and `infra/README.md` were badly stale (still said "Phase 2 done," referenced a nonexistent `/diagrams` path), both rewritten to reflect actual current state and point at the canonical guides instead of duplicating them. A second real bug found: after the session's environment-wipe incident (§17 item 12), the `opa` container had bound to a stale empty directory reference, so `GET /v1/policies` returned `[]` and every API request failed closed with 403 — fixed with a container recreate, documented as an `installation-guide.md` troubleshooting entry. Rehearsal materials written: `presentation-outline.md`, `demo-script.md` (with an "if something breaks" section), `viva-prep.md` (general Q&A + all 5 named scenario-based redesign questions, each answered with "what changes / what stays / why").
 
-**In Progress:** Nothing actively mid-implementation. All 10 phases complete.
+- **Post-completion — Module screens (ADR-029, same day as Phase 10):** the user ran the deployed app after Phase 10 closed and asked for the top nav's Patients/Appointments/Telemedicine/Monitoring/Analytics links (inert since Phase 6, by original design) to become real screens. Built all five directly on existing, already-tested APIs — no new backend endpoints. `frontend/src/pages/{Patients,Appointments,Telemedicine,Monitoring,Analytics}.jsx`, each role-gated to match its underlying API's own restrictions (`api-spec.md`) rather than copying the dashboard's admin/executive-only gating; `TopNav` now filters links per role so nobody sees a link they'd just get bounced back from. Extended `backend/scripts/seed_dev_users.py` to also create a Doctor (`doctor@globalcare-demo.com`) and Patient (`patient@globalcare-demo.com`, assigned to that doctor) demo login, both password `ChangeMe123!` — previously only Administrator/Executive existed, so Doctor-only actions (record consultation, acknowledge alert, run AI assessment) had no way to be demoed. Verified the fresh-database path directly (facility/provider/patient auto-created correctly from empty). Found and fixed two real bugs while testing: (1) a redirect-loop dormant since Phase 6 — `ProtectedRoute` and `Login.jsx` both hard-coded `/dashboard` as the universal fallback, but Doctor/Patient have no dashboard access, so either role logging in would have looped forever; fixed via a shared `frontend/src/auth/defaultRoute.js`. Never caught earlier because no Doctor/Patient login existed to trigger it. (2) The Patient booking form's provider dropdown was empty (`GET /providers` is Administrator/Executive only) — fixed with a provider-ID input fallback instead of fabricating a directory list. Verified all 4 roles end-to-end via live browser automation: doctor recorded a real consultation, acknowledged a real alert, ran a real AI assessment; patient booked a real appointment via the ID-input fallback; admin/executive confirmed unaffected. 77/77 pytest + `npm run lint` clean throughout.
+
+**In Progress:** Nothing actively mid-implementation. All 10 phases complete, plus this post-completion addition.
 
 **Not Started:**
 - Phase 8's actual AWS deployment (`terraform apply` against a real account) — deferred by design, remains available whenever wanted
 - The user's own rehearsal of the presentation/demo/viva — the materials exist, the rehearsal itself is inherently something only the user can do
+- A dedicated vitals-submission screen for Patients (`POST /monitoring/readings` is still API-only) and a Patient-role provider directory endpoint (would remove the ID-input fallback) — noted as real, small gaps, not currently planned
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
 
@@ -269,6 +272,7 @@ Full ADR log: `docs/deccission.md`. Key ones that constrain future work:
 - **Metrics via `prometheus-fastapi-instrumentator`** — auto-instruments every route, no custom metric names to keep in sync with the Grafana dashboard — ADR-025
 - **Trivy scan output → generated Markdown report** (`docs/security-scan-report.md`), same pattern as `ai-evaluation-report.md` — not hand-maintained, findings documented transparently rather than chased to zero — ADR-026
 - **All 17 mandatory diagrams live under `docs/diagrams/`**, not at the repo root — required for `mkdocs build --strict` to pass — ADR-028
+- **Module screens (Patients/Appointments/Telemedicine/Monitoring/Analytics) are real, post-completion additions** — built on existing APIs with no new backend endpoints, role-gated per `api-spec.md` rather than the dashboard's admin/executive gating — ADR-029
 
 ## 14. Non-Negotiable Constraints
 
@@ -1048,6 +1052,120 @@ NEXT ACTION: Commit and push Phase 10 (see section 10's file list). Once
   further planned work unless the user requests new scope (e.g. an
   actual AWS deployment via the existing Terraform, or dedicated
   management UIs beyond the mandatory dashboard).
+```
+
+```
+DATE: 2026-08-23 (same day, post-completion)
+WHAT WE DID: Committed and pushed Phase 10 (f8981fc) - all 10 roadmap
+  phases complete. User asked to run the platform locally and get
+  credentials to log in. Confirmed all 7 Docker Compose services still
+  healthy from Phase 10's own verification, confirmed both admin/executive
+  demo logins work via curl, handed over credentials + URLs, and opened
+  the app in the browser pane. User logged in as admin themselves and
+  reported the top nav's Patients/Appointments/Telemedicine/Monitoring/
+  Analytics links were "just static written text" with no action - these
+  were deliberately inert placeholders since Phase 6 (only the Dashboard
+  is mandated for the frontend by the exam brief). Asked the user how to
+  handle it (visually disable / build real pages / remove / leave as-is);
+  they chose to build real pages - a genuine scope expansion beyond the
+  exam brief's minimum, now recorded as ADR-029.
+  Before building anything, created demo Doctor (doctor@globalcare-demo.com,
+  linked Provider record) and Patient (patient@globalcare-demo.com, linked
+  Patient record, assigned to that doctor) accounts via the live API -
+  previously only Administrator/Executive had seeded logins, so half the
+  new screens' role-scoped actions would have had no way to be demoed.
+  Gave the demo patient a real vitals reading, an abnormal reading
+  (triggering a real alert), a booked appointment, and a real AI risk
+  prediction, so the new screens would have real data on first load, not
+  empty states. Surveyed every relevant backend router/schema
+  (patients.py, appointments.py, monitoring.py, ai.py, providers.py) to
+  build screens against the REAL role restrictions and response shapes,
+  not assumptions. Built five new pages (frontend/src/pages/
+  {Patients,Appointments,Telemedicine,Monitoring,Analytics}.jsx) matching
+  the existing Clinical Precision styling, each gated in App.jsx to the
+  exact roles its underlying API allows (not just copying the dashboard's
+  admin/executive gating) - Patients/Monitoring/Analytics ->
+  administrator+doctor; Appointments/Telemedicine ->
+  administrator+doctor+patient. Extended api/client.js with every new
+  endpoint call needed. Updated TopNav.jsx to make the links real
+  (Link instead of inert <a>) and, after noticing a UX inconsistency
+  during testing, to FILTER which links show per role, so nobody sees a
+  link they'd just get redirected away from.
+  Verified everything live via browser automation across all four roles.
+  Found and fixed two real bugs in the process, neither previously known:
+  (1) a dormant redirect-loop bug from Phase 6 - ProtectedRoute's denial
+  path and Login.jsx's post-login redirect both hard-coded "/dashboard" as
+  the universal fallback, but Doctor and Patient roles have no dashboard
+  access at all, so logging in as either would loop forever. Never
+  surfaced before because no Doctor/Patient demo login existed until this
+  session created one. Fixed with a shared frontend/src/auth/
+  defaultRoute.js mapping each role to a route it can actually reach
+  (executive -> /dashboard/executive, administrator -> /dashboard, doctor
+  -> /patients, patient -> /appointments), used by both ProtectedRoute and
+  Login.jsx. (2) The Patient appointment-booking form's provider dropdown
+  was empty and unusable - GET /providers is Administrator/Executive only
+  per api-spec.md, so a patient has no directory to pick from. Fixed by
+  falling back to a plain provider-ID number input for roles without
+  directory access, rather than fabricating a provider list the API
+  doesn't grant them (matching this project's "honest data only"
+  standard, same principle as ADR-022). Also hit and fixed two smaller,
+  self-inflicted issues while editing: a missing React key on a Fragment
+  in Patients.jsx (real console warning, fixed by using Fragment with an
+  explicit key instead of the <> shorthand), and one browser tab that got
+  stuck in a broken state from a transient mid-edit Vite parse error
+  (confirmed as tab-specific artifact, not a real app bug, by reproducing
+  clean in a fresh tab).
+  End-to-end verification, all real: doctor recorded an actual
+  consultation (appointment moved from "Awaiting" to "Completed" live),
+  acknowledged a real alert (status updated live), and ran a real new AI
+  risk assessment (second prediction appeared live); patient booked a
+  real appointment through the ID-input fallback (appointment count went
+  1->2, confirmed via live count update); admin's view
+  re-confirmed unaffected (full unscoped visibility, correct nav set with
+  Operations but not Executive). Ran the full backend suite (77/77 still
+  passing) and frontend lint (found and fixed 2 real issues: an
+  unescaped-quotes JSX error, an unused eslint-disable comment) - both
+  clean afterward. Extended backend/scripts/seed_dev_users.py to also
+  create the Doctor+Patient demo accounts (with a facility auto-created
+  if none exists yet, since this script runs before seed_synthea.py in
+  the documented setup order) for reproducibility on a fresh clone -
+  verified this specific fresh-database path directly against a temporary
+  in-memory SQLite database, not just against the already-seeded live
+  Postgres. Documented as ADR-029, updated docs/UIUX.md (new §6, plus
+  corrected the screen-inventory table which previously said these
+  screens were "for later phases"), rewrote docs/user-guide.md's
+  Patient/Doctor/Administrator sections to describe the real screens
+  instead of "API only, no UI yet", updated PROJECT_CONTEXT.md §7's Core
+  Modules table.
+WHAT CHANGED: All five PRD modules now have real, working frontend
+  screens, not just the Dashboard the brief mandated - a genuine,
+  user-directed scope expansion past the exam brief's minimum. All four
+  roles (administrator/executive/doctor/patient) now have working demo
+  logins and can each exercise their full set of permitted actions
+  through real UI, not just curl/Swagger. Two real, previously-dormant
+  bugs (redirect loop, unusable booking form for patients) are fixed.
+WHAT WORKED: Surveying the real backend routers/schemas BEFORE writing
+  any frontend code (rather than guessing at role restrictions or
+  response shapes) meant the five new pages matched real API behavior on
+  the first pass - no surprise 403s from mismatched assumptions about who
+  can call what. Creating realistic seed data (vitals, an abnormal
+  reading, a booking, a prediction) for the new demo patient before
+  building the UI meant every page could be verified against real,
+  non-empty data immediately rather than only testing empty states.
+WHAT DID NOT WORK initially (both found via live testing, not assumed,
+  and both now fixed): the Doctor/Patient redirect-loop bug; the Patient
+  booking form's empty provider dropdown.
+CURRENT STATE: All five module screens built, tested end-to-end across
+  all four roles, and verified via a real live Docker Compose deployment
+  (backend + frontend), NOT YET COMMITTED. 77/77 backend tests and
+  frontend lint both clean.
+NEXT ACTION: Commit and push this work (frontend/src/pages/{Patients,
+  Appointments,Telemedicine,Monitoring,Analytics}.jsx, frontend/src/
+  api/client.js, frontend/src/components/TopNav.jsx, frontend/src/App.jsx,
+  frontend/src/auth/defaultRoute.js (new), frontend/src/auth/
+  ProtectedRoute.jsx, frontend/src/pages/Login.jsx, backend/scripts/
+  seed_dev_users.py, docs/deccission.md (+ADR-029), docs/UIUX.md,
+  docs/user-guide.md, PROJECT_CONTEXT.md).
 ```
 
 ## 19. Claude Instructions
