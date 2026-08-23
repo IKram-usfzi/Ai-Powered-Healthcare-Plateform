@@ -7,7 +7,7 @@
 - **Project name:** GlobalCare — Enterprise Remote Healthcare Management Platform (GitHub repo: `Ai-Powered-Healthcare-Plateform`)
 - **Project type:** Academic capstone (Diploma in AIOPS, EduQual Level 6, al-Nafi International College) — built as a real proof-of-concept enterprise web platform, not a toy exercise
 - **Project purpose:** Design, document, and build a proof-of-concept healthcare platform for a fictional client, "GlobalCare Telehealth Network," to pass a 3-stage exam (presentation, live demo + GitHub review, viva voce)
-- **Current development stage:** Phases 0-7 done and verified against real Docker Compose + PostgreSQL + Redis + OPA + Prometheus + Grafana (2026-08-22). All five PRD modules have working, tested backend REST APIs plus a full frontend for the Executive Dashboard — 77 passing pytest tests, 11/11 Rego policy unit tests, and live end-to-end verification against real infrastructure for every phase. Phase 7 formalized RBAC via a real OPA server, wired Prometheus + Grafana for live metrics, and ran a real Trivy scan (`docs/security-scan-report.md`). Phase 8 (AWS, optional stretch) or Phase 9 (diagrams/docs) is next — mandatory deliverables are functionally complete.
+- **Current development stage:** Phases 0-9 done (2026-08-23). All five PRD modules have working, tested backend REST APIs plus a full frontend for the Executive Dashboard — 77 passing pytest tests, 11/11 Rego policy unit tests, and live end-to-end verification against real infrastructure for every implementation phase. Phase 8 delivered Terraform IaC for AWS (not deployed, by design). Phase 9 delivered all 17 mandatory diagrams as real Mermaid diagrams-as-code (`docs/diagrams/`) plus Installation/Deployment/User/Admin guides — `mkdocs build --strict` passes with zero warnings. Only Phase 10 (demo/viva rehearsal) remains.
 - **Main objective:** A Docker-Compose-deployable platform (5 functional modules) + a complete documentation set + 17 required architecture diagrams, defensible live in front of an examiner.
 
 ## 2. Project Summary
@@ -94,11 +94,13 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 
 - **Phase 8 — AWS Deployment (stretch, IaC only, not deployed):** `infra/terraform/` implements the full topology from `architecture.md` §5 / `TRD.md` §8 — VPC with a public subnet (EC2 app tier) and 2 private subnets (RDS's DB subnet group requirement), security groups (app: 22/80/443, DB: 5432 from the app SG only), an EC2 instance that bootstraps the whole Docker Compose stack via `user_data.sh.tpl`, a single-AZ RDS PostgreSQL instance, and an `aws_budgets_budget` billing alarm (80% actual / 100% forecasted thresholds) satisfying `TRD.md` §8's "configured before any deployment activity" requirement. A companion `infra/docker-compose.aws.yml` override points the backend at RDS instead of a local `postgres` container and trims Prometheus/Grafana to opt-in (the ~1GB-RAM t2/t3.micro note). **Deliberately not applied** — per the user's explicit instruction this session, the actual deployment stays local Docker Compose; only the IaC exists for future use (ADR-027). Verified via `terraform fmt`/`init -backend=false`/`validate` (all clean, via the containerized `hashicorp/terraform:1.9` image, no AWS credentials used) — this is genuinely as far as verification goes for this phase, unlike every other phase's "verify against real infrastructure" standard.
 
+- **Phase 9 — Documentation & Diagrams:** all 17 mandatory diagrams (`docs/diagrams/01-*.md`–`17-*.md`) written as real Mermaid diagrams-as-code, each grounded in the actual implementation — diagram 8 (Enterprise Network) reflects the real Phase 8 Terraform resource names/CIDRs, diagram 16 (ERD) has full attribute-level detail matching the real SQLAlchemy models (not just the design-level entity list in `backend-schema.md`), diagram 15 (Healthcare Operations Workflow) reflects the real Phase 6 3-view dashboard. `architecture.md` §6 links to every diagram. Four new guides: `installation-guide.md`, `deployment-guide.md` (both profiles), `user-guide.md`, `admin-guide.md`. Found and fixed a real build failure: `diagrams/` originally lived at the repo root (sibling of `docs/`), which broke `mkdocs build --strict` (MkDocs validates relative links against `docs_dir` even when the target is outside it) — moved to `docs/diagrams/` and added to `mkdocs.yml` nav (ADR-028); rebuild is 100% clean. Verified two ways: `mkdocs build --strict` (zero warnings); independent Mermaid syntax validation via containerized `mermaid-cli` rendering all 18 diagram blocks (17 diagrams, one with 2 sub-diagrams) to real SVG, 18/18 succeeded — done this way because the session's own Browser-pane tool has a sandbox-specific quirk (a pre-populated `window.mermaid` global for its own Artifact rendering) that made in-browser verification of the built site inconclusive; `mermaid-cli` is the definitive, environment-independent check. Full details: `docs/test-execution-log.md`.
+
 **In Progress:** Nothing actively mid-implementation.
 
 **Not Started:**
 - Phase 8's actual AWS deployment (`terraform apply` against a real account) — deferred by design, see above
-- Phase 9 (the 17 mandatory diagrams as actual files), Phase 10 (formal testing/demo prep)
+- Phase 10 (formal testing/demo prep) — the only remaining phase
 
 **Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
 
@@ -107,37 +109,38 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 Phases (from `docs/impmemnentaion-plan.md`):
 Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Module 1 (Patients/Providers) · Phase 3 — Module 2 (Telemedicine) · Phase 4 — Module 3 (Monitoring) · Phase 5 — Module 4 (AI Risk) · Phase 6 — Module 5 (Dashboard) · Phase 7 — Observability/Security · Phase 8 — AWS (stretch) · Phase 9 — Docs/Diagrams · Phase 10 — Testing/Demo Prep
 
-**CURRENT PHASE: Phase 8 — AWS Deployment (IaC authored and `terraform validate`-clean; not deployed, by design — see ADR-027).** All mandatory exam-brief deliverables (Phases 0-7) are functionally complete and verified against real infrastructure. Phase 8 is optional/stretch and its Terraform is ready to `apply` whenever a live AWS deployment is actually wanted; the platform's real, current deployment remains local Docker Compose. Next: Phase 9 (Documentation & Diagrams).
+**CURRENT PHASE: Phase 9 — Documentation & Diagrams (DONE — all 17 diagrams real and verified, 4 new guides, `mkdocs build --strict` clean).** All mandatory exam-brief deliverables (Phases 0-7, plus 9) are functionally complete. Phase 8 (optional AWS stretch) delivered ready-to-apply Terraform but was deliberately not deployed. Only Phase 10 (Integration Testing, Demo Rehearsal, Viva Prep) remains on the roadmap.
 
 ## 10. Current Task
 
 ```
 CURRENT TASK:
-Commit and push Phase 8 (Terraform IaC), then move to Phase 9
-(Documentation & Diagrams) — the last remaining phase with real work,
-since Phase 8 deliberately stops at "IaC written, not deployed" and
-Phase 10 is demo/viva prep once everything else is done.
+Commit and push Phase 9 (diagrams + guides), then move to Phase 10
+(Integration Testing, Demo Rehearsal, Viva Prep) — the last phase on the
+roadmap.
 
 OBJECTIVE:
-Phase 9: the 17 mandatory diagrams as actual diagram files (currently
-prose-only in architecture.md), MkDocs site build verification, and the
-Installation/Deployment/User/Admin guides.
+Phase 10: end-to-end test pass, test execution summary, GitHub repo
+review pass, rehearse the 15-20 min presentation, 5-10 min live demo, and
+prepare for the 30-40 min viva (including scenario-based redesign
+questions: national telemedicine networks, rural healthcare, disaster
+response, elderly care, international programmes).
 
 STATUS:
-Phase 7 (fba494b) is pushed. Phase 8 work (infra/terraform/ + a companion
-infra/docker-compose.aws.yml override) is complete and terraform-validated
-but NOT YET COMMITTED as of this note. This phase produced code, not a
-live deployment — nothing was terraform apply'd, no AWS resources exist
-(ADR-027).
+Phase 8 (ea24994) is pushed. Phase 9 work (17 diagrams + 4 guides) is
+complete and verified (mkdocs build --strict clean, mermaid-cli confirms
+all 18 diagram blocks render) but NOT YET COMMITTED as of this note.
 
-FILES TO COMMIT NEXT (Phase 8):
-infra/terraform/ (new: versions.tf, variables.tf, main.tf, vpc.tf,
-security_groups.tf, ec2.tf, rds.tf, budget.tf, outputs.tf,
-user_data.sh.tpl, terraform.tfvars.example, .gitignore, README.md,
-.terraform.lock.hcl), infra/docker-compose.aws.yml (new), docs/deccission.md
-(+ADR-027), docs/impmemnentaion-plan.md (Phase 8 status),
-docs/test-execution-log.md (+Phase 8 section), PROJECT_CONTEXT.md (this
-file).
+FILES TO COMMIT NEXT (Phase 9):
+docs/diagrams/ (new: README.md + 01-*.md through 17-*.md, moved from
+repo-root diagrams/ — see ADR-028), docs/architecture.md (§6 links
+updated to point at docs/diagrams/), docs/installation-guide.md (new),
+docs/deployment-guide.md (new), docs/user-guide.md (new),
+docs/admin-guide.md (new), docs/README.md (+file index entries, fixed
+stale UIUX.md note), mkdocs.yml (+Diagrams nav section, +4 guide nav
+entries), docs/deccission.md (+ADR-028), docs/impmemnentaion-plan.md
+(Phase 9 status), docs/test-execution-log.md (+Phase 9 section),
+PROJECT_CONTEXT.md (this file).
 
 EXPECTED RESULT:
 Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
@@ -145,16 +148,16 @@ Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
 
 ## 11. NEXT STEPS
 
-1. Commit and push Phase 8 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
-2. Start Phase 9: Documentation & Diagrams — the 17 mandatory diagrams as real diagram files (Mermaid/PlantUML per ADR-008), MkDocs site build, Installation/Deployment/User/Admin guides
+1. Commit and push Phase 9 (needs the user's GitHub token or the user pushing themselves — see §17 item 3)
+2. Start Phase 10: Integration Testing, Demo Rehearsal, Viva Prep — the final phase on the roadmap
 3. Phase 8's live AWS deployment (`terraform apply`) remains deferred — only pursue if/when the user actually wants a live AWS demo; see `infra/terraform/README.md`
 4. Consider dedicated management UIs (patient list, appointment booking, etc.) as future/stretch work — not required by the exam brief, which only mandates the dashboard for the frontend (§4 module 5)
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit Phase 8 and push (pending token/user push), then begin Phase 9:
-the 17 mandatory architecture diagrams as real files, per
-docs/architecture.md §6 and ADR-008.
+Commit Phase 9 and push (pending token/user push), then begin Phase 10:
+end-to-end test pass + demo/viva rehearsal prep, per
+docs/impmemnentaion-plan.md.
 ```
 
 ## 12. Project Roadmap
@@ -233,12 +236,14 @@ docs/architecture.md §6 and ADR-008.
 - [x] AWS Budgets billing alarm (`budget.tf`) — 80%/100% thresholds
 - [x] `terraform fmt`/`init -backend=false`/`validate` all clean (no AWS credentials used)
 - [ ] **Not deployed** — no `terraform apply` run, no real AWS resources exist (by design)
-- [ ] Phase 8 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 8 work committed/pushed to GitHub (commit `ea24994`)
 
 **Phase 9 — Documentation & Diagrams**
-- [x] Written documentation (12 files)
-- [ ] 17 mandatory diagrams as actual diagram files (currently prose-only)
-- [ ] MkDocs site built
+- [x] Written documentation (16 files, up from 12 — +4 new guides this phase)
+- [x] 17 mandatory diagrams as real Mermaid diagrams-as-code (`docs/diagrams/`)
+- [x] Installation/Deployment/User/Admin guides
+- [x] MkDocs site builds cleanly (`mkdocs build --strict` — zero warnings)
+- [ ] Phase 9 work committed/pushed to GitHub — pending token/user push
 
 **Phase 10 — Testing & Demo Prep**
 - [ ] Not started
@@ -258,6 +263,7 @@ Full ADR log: `docs/deccission.md`. Key ones that constrain future work:
 - **Frontend dev-tooling config files (`tailwind.config.js`, `postcss.config.js`, `eslint.config.js`) are bind-mounted in Docker Compose**, not baked into the image — edit-and-recreate, not rebuild — ADR-023
 - **Metrics via `prometheus-fastapi-instrumentator`** — auto-instruments every route, no custom metric names to keep in sync with the Grafana dashboard — ADR-025
 - **Trivy scan output → generated Markdown report** (`docs/security-scan-report.md`), same pattern as `ai-evaluation-report.md` — not hand-maintained, findings documented transparently rather than chased to zero — ADR-026
+- **All 17 mandatory diagrams live under `docs/diagrams/`**, not at the repo root — required for `mkdocs build --strict` to pass — ADR-028
 
 ## 14. Non-Negotiable Constraints
 
@@ -847,6 +853,103 @@ CURRENT STATE: Phase 8 complete (as an IaC-only deliverable) and verified
 NEXT ACTION: Commit and push Phase 8 (see section 10's file list); then
   start Phase 9 (Documentation & Diagrams) - the 17 mandatory diagrams as
   real files, per docs/architecture.md §6 and ADR-008.
+```
+
+```
+DATE: 2026-08-23 (same day, continued)
+WHAT WE DID: Committed and pushed Phase 8 (ea24994). Built Phase 9
+  (Documentation & Diagrams) - the last phase with real implementation
+  work before Phase 10's demo/viva prep. Read architecture.md §6's 17-item
+  diagram inventory, flow.md (source for diagrams 4/5/6/7/12-15/17), and
+  backend-schema.md §1 (source for diagram 16), then wrote all 17 as real
+  Mermaid diagrams-as-code under docs/diagrams/ - not just re-drawing the
+  original design-time sketches, but grounding each one in what actually
+  got built: diagram 8 (Enterprise Network) uses the real VPC CIDR/subnet/
+  security-group names from Phase 8's infra/terraform/, not a generic
+  sketch; diagram 16 (ERD) adds full attribute-level detail (types, PK/FK/
+  UK, enum value lists) read directly from the real SQLAlchemy models in
+  backend/app/models/*.py, going beyond backend-schema.md's design-level
+  entity-only version; diagram 15 (Healthcare Operations Workflow) reflects
+  the real Phase 6 three-view dashboard (Unified/Executive/Operations)
+  instead of the original generic flow.md §5 sketch. Also wrote the four
+  guides impmemnentaion-plan.md's Phase 9 description names but that
+  didn't exist yet: installation-guide.md, deployment-guide.md (covering
+  both the real local Docker Compose profile and the written-but-not-
+  deployed AWS profile), user-guide.md (per-role walkthrough), admin-
+  guide.md. Ran mkdocs build --strict and got 18 warnings - diagrams/ had
+  been placed at the repo root (sibling of docs/) since the Phase 0
+  placeholder, and MkDocs validates relative-looking links against its own
+  docs_dir even when the target lives outside it, so every link from the
+  new architecture.md §6 entries to ../diagrams/*.md failed. Fixed by
+  moving the whole directory to docs/diagrams/ (a plain `mv`, not `rm -rf`
+  + recreate) and updating the links + adding a "Diagrams" nav section to
+  mkdocs.yml (documented as ADR-028) - rebuild came back with zero
+  warnings. Tried to visually verify a rendered diagram in the session's
+  own Browser-pane tool and hit a real puzzle: every diagram page loaded
+  correctly (nav, text, page title all right) but the actual mermaid div
+  stayed empty - no SVG, no console errors. Diagnosed by inspecting the
+  raw generated HTML (confirmed the correct <pre class="mermaid"><code>
+  source was actually being emitted by MkDocs - not a content bug),
+  calling window.mermaid.parse() directly on the exact source (succeeded,
+  confirming valid Mermaid syntax), and finally discovering via grep on
+  Material's bundled JS that its mermaid-loading logic checks `typeof
+  mermaid === "undefined"` before deciding whether to fetch the real
+  library from unpkg.com - and in THIS browser pane, window.mermaid was
+  already a non-undefined "object" before Material's own script ever ran,
+  which (per this session's own system-prompt note that "Artifacts render
+  mermaid diagrams natively... no external libraries involved") is almost
+  certainly the pane pre-populating a window.mermaid stub for its OWN
+  Artifact-rendering feature, tricking Material's guard into skipping the
+  real unpkg.com fetch entirely (confirmed zero network requests to
+  unpkg.com across multiple fresh tabs/pages). This is a sandbox-tooling
+  quirk, not a defect in the diagrams or the MkDocs config - a real
+  end-user browser (no pre-existing window.mermaid) would trigger
+  Material's normal load-and-render path correctly. Rather than accept
+  "inconclusive," verified definitively via an environment-independent
+  path instead: pulled minlag/mermaid-cli (real headless-Chromium mermaid
+  rendering, no browser-pane involvement), extracted all 18 mermaid code
+  blocks (17 diagrams, diagram 9 has 2 sub-diagrams for local vs. AWS
+  network flow) into standalone .mmd files, and rendered every one to SVG
+  - 18/18 succeeded (hit one unrelated EACCES permission error on the
+  first attempt from the container's non-root user vs. the mounted /tmp
+  dir's permissions, fixed with chmod 777 on the scratch dir, reran
+  clean). Spot-checked the largest output (the ERD, 213KB SVG) directly -
+  confirmed real entity boxes with correct attribute rows and relationship
+  edge labels ("assigned to (ADR-018)", "books", "attends", etc.) matching
+  the source exactly. Cleaned up all scratch files (/tmp/mmd_check,
+  generated site/ build dir) afterward - hit the SAME pkill-kills-own-
+  script pattern already documented in section 17 item 9 when trying to
+  combine `pkill -f "mkdocs serve"` with subsequent rm -rf commands in one
+  script (exit code 144); worked around it the established way, by
+  running pkill/kill and the cleanup commands as fully separate tool
+  calls instead of chaining them.
+WHAT CHANGED: All mandatory exam-brief deliverables (5 modules, dashboard,
+  Docker Compose, security/observability tooling, 17 diagrams,
+  documentation set including all 4 guide types) are now complete and
+  verified. Phase 10 (Integration Testing, Demo Rehearsal, Viva Prep) is
+  the only phase left on the roadmap - everything else is either done or
+  (Phase 8's live AWS deployment) deliberately deferred by design.
+WHAT WORKED: Grounding each diagram in the REAL implementation rather than
+  just re-transcribing the original design-time ASCII sketches from
+  architecture.md/flow.md turned out to matter concretely - e.g. the ERD
+  gained real attribute-level accuracy, and the network diagram now
+  matches Phase 8's actual Terraform resource names instead of a generic
+  placeholder. The mermaid-cli fallback verification path proved far more
+  rigorous than browser-based visual inspection would have been anyway -
+  it's a repeatable, scriptable, environment-independent check.
+WHAT DID NOT WORK initially (both diagnosed and resolved, not really
+  "bugs" so much as environment quirks): the repo-root diagrams/ placement
+  breaking mkdocs build --strict (fixed by relocating, ADR-028); the
+  Browser pane's pre-populated window.mermaid global silently defeating
+  Material's normal CDN-load path for in-browser diagram rendering (worked
+  around by verifying via mermaid-cli instead, which is arguably the
+  better verification method regardless).
+CURRENT STATE: Phase 9 complete and verified (mkdocs build --strict clean,
+  18/18 diagrams independently confirmed valid via mermaid-cli), NOT YET
+  COMMITTED.
+NEXT ACTION: Commit and push Phase 9 (see section 10's file list); then
+  start Phase 10 (Integration Testing, Demo Rehearsal, Viva Prep) - the
+  final phase on the roadmap, per docs/impmemnentaion-plan.md.
 ```
 
 ## 19. Claude Instructions

@@ -102,25 +102,27 @@
 
 ## 6. Mandatory Diagram Inventory (17 required — brief §8)
 
-1. Enterprise Digital Healthcare Architecture Diagram
-2. High-Level Solution Architecture Diagram (§2 above, refined)
-3. Detailed System Architecture Diagram (§3/§4 above, refined)
-4. Telemedicine Platform Architecture Diagram
-5. Remote Patient Monitoring Architecture Diagram
-6. AI Health Risk Assessment Architecture Diagram
-7. Clinical Workflow Architecture Diagram
-8. Enterprise Network Architecture Diagram (§5 above — AWS VPC topology)
-9. Network Flow Diagram
-10. Data Flow Diagram (Level 0)
-11. Data Flow Diagram (Level 1)
-12. Telemedicine Workflow Diagram
-13. Remote Monitoring Workflow Diagram
-14. AI Prediction Workflow Diagram
-15. Healthcare Operations Workflow Diagram
-16. Database Entity Relationship Diagram (see `backend-schema.md`)
-17. Sequence Diagram — registration → appointment scheduling → remote monitoring → AI assessment → executive reporting (see `flow.md`)
+All 17 are real Mermaid diagrams-as-code under [`diagrams/`](diagrams/README.md) (Phase 9), each matching the actual implementation, not just this document's design-time sketches — see the linked index for the full list.
 
-Diagrams 4, 5, 6, 7, 12–15, 17 draw their content from `flow.md`; diagram 16 from `backend-schema.md`. All are planned as Mermaid/PlantUML (diagrams-as-code) where practical, with Draw.io reserved for presentation-specific layout needs.
+1. [Enterprise Digital Healthcare Architecture Diagram](diagrams/01-enterprise-architecture.md)
+2. [High-Level Solution Architecture Diagram](diagrams/02-high-level-solution-architecture.md) (§2 above, refined)
+3. [Detailed System Architecture Diagram](diagrams/03-detailed-system-architecture.md) (§3/§4 above, refined)
+4. [Telemedicine Platform Architecture Diagram](diagrams/04-telemedicine-architecture.md)
+5. [Remote Patient Monitoring Architecture Diagram](diagrams/05-remote-monitoring-architecture.md)
+6. [AI Health Risk Assessment Architecture Diagram](diagrams/06-ai-risk-assessment-architecture.md)
+7. [Clinical Workflow Architecture Diagram](diagrams/07-clinical-workflow-architecture.md)
+8. [Enterprise Network Architecture Diagram](diagrams/08-enterprise-network-architecture.md) (§5 above — AWS VPC topology, grounded in the real `infra/terraform/`)
+9. [Network Flow Diagram](diagrams/09-network-flow.md)
+10. [Data Flow Diagram (Level 0)](diagrams/10-data-flow-level-0.md)
+11. [Data Flow Diagram (Level 1)](diagrams/11-data-flow-level-1.md)
+12. [Telemedicine Workflow Diagram](diagrams/12-telemedicine-workflow.md)
+13. [Remote Monitoring Workflow Diagram](diagrams/13-remote-monitoring-workflow.md)
+14. [AI Prediction Workflow Diagram](diagrams/14-ai-prediction-workflow.md)
+15. [Healthcare Operations Workflow Diagram](diagrams/15-healthcare-operations-workflow.md)
+16. [Database Entity Relationship Diagram](diagrams/16-database-erd.md) (attribute-level; design-level version in `backend-schema.md` §1)
+17. [Sequence Diagram](diagrams/17-end-to-end-sequence.md) — registration → appointment scheduling → remote monitoring → AI assessment → executive reporting
+
+Diagrams 4, 5, 6, 7, 12–15, 17 draw their content from `flow.md`; diagram 16 from `backend-schema.md`. All are Mermaid (diagrams-as-code), diffable in Git and rendered natively on GitHub; Draw.io remained unused — nothing needed presentation-specific layout beyond what Mermaid handles.
 
 ## 7. Architectural Decisions
 

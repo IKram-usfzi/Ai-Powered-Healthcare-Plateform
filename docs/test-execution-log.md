@@ -383,6 +383,30 @@ deliberately as far as verification goes for this phase — see `deccission.md` 
 Phase 8 exit criteria itself ("reachable over the internet," "billing verified") — this phase
 delivers infrastructure-as-code for future use, not a live deployment (ADR-027).
 
+## Phase 9 — Documentation & Diagrams
+
+**`mkdocs build --strict`**, 2026-08-23: first attempt failed with 18 warnings — `architecture.md`'s
+new links to `../diagrams/*.md` were rejected because `diagrams/` lived at the repo root, outside
+`docs_dir: docs`, and MkDocs validates relative links that look internal even when the target is
+outside its own tree. Fixed by moving `diagrams/` to `docs/diagrams/` (ADR-028) and updating the
+links; re-ran and got **zero warnings, built in ~1.1s**.
+
+**Mermaid diagram validation**, 2026-08-23: the built site's diagram pages didn't visually render in
+this session's browser-automation tool — traced to a Claude Code sandbox-specific quirk (the
+Browser pane pre-populates a `window.mermaid` global for its own Artifact rendering, which trips
+Material's `typeof mermaid === "undefined"` guard and skips its normal CDN-based mermaid.js load).
+`window.mermaid.parse()` on the raw diagram source succeeded, suggesting valid syntax, but browser
+rendering itself stayed inconclusive. Switched to a definitive, environment-independent check:
+extracted all 18 mermaid code blocks (17 diagrams; diagram 9 has 2 sub-diagrams) and rendered each
+via containerized `mermaid-cli` (`minlag/mermaid-cli`, real headless-Chromium mermaid.js, no
+sandbox-specific globals involved) — **18/18 rendered successfully** to real SVG files (25KB-213KB,
+consistent with genuine diagram content, not empty/error placeholders). Spot-checked the largest
+(the ERD, 213KB) directly: entity boxes, attribute type/name/key columns, and relationship labels
+("may be", "employs", "assigned to (ADR-018)", "books", "attends", etc.) all present and matching
+the Mermaid source exactly.
+
+**Lint/format:** N/A for this phase (documentation-only; no backend/frontend code changed).
+
 ## Not yet run
 
 - Frontend component tests (React Testing Library) — no test runner configured yet; verification

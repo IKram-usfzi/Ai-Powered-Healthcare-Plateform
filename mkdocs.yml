@@ -23,6 +23,29 @@ nav:
   - Test Execution Log: test-execution-log.md
   - AI Evaluation Report: ai-evaluation-report.md
   - Security Scan Report: security-scan-report.md
+  - Diagrams:
+      - Index: diagrams/README.md
+      - 1. Enterprise Architecture: diagrams/01-enterprise-architecture.md
+      - 2. High-Level Solution Architecture: diagrams/02-high-level-solution-architecture.md
+      - 3. Detailed System Architecture: diagrams/03-detailed-system-architecture.md
+      - 4. Telemedicine Architecture: diagrams/04-telemedicine-architecture.md
+      - 5. Remote Monitoring Architecture: diagrams/05-remote-monitoring-architecture.md
+      - 6. AI Risk Assessment Architecture: diagrams/06-ai-risk-assessment-architecture.md
+      - 7. Clinical Workflow Architecture: diagrams/07-clinical-workflow-architecture.md
+      - 8. Enterprise Network Architecture: diagrams/08-enterprise-network-architecture.md
+      - 9. Network Flow: diagrams/09-network-flow.md
+      - 10. Data Flow Level 0: diagrams/10-data-flow-level-0.md
+      - 11. Data Flow Level 1: diagrams/11-data-flow-level-1.md
+      - 12. Telemedicine Workflow: diagrams/12-telemedicine-workflow.md
+      - 13. Remote Monitoring Workflow: diagrams/13-remote-monitoring-workflow.md
+      - 14. AI Prediction Workflow: diagrams/14-ai-prediction-workflow.md
+      - 15. Healthcare Operations Workflow: diagrams/15-healthcare-operations-workflow.md
+      - 16. Database ERD: diagrams/16-database-erd.md
+      - 17. End-to-End Sequence: diagrams/17-end-to-end-sequence.md
+  - Installation Guide: installation-guide.md
+  - Deployment Guide: deployment-guide.md
+  - User Guide: user-guide.md
+  - Administrator Guide: admin-guide.md
   - Development Rules: developement-rules.md
   - Implementation Plan: impmemnentaion-plan.md
   - Decisions (ADR log): deccission.md
