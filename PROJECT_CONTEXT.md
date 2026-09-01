@@ -100,14 +100,15 @@ All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend
 
 - **Post-completion — Module screens (ADR-029, same day as Phase 10):** the user ran the deployed app after Phase 10 closed and asked for the top nav's Patients/Appointments/Telemedicine/Monitoring/Analytics links (inert since Phase 6, by original design) to become real screens. Built all five directly on existing, already-tested APIs — no new backend endpoints. `frontend/src/pages/{Patients,Appointments,Telemedicine,Monitoring,Analytics}.jsx`, each role-gated to match its underlying API's own restrictions (`api-spec.md`) rather than copying the dashboard's admin/executive-only gating; `TopNav` now filters links per role so nobody sees a link they'd just get bounced back from. Extended `backend/scripts/seed_dev_users.py` to also create a Doctor (`doctor@globalcare-demo.com`) and Patient (`patient@globalcare-demo.com`, assigned to that doctor) demo login, both password `ChangeMe123!` — previously only Administrator/Executive existed, so Doctor-only actions (record consultation, acknowledge alert, run AI assessment) had no way to be demoed. Verified the fresh-database path directly (facility/provider/patient auto-created correctly from empty). Found and fixed two real bugs while testing: (1) a redirect-loop dormant since Phase 6 — `ProtectedRoute` and `Login.jsx` both hard-coded `/dashboard` as the universal fallback, but Doctor/Patient have no dashboard access, so either role logging in would have looped forever; fixed via a shared `frontend/src/auth/defaultRoute.js`. Never caught earlier because no Doctor/Patient login existed to trigger it. (2) The Patient booking form's provider dropdown was empty (`GET /providers` is Administrator/Executive only) — fixed with a provider-ID input fallback instead of fabricating a directory list. Verified all 4 roles end-to-end via live browser automation: doctor recorded a real consultation, acknowledged a real alert, ran a real AI assessment; patient booked a real appointment via the ID-input fallback; admin/executive confirmed unaffected. 77/77 pytest + `npm run lint` clean throughout.
 
-**In Progress:** Nothing actively mid-implementation. All 10 phases complete, plus this post-completion addition.
+**In Progress:** Nothing. All 10 phases complete and pushed to GitHub. Post-completion addition (ADR-029: module screens) complete and pushed as of 2026-09-01.
 
-**Not Started:**
-- Phase 8's actual AWS deployment (`terraform apply` against a real account) — deferred by design, remains available whenever wanted
-- The user's own rehearsal of the presentation/demo/viva — the materials exist, the rehearsal itself is inherently something only the user can do
-- A dedicated vitals-submission screen for Patients (`POST /monitoring/readings` is still API-only) and a Patient-role provider directory endpoint (would remove the ID-input fallback) — noted as real, small gaps, not currently planned
+**Not Started (Optional):**
+- Phase 8's actual AWS deployment (`terraform apply` against a real account) — Terraform is ready, deferred by design, available whenever wanted
+- The user's own rehearsal of the presentation/demo/viva — materials exist, only user can rehearse
+- Additional management UIs: dedicated vitals-submission screen for Patients (`POST /monitoring/readings` is still API-only), Patient-role provider directory endpoint (would remove the ID-input fallback) — noted as small gaps, not currently planned
+- GitHub Actions CI/CD pipeline for automated test/Trivy runs — nice-to-have, not exam-required
 
-**Blocked:** None currently. Direct git push from this sandbox works once the user supplies a GitHub token (confirmed multiple times this session) — see §17 item 3.
+**Blocked:** None. No blockers currently.
 
 ## 9. Current Development Phase
 
@@ -119,48 +120,51 @@ Phase 0 — Foundation · Phase 1 — Data & Domain Modeling · Phase 2 — Modu
 ## 10. Current Task
 
 ```
-CURRENT TASK:
-Commit and push Phase 10 — the final phase. Once pushed, the project is
-fully complete per docs/impmemnentaion-plan.md; nothing further is
-planned unless the user asks for something new (e.g. actually deploying
-Phase 8's AWS Terraform, or building dedicated management UIs beyond the
-mandatory dashboard).
+CURRENT STATUS (as of 2026-09-01):
+All 10 phases complete and pushed to GitHub (main). Post-completion scope
+addition (ADR-029: all 5 module UI screens) also complete and pushed.
+Nothing further is actively planned unless the user requests optional work
+(e.g. actually deploying Phase 8's AWS Terraform, or building additional
+management UIs beyond the mandatory dashboard).
 
 OBJECTIVE:
-None remaining — Phase 10 was the last item on the 10-phase roadmap.
+Complete — all mandatory exam-brief deliverables are on GitHub and verified.
 
 STATUS:
-Phase 9 (4d9e762) is pushed. Phase 10 work (test pass, repo review,
-rehearsal materials) is complete and verified but NOT YET COMMITTED as of
-this note.
+✅ Phase 0-10: All complete, tested, and pushed
+✅ ADR-029 (post-completion module screens): Complete, tested, and pushed
+   - Commit f8981fc (Phase 10) on GitHub
+   - Commit 7ed8667 (ADR-029) on GitHub as of 2026-09-01
+✅ Docker Compose deployment: Verified healthy (all 7 services)
+✅ Test coverage: 77/77 pytest + 11/11 Rego + lint all clean
+✅ Documentation: 12+ guides + 17 diagrams + rehearsal materials
 
-FILES TO COMMIT NEXT (Phase 10):
-README.md (rewritten — was badly stale, said "Phase 2 done"),
-infra/README.md (rewritten — simplified to point at the canonical guides
-instead of duplicating stale content), docs/installation-guide.md
-(+troubleshooting entry for the OPA bind-mount bug),
-docs/test-execution-log.md (+"At a glance" rollup + Phase 10 findings),
-docs/presentation-outline.md (new), docs/demo-script.md (new),
-docs/viva-prep.md (new), docs/README.md (+3 new doc entries), mkdocs.yml
-(+3 new nav entries), docs/impmemnentaion-plan.md (Phase 10 status),
-PROJECT_CONTEXT.md (this file).
+WHAT REMAINS:
+1. User's own rehearsal (using presentation-outline.md, demo-script.md,
+   viva-prep.md) — inherently only the user can do this
+2. Optional: Deploy Phase 8's AWS Terraform (written, not deployed, by design)
+3. Optional: Build additional management UIs
+4. Optional: Set up GitHub Actions CI/CD
 
 EXPECTED RESULT:
-Commit pushed to github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform main.
-All 10 phases complete on GitHub.
+Project is exam-ready. All mandatory deliverables exist and are verified.
 ```
 
 ## 11. NEXT STEPS
 
-1. Commit and push Phase 10 (needs the user's GitHub token or the user pushing themselves — see §17 item 3) — this closes out the entire 10-phase roadmap
-2. Nothing further is planned by default. Optional future work, only if the user asks: actually deploying Phase 8's AWS Terraform (`terraform apply`, see `infra/terraform/README.md`); dedicated management UIs (patient list, appointment booking, etc.) beyond the mandatory dashboard; a CI pipeline running the test suite + Trivy scan automatically
-3. The user should rehearse using `presentation-outline.md`, `demo-script.md`, and `viva-prep.md` — this is the one remaining task that only they can do
+1. ✅ **COMPLETE (as of 2026-09-01):** Phases 0-10 and ADR-029 are all committed and pushed to GitHub.
+2. Nothing further is planned by default. Optional future work, only if the user asks: 
+   - Actually deploying Phase 8's AWS Terraform (`terraform apply`, see `infra/terraform/README.md`)
+   - Building dedicated management UIs beyond what exists (patient vitals-submission screen, provider directory for patients)
+   - Setting up a GitHub Actions CI pipeline for automated test runs + Trivy scans
+3. **USER RESPONSIBILITY:** Rehearse the presentation/demo/viva using the prepared materials in `presentation-outline.md`, `demo-script.md`, and `viva-prep.md`. This is the final preparation step before the exam.
 
 ```
 NEXT IMMEDIATE ACTION:
-Commit Phase 10 and push (pending token/user push). This is the final
-commit of the 10-phase roadmap — nothing further to build unless the
-user requests new scope.
+No further implementation work is planned. All exam-brief deliverables
+are complete and public on GitHub. The user should rehearse using the
+prepared materials. If additional scope is needed (AWS deployment, extra
+UIs, CI/CD), create a new task and we'll prioritize it together.
 ```
 
 ## 12. Project Roadmap
@@ -253,8 +257,15 @@ user requests new scope.
 - [x] Test execution summary consolidated ("At a glance" rollup in `test-execution-log.md`)
 - [x] GitHub repo review pass — found and fixed a stale root README + a real OPA bind-mount bug
 - [x] Presentation outline, live demo script, viva prep (incl. all 5 named scenario-based redesign questions) written
-- [ ] Phase 10 work committed/pushed to GitHub — pending token/user push
+- [x] Phase 10 work committed/pushed to GitHub (commit `f8981fc`)
 - [ ] User's own rehearsal — inherently outside what Claude can do
+
+**Post-Completion — Module Screens (ADR-029)**
+- [x] All 5 module UI screens built (Patients, Appointments, Telemedicine, Monitoring, Analytics)
+- [x] Demo Doctor and Patient logins created for all-role testing
+- [x] Real bugs found and fixed (redirect loop, patient booking dropdown)
+- [x] End-to-end verification across all 4 roles (77/77 pytest + npm lint clean)
+- [x] ADR-029 work committed and pushed to GitHub (commit `7ed8667`, as of 2026-09-01)
 
 ## 13. Important Decisions
 
