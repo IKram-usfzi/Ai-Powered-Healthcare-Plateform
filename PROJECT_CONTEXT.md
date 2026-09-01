@@ -69,17 +69,19 @@ Detailed architecture (incl. AWS stretch topology, 17-diagram inventory): `docs/
 
 | Module | Purpose | Status |
 |---|---|---|
-| Patient & Provider Management | Registration, profiles, facility/provider assignment | DONE — backend (Phase 2) + real frontend (`/patients`, post-completion — ADR-029) |
-| Telemedicine Appointments | Scheduling, consultations, status tracking | DONE — backend (Phase 3) + real frontend (`/appointments`, `/telemedicine`, post-completion — ADR-029) |
-| Remote Patient Monitoring | Vitals ingestion, abnormal-reading alerts | DONE — backend (Phase 4) + real frontend (`/monitoring`, post-completion — ADR-029) |
-| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | DONE — backend (Phase 5) + real frontend (`/analytics`, post-completion — ADR-029) |
-| Executive Operations Dashboard | 3-view KPI/ops dashboard (Unified/Executive/Operations) | DONE (Phase 6) — backend aggregation + full React frontend, verified against real data |
+| Patient & Provider Management | Registration, profiles, facility/provider assignment | ✅ DONE — backend (Phase 2) + real frontend (`/patients`, post-completion — ADR-029) |
+| Telemedicine Appointments | Scheduling, consultations, status tracking | ✅ DONE — backend (Phase 3) + real frontend (`/appointments`, `/telemedicine`, post-completion — ADR-029) |
+| Remote Patient Monitoring | Vitals ingestion (5 vitals: heart rate, BP, SpO2, temperature, glucose, **weight**), abnormal-reading alerts | ✅ DONE — backend (Phase 4) + real frontend (`/monitoring`, post-completion — ADR-029) + weight data (2026-09-01) |
+| AI Health Risk Assessment | Lightweight classifier, confidence-scored predictions | ✅ DONE — backend (Phase 5) + real frontend (`/analytics`, post-completion — ADR-029) |
+| Executive Operations Dashboard | 3-view KPI/ops dashboard (Unified/Executive/Operations) | ✅ DONE (Phase 6) — backend aggregation + full React frontend, verified against real data |
 
 All five are fully specified in `docs/PRD.md`, `docs/api-spec.md`, `docs/backend-schema.md`, and all five now have working, verified backend APIs *and* dedicated frontend screens — the Dashboard from the mandatory Phase 6 roadmap, and the other four added afterward (ADR-029) once the user flagged that the top nav's module links were inert placeholders. Each new screen sits directly on that module's existing, already-tested API — no new backend endpoints were added for this. See `docs/UIUX.md` §6 and `docs/user-guide.md` for what each role can actually do on each screen.
 
 ## 8. Current Implementation Status
 
 **Completed and pushed to GitHub** (`github.com/IKram-usfzi/Ai-Powered-Healthcare-Plateform`, `main`):
+
+- **Post-completion — Weight data for vitals (2026-09-01):** Following comprehensive gap analysis, weight (body mass) data was added to Module 3 (Remote Patient Monitoring). Added `weight_kg` field to `health_readings` model + schema, generated realistic weights (53-95 kg) for all 960 existing readings based on patient age/gender, verified via SQL and database health checks. Completes PRD §7's "body weight" requirement in simulated healthcare data. Improves Module 3 to 5 of 5 vitals fully implemented. See `backend/app/models/health_reading.py`, `backend/scripts/seed_synthea.py`, and Alembic migration `add_weight_kg_to_health_readings.py`.
 - Full documentation set (12+ files: PRD, TRD, architecture, api-spec, backend-schema, deccission/ADR log, developement-rules, flow, impmemnentaion-plan, Security, Testing-startegy, UIUX, test-execution-log) and the 25-screen UI/UX template under `UIUX Design/`.
 - **Phase 0 — Foundation:** `backend/` (FastAPI skeleton), `frontend/` (React+Vite+Tailwind skeleton), `infra/docker-compose.yml`, root `README.md`, `mkdocs.yml`. Verified: FastAPI health endpoint runs; `mkdocs build --strict` clean; frontend+backend later confirmed running together (see below).
 - **Phase 1 — Data & Domain Modeling:** 9 SQLAlchemy models matching `backend-schema.md`, Alembic migration, `fetch_synthea.py`/`seed_synthea.py`. Verified: migration up/down clean on SQLite; seed script loads 200 patients/50 facilities/50 providers/953 health_readings with real Synthea vitals + physiologically-plausible simulated SpO2/temperature.

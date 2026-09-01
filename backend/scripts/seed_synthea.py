@@ -67,6 +67,39 @@ def simulate_glucose() -> float:
     return round(random.uniform(75.0, 130.0), 1)
 
 
+def simulate_weight(age: int, gender: str, patient_seed: str) -> float:
+    """Generate realistic weight (kg) based on age/gender with consistent baseline per patient.
+
+    Uses CDC average weights as baseline, adds realistic day-to-day variation.
+    Seeded deterministically so same patient always has similar weight range.
+    """
+    rng = random.Random(hash(patient_seed) % (2**31))
+
+    # CDC average weights (kg) by age/gender — simplified ranges
+    if gender.lower() == "female":
+        if age < 20:
+            baseline = rng.uniform(55, 65)
+        elif age < 40:
+            baseline = rng.uniform(62, 75)
+        elif age < 60:
+            baseline = rng.uniform(65, 78)
+        else:
+            baseline = rng.uniform(60, 75)
+    else:  # male
+        if age < 20:
+            baseline = rng.uniform(65, 78)
+        elif age < 40:
+            baseline = rng.uniform(75, 90)
+        elif age < 60:
+            baseline = rng.uniform(78, 95)
+        else:
+            baseline = rng.uniform(70, 85)
+
+    # Add realistic day-to-day variation (±2 kg)
+    variation = random.uniform(-2, 2)
+    return round(baseline + variation, 1)
+
+
 def load_organizations() -> dict[str, dict]:
     with open(RAW_DIR / "organizations.csv", newline="", encoding="utf-8") as f:
         return {row["Id"]: row for row in csv.DictReader(f)}
@@ -164,9 +197,17 @@ def seed(num_patients: int, max_readings: int) -> None:
             continue  # need the three commonly-recorded vitals at minimum
 
         recorded_at = datetime.fromisoformat(fields["heart_rate"][0].replace("Z", "+00:00"))
+        patient_obj = patient_objs[synthea_patient_id]
+
+        # Calculate patient age at time of reading
+        reading_date = recorded_at.date()
+        age = reading_date.year - patient_obj.date_of_birth.year
+        if (reading_date.month, reading_date.day) < (patient_obj.date_of_birth.month, patient_obj.date_of_birth.day):
+            age -= 1
+
         session.add(
             HealthReading(
-                patient_id=patient_objs[synthea_patient_id].id,
+                patient_id=patient_obj.id,
                 heart_rate=round(float(fields["heart_rate"][1])),
                 systolic_bp=round(float(fields["systolic_bp"][1])),
                 diastolic_bp=round(float(fields["diastolic_bp"][1])),
@@ -181,6 +222,7 @@ def seed(num_patients: int, max_readings: int) -> None:
                     if "temperature" in fields
                     else simulate_temperature()
                 ),
+                weight_kg=simulate_weight(age, patient_obj.gender, synthea_patient_id),
                 recorded_at=recorded_at,
             )
         )

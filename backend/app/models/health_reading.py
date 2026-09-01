@@ -20,6 +20,7 @@ class HealthReading(Base):
     spo2: Mapped[int] = mapped_column(Integer)
     temperature: Mapped[float] = mapped_column(Float)
     glucose: Mapped[float] = mapped_column(Float)
+    weight_kg: Mapped[float | None] = mapped_column(Float, nullable=True)
     recorded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
     )

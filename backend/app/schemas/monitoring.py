@@ -12,6 +12,7 @@ class HealthReadingCreate(BaseModel):
     spo2: int
     temperature: float
     glucose: float
+    weight_kg: float | None = None
 
 
 class HealthReadingRead(BaseModel):
@@ -23,6 +24,7 @@ class HealthReadingRead(BaseModel):
     spo2: int
     temperature: float
     glucose: float
+    weight_kg: float | None
     recorded_at: datetime
 
     model_config = {"from_attributes": True}
